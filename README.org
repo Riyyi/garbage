@@ -1,0 +1,6 @@
+#+TITLE: GarbAGE (Garbage Accurate GameBoy Emulator)
+#+AUTHOR: Riyyi
+#+LANGUAGE: en
+#+OPTIONS: toc:nil
+
+Accurate GameBoy Emulator.
