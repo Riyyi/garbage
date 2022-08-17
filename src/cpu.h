@@ -17,7 +17,7 @@ public:
 	virtual ~CPU();
 
 	void update() override;
-	
+
 	// 8-bit Arithmetic and Logic Instructions
 
 	// 16-bit Arithmetic Instructions

@@ -8,7 +8,8 @@
 #include "ppu.h"
 #include <iostream>
 
-PPU ::PPU(unsigned int frequency) : ProcessingUnit(frequency)
+PPU ::PPU(unsigned int frequency)
+	: ProcessingUnit(frequency)
 {
 }
 
@@ -16,6 +17,7 @@ PPU ::~PPU()
 {
 }
 
-void PPU::update() {
+void PPU::update()
+{
 	printf("ppu update\n");
 }

@@ -13,5 +13,6 @@ class PPU final : public ProcessingUnit {
 public:
 	PPU(unsigned int frequency);
 	virtual ~PPU();
+
 	virtual void update() override;
 };

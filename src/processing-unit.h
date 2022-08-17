@@ -17,5 +17,5 @@ public:
 	unsigned int frequency();
 
 private:
-unsigned int m_frequency;
+	unsigned int m_frequency;
 };

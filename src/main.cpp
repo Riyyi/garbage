@@ -1,7 +1,7 @@
 #include <cstdio>
 
-#include "emu.h"
 #include "cpu.h"
+#include "emu.h"
 #include "ppu.h"
 #include "ruc/timer.h"
 
@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 
 	Emu::the().addMemorySpace("RAM", 1024);
 
-	for(int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 1000; i++) {
 		Emu::the().update();
 	}
 

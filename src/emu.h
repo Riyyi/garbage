@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "processing-unit.h"
 #include "ruc/singleton.h"

@@ -5,10 +5,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "processing-unit.h"
 #include <iostream>
 
-ProcessingUnit::ProcessingUnit(unsigned int frequency) : m_frequency(frequency)
+#include "processing-unit.h"
+
+ProcessingUnit::ProcessingUnit(unsigned int frequency)
+	: m_frequency(frequency)
 {
 }
 
@@ -16,6 +18,7 @@ ProcessingUnit::~ProcessingUnit()
 {
 }
 
-unsigned int ProcessingUnit::frequency() {
+unsigned int ProcessingUnit::frequency()
+{
 	return m_frequency;
 }

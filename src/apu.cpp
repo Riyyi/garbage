@@ -7,7 +7,8 @@
 
 #include "apu.h"
 
-APU::APU(unsigned int frequency) : ProcessingUnit(frequency)
+APU::APU(unsigned int frequency)
+	: ProcessingUnit(frequency)
 {
 }
 
