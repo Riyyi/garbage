@@ -6,7 +6,7 @@
 #include "processing-unit.h"
 #include "ruc/singleton.h"
 
-class Emu : ruc::Singleton<Emu> {
+class Emu final : public ruc::Singleton<Emu> {
 public:
 	Emu(s) {}
 
