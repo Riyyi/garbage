@@ -3,4 +3,38 @@
 #+LANGUAGE: en
 #+OPTIONS: toc:nil
 
-Accurate GameBoy Emulator.
+Accurate GameBoy emulator.
+
+** Download
+
+*** Clone
+
+#+BEGIN_SRC sh
+  $ git clone https://gitlab.com/riyyi/garbage
+  $ cd garbage
+  $ git submodule init
+  $ git submodule update
+#+END_SRC
+Or
+#+BEGIN_SRC sh
+  $ git clone --recursive https://gitlab.com/riyyi/garbage
+#+END_SRC
+
+*** Update
+
+#+BEGIN_SRC sh
+  $ git pull
+  $ git submodule update --recursive
+#+END_SRC
+
+** Build instructions
+
+#+BEGIN_SRC sh
+  $ mkdir build
+  $ cd build
+  $ cmake .. && make
+#+END_SRC
+
+** Libraries
+
+- [[https://github.com/riyyi/ruc][ruc]]
