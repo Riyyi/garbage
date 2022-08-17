@@ -7,10 +7,43 @@
 
 #pragma once
 
+#include <cstdint> // uint8_t, uint16_t
+
 #include "processing-unit.h"
 
 class CPU final : public ProcessingUnit {
 public:
 	CPU();
 	virtual ~CPU();
+
+	// 8-bit Arithmetic and Logic Instructions
+
+	// 16-bit Arithmetic Instructions
+
+	// Bit Operations Instructions
+
+	// Bit Shift Instructions
+
+	// Load Instructions
+
+	// Jumps and Subroutines
+
+	// Stack Operations Instructions
+
+	// Miscellaneous Instructions
+
+private:
+	// 16-bit registers
+	uint16_t m_af { 0 }; // Accumulator & Flags
+	uint16_t m_bc { 0 }; // BC
+	uint16_t m_de { 0 }; // DE
+	uint16_t m_hl { 0 }; // HL
+	uint16_t m_sp { 0 }; // Stack Pointer
+	uint16_t m_pc { 0 }; // Program Counter
+
+	// 8-bit registers (flags)
+	uint8_t m_z { 0 }; // Zero flag
+	uint8_t m_n { 0 }; // Subtraction flag (BCD)
+	uint8_t m_h { 0 }; // Half Carry flag (BCD)
+	uint8_t m_c { 0 }; // Carry flag
 };
