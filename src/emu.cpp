@@ -24,3 +24,12 @@ void Emu::addMemorySpace(const char* name, int size) {
 	memory.reserve(size);
 	m_memory_spaces.emplace(name, memory);
 }
+
+void Emu::writeMemory(const char* memory_space, unsigned int location, uint8_t value) {
+	// printf("%s %d %d", memory_space, location, value);
+	// m_memory_spaces[memory_space][location] = value;
+}
+
+uint8_t Emu::readMemory(const char* memory_space, unsigned int location){
+	// return m_memory_spaces[memory_space][location];
+}

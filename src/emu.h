@@ -18,13 +18,9 @@ public:
 	void addProcessingUnit(ProcessingUnit* processing_unit);
 	void addMemorySpace(const char* name, int size);
 
-	void writeRAM(const char* memory_space, int location);
-	void writeVRAM(const char* memory_space, int location);
-	void writeROM(const char* memory_space, int location);
+	void writeMemory(const char* memory_space, unsigned int location, uint8_t value);
 
-	uint8_t readRAM(const char* memory_space, int location);
-	uint8_t readVRAM(const char* memory_space, int location);
-	uint8_t readROM(const char* memory_space, int location);
+	uint8_t readMemory(const char* memory_space, unsigned int location);
 
 private:
 	unsigned int m_frequency;
