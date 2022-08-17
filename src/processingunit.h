@@ -7,10 +7,8 @@
 
 #pragma once
 
-#include "processingunit.h"
-
-class CPU final : public ProcessingUnit {
+class ProcessingUnit {
 public:
-	CPU();
-	virtual ~CPU();
+	ProcessingUnit();
+	virtual ~ProcessingUnit();
 };

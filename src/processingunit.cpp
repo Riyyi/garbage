@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-#pragma once
-
 #include "processingunit.h"
 
-class CPU final : public ProcessingUnit {
-public:
-	CPU();
-	virtual ~CPU();
-};
+ProcessingUnit::ProcessingUnit()
+{
+}
+
+ProcessingUnit::~ProcessingUnit()
+{
+}

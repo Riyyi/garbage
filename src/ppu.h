@@ -7,7 +7,9 @@
 
 #pragma once
 
-class PPU {
+#include "processingunit.h"
+
+class PPU final : public ProcessingUnit {
 public:
 	PPU();
 	virtual ~PPU();
