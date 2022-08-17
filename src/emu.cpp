@@ -20,8 +20,7 @@ void Emu::addProcessingUnit(ProcessingUnit* processing_unit) {
 }
 
 void Emu::addMemorySpace(const char* name, int size) {
-	std::vector<uint8_t> memory;
-	memory.reserve(size);
+	std::vector<uint8_t> memory(size);
 	m_memory_spaces.emplace(name, memory);
 }
 
