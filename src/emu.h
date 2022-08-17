@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <unordered_map>
 
 #include "processing-unit.h"
 #include "ruc/singleton.h"
@@ -10,21 +11,23 @@ class Emu final : public ruc::Singleton<Emu> {
 public:
 	Emu(s) {}
 
-	void WriteRAM(int location, int length);
-	void WriteVRAM(int location, int length);
-	void WriteROM(int location, int length);
+	void update();
 
-	void ReadRAM(int location, int length);
-	void ReadVRAM(int location, int length);
-	void ReadROM(int location, int length);
+	void addProcessingUnit(ProcessingUnit processing_unit);
+	void addMemorySpace(const char* name, int size);
+
+	void writeRAM(const char* memory_space, int location);
+	void writeVRAM(const char* memory_space, int location);
+	void writeROM(const char* memory_space, int location);
+
+	uint8_t readRAM(const char* memory_space, int location);
+	uint8_t readVRAM(const char* memory_space, int location);
+	uint8_t readROM(const char* memory_space, int location);
 
 private:
 	float m_frequency;
 	int m_cycle = 0;
 
-	uint8_t m_ram[1024];
-	uint8_t m_vram[1024];
-	uint8_t m_rom[1024];
-
 	std::vector<ProcessingUnit> m_processing_units;
+	std::unordered_map<const char*, std::vector<uint8_t>> m_memory_spaces;
 };
