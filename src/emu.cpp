@@ -1,7 +1,6 @@
-#include <iostream>
-
-#include "cpu.h"
 #include "emu.h"
+#include "cpu.h"
+#include "ruc/format/print.h"
 
 void Emu::init(unsigned int frequency)
 {
@@ -31,7 +30,7 @@ void Emu::addMemorySpace(const char* name, int size)
 
 void Emu::writeMemory(const char* memory_space, unsigned int location, uint8_t value)
 {
-	printf("%s %d %d\n", memory_space, location, value);
+	print("{} {} {}\n", memory_space, location, value);
 	m_memory_spaces[memory_space][location] = value;
 }
 
