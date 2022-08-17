@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "processingunit.h"
+#include "processing-unit.h"
 
 class PPU final : public ProcessingUnit {
 public:
