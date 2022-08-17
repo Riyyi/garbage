@@ -6,11 +6,16 @@
  */
 
 #include "cpu.h"
+#include <iostream>
 
-CPU::CPU()
+CPU::CPU(unsigned int frequency) : ProcessingUnit(frequency)
 {
 }
 
 CPU::~CPU()
 {
+}
+
+void CPU::update() {
+	printf("This is an update from the CPU\n");
 }

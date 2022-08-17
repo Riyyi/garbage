@@ -6,11 +6,16 @@
  */
 
 #include "ppu.h"
+#include <iostream>
 
-PPU ::PPU()
+PPU ::PPU(unsigned int frequency) : ProcessingUnit(frequency)
 {
 }
 
 PPU ::~PPU()
 {
+}
+
+void PPU::update() {
+	printf("ppu update\n");
 }

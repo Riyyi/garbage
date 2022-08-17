@@ -11,9 +11,11 @@ class Emu final : public ruc::Singleton<Emu> {
 public:
 	Emu(s) {}
 
+	void init(unsigned int frequency);
+
 	void update();
 
-	void addProcessingUnit(ProcessingUnit processing_unit);
+	void addProcessingUnit(ProcessingUnit* processing_unit);
 	void addMemorySpace(const char* name, int size);
 
 	void writeRAM(const char* memory_space, int location);
@@ -25,9 +27,9 @@ public:
 	uint8_t readROM(const char* memory_space, int location);
 
 private:
-	float m_frequency;
-	int m_cycle = 0;
+	unsigned int m_frequency;
+	unsigned int m_cycle = 0;
 
-	std::vector<ProcessingUnit> m_processing_units;
+	std::vector<ProcessingUnit*> m_processing_units;
 	std::unordered_map<const char*, std::vector<uint8_t>> m_memory_spaces;
 };

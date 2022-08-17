@@ -6,8 +6,9 @@
  */
 
 #include "processing-unit.h"
+#include <iostream>
 
-ProcessingUnit::ProcessingUnit(float frequency) : m_frequency(frequency)
+ProcessingUnit::ProcessingUnit(unsigned int frequency) : m_frequency(frequency)
 {
 }
 
@@ -15,6 +16,6 @@ ProcessingUnit::~ProcessingUnit()
 {
 }
 
-float ProcessingUnit::frequency() {
+unsigned int ProcessingUnit::frequency() {
 	return m_frequency;
 }

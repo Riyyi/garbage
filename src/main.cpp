@@ -1,6 +1,8 @@
 #include <cstdio>
 
 #include "emu.h"
+#include "cpu.h"
+#include "ppu.h"
 #include "ruc/timer.h"
 
 int main(int argc, char* argv[])
@@ -9,7 +11,19 @@ int main(int argc, char* argv[])
 
 	printf("%fms\n", t.elapsedNanoseconds() / 1000000.0);
 
-	Emu::the().ReadRAM(0, 0);
+	Emu::the().init(4000000);
+
+	CPU cpu(1000000);
+	PPU ppu(2000000);
+
+	Emu::the().addProcessingUnit(&cpu);
+	Emu::the().addProcessingUnit(&ppu);
+
+	Emu::the().addMemorySpace("RAM", 1024);
+
+	for(int i = 0; i < 1000; i++) {
+		Emu::the().update();
+	}
 
 	return 0;
 }

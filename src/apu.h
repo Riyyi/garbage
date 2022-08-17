@@ -11,6 +11,6 @@
 
 class APU : public ProcessingUnit {
 public:
-	APU();
+	APU(unsigned int frequency);
 	virtual ~APU();
 };

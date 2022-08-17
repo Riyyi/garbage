@@ -9,13 +9,13 @@
 
 class ProcessingUnit {
 public:
-	ProcessingUnit(float frequency);
+	ProcessingUnit(unsigned int frequency);
 	virtual ~ProcessingUnit();
 
-	virtual void update();
+	virtual void update() = 0;
 
-	float frequency();
+	unsigned int frequency();
 
 private:
-float m_frequency;
+unsigned int m_frequency;
 };

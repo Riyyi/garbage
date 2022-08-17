@@ -11,6 +11,8 @@
 
 class CPU final : public ProcessingUnit {
 public:
-	CPU();
+	CPU(unsigned int frequency);
 	virtual ~CPU();
+
+	void update() override;
 };
