@@ -33,13 +33,13 @@ void CPU::add(uint8_t byte, uint8_t immediate)
 		// clock += 8;
 
 		// Flags: Z0HC
-		m_z = (m_af >> 8) + immediate == 0;
+		m_z = m_a + immediate == 0;
 		m_n = 0;
-		m_h = (m_af >> 8) + immediate > 16;
-		m_c = (m_af >> 8) + immediate > 255;
+		m_h = m_a + immediate > 16;
+		m_c = m_a + immediate > 255;
 
 		// A = A + r
-		m_af = m_af + (immediate << 8);
+		m_a += immediate;
 		break;
 	default:
 		break;

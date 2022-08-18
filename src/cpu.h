@@ -37,15 +37,15 @@ public:
 	// Miscellaneous Instructions
 
 private:
-	// 16-bit registers
-	uint16_t m_af { 0 }; // Accumulator & Flags
+	// Registers
+	uint8_t m_a { 0 };   // Accumulator
 	uint16_t m_bc { 0 }; // BC
 	uint16_t m_de { 0 }; // DE
 	uint16_t m_hl { 0 }; // HL
 	uint16_t m_sp { 0 }; // Stack Pointer
 	uint16_t m_pc { 0 }; // Program Counter
 
-	// 8-bit registers (flags)
+	// Flags
 	uint8_t m_z { 0 }; // Zero flag
 	uint8_t m_n { 0 }; // Subtraction flag (BCD)
 	uint8_t m_h { 0 }; // Half Carry flag (BCD)
