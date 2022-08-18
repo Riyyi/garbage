@@ -24,3 +24,24 @@ void CPU::update()
 	Emu::the().writeMemory("RAM", 123, 42);
 	printf("fff");
 }
+
+void CPU::add(uint8_t byte, uint8_t immediate)
+{
+	switch (byte) {
+	case 0xc6: // ADD A,d8
+		// program_counter += 2;
+		// clock += 8;
+
+		// Flags: Z0HC
+		m_z = (m_af >> 8) + immediate == 0;
+		m_n = 0;
+		m_h = (m_af >> 8) + immediate > 16;
+		m_c = (m_af >> 8) + immediate > 255;
+
+		// A = A + r
+		m_af = m_af + (immediate << 8);
+		break;
+	default:
+		break;
+	}
+}

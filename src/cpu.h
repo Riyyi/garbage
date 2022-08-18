@@ -20,6 +20,8 @@ public:
 
 	// 8-bit Arithmetic and Logic Instructions
 
+	void add(uint8_t byte, uint8_t immediate = 0);
+
 	// 16-bit Arithmetic Instructions
 
 	// Bit Operations Instructions
