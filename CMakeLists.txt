@@ -90,5 +90,6 @@ if (GARBAGE_BUILD_TESTS)
 		"test"
 		"vendor/ruc/src"
 		"vendor/ruc/test")
+	target_link_libraries(${PROJECT}-unit-test ruc)
 	target_link_libraries(${PROJECT}-unit-test ruc-test)
 endif()
