@@ -5,11 +5,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "cpu.h"
-#include "emu.h"
+#include <cstdint> // uint8_t, uint32_t
 #include <iostream>
 
-CPU::CPU(unsigned int frequency)
+#include "cpu.h"
+#include "emu.h"
+
+CPU::CPU(uint32_t frequency)
 	: ProcessingUnit(frequency)
 {
 }
@@ -20,17 +22,25 @@ CPU::~CPU()
 
 void CPU::update()
 {
+	m_wait_cycles--;
+	if (m_wait_cycles <= 0) {
+		// Read next opcode
+	}
+
 	printf("This is an update from the CPU\n");
 	Emu::the().writeMemory("RAM", 123, 42);
 	printf("fff");
 }
 
-void CPU::add(uint8_t byte, uint8_t immediate)
+void CPU::add(uint8_t opcode, uint8_t immediate)
 {
-	switch (byte) {
+	switch (opcode) {
 	case 0xc6: // ADD A,d8
-		// program_counter += 2;
-		// clock += 8;
+		// Program counter +2
+		m_pc += 2;
+
+		// Clock cycles +8
+		m_wait_cycles += 8;
 
 		// Flags: Z0HC
 		m_z = m_a + immediate == 0;

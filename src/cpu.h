@@ -7,20 +7,20 @@
 
 #pragma once
 
-#include <cstdint> // uint8_t, uint16_t
+#include <cstdint> // int8_t, uint8_t, uint16_t, uint32_t
 
 #include "processing-unit.h"
 
 class CPU final : public ProcessingUnit {
 public:
-	CPU(unsigned int frequency);
+	explicit CPU(uint32_t frequency);
 	virtual ~CPU();
 
 	void update() override;
 
 	// 8-bit Arithmetic and Logic Instructions
 
-	void add(uint8_t byte, uint8_t immediate = 0);
+	void add(uint8_t opcode, uint8_t immediate = 0);
 
 	// 16-bit Arithmetic Instructions
 
@@ -50,4 +50,6 @@ private:
 	uint8_t m_n { 0 }; // Subtraction flag (BCD)
 	uint8_t m_h { 0 }; // Half Carry flag (BCD)
 	uint8_t m_c { 0 }; // Carry flag
+
+	int8_t m_wait_cycles { 0 };
 };
