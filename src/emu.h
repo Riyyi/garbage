@@ -16,7 +16,7 @@ public:
 	void update();
 
 	void addProcessingUnit(ProcessingUnit* processing_unit);
-	void addMemorySpace(const char* name, int size);
+	void addMemorySpace(const char* name, uint32_t size);
 
 	void writeMemory(const char* memory_space, uint32_t location, uint8_t value);
 
