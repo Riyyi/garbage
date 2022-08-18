@@ -11,17 +11,20 @@ int main(int argc, char* argv[])
 
 	printf("%fms\n", t.elapsedNanoseconds() / 1000000.0);
 
-	Emu::the().init(4000000);
+	Emu::the().init(8000000);
 
-	CPU cpu(1000000);
-	PPU ppu(2000000);
+	CPU cpu(8000000);
+	PPU ppu(4000000);
 
-	Emu::the().addProcessingUnit(&cpu);
-	Emu::the().addProcessingUnit(&ppu);
+	Emu::the().addProcessingUnit("cpu", &cpu);
+	Emu::the().addProcessingUnit("ppu", &ppu);
 
 	Emu::the().addMemorySpace("RAM", 1024);
+	Emu::the().addMemorySpace("VRAM", 1024);
+	Emu::the().addMemorySpace("ROM", 1024);
+	Emu::the().addMemorySpace("CARDROM", 1024);
 
-	for (int i = 0; i < 1000; i++) {
+	while (true) {
 		Emu::the().update();
 	}
 

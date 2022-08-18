@@ -6,6 +6,7 @@
  */
 
 #include "ppu.h"
+#include "ruc/format/print.h"
 #include <iostream>
 
 PPU ::PPU(unsigned int frequency)
@@ -19,5 +20,5 @@ PPU ::~PPU()
 
 void PPU::update()
 {
-	printf("ppu update\n");
+	print("ppu update\n");
 }

@@ -8,7 +8,6 @@
 #include <cstdint> // uint8_t, uint32_t
 
 #include "cpu.h"
-#include "emu.h"
 #include "ruc/format/print.h"
 
 CPU::CPU(uint32_t frequency)
@@ -28,8 +27,6 @@ void CPU::update()
 	}
 
 	print("This is an update from the CPU\n");
-	Emu::the().writeMemory("RAM", 123, 42);
-	print("fff");
 }
 
 void CPU::add(uint8_t opcode, uint8_t immediate)
