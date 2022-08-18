@@ -7,15 +7,17 @@
 
 #pragma once
 
+#include <cstdint> // uint32_t
+
 class ProcessingUnit {
 public:
-	ProcessingUnit(unsigned int frequency);
+	ProcessingUnit(uint32_t frequency);
 	virtual ~ProcessingUnit();
 
 	virtual void update() = 0;
 
-	unsigned int frequency();
+	uint32_t frequency();
 
 private:
-	unsigned int m_frequency { 0 };
+	uint32_t m_frequency { 0 };
 };

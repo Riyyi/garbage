@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <cstdint> // uint8_t, uint32_t
 #include <unordered_map>
 #include <vector>
 
@@ -11,20 +11,20 @@ class Emu final : public ruc::Singleton<Emu> {
 public:
 	Emu(s) {}
 
-	void init(unsigned int frequency);
+	void init(uint32_t frequency);
 
 	void update();
 
 	void addProcessingUnit(ProcessingUnit* processing_unit);
 	void addMemorySpace(const char* name, int size);
 
-	void writeMemory(const char* memory_space, unsigned int location, uint8_t value);
+	void writeMemory(const char* memory_space, uint32_t location, uint8_t value);
 
-	uint8_t readMemory(const char* memory_space, unsigned int location);
+	uint8_t readMemory(const char* memory_space, uint32_t location);
 
 private:
-	unsigned int m_frequency;
-	unsigned int m_cycle = 0;
+	uint32_t m_frequency;
+	uint32_t m_cycle = 0;
 
 	std::vector<ProcessingUnit*> m_processing_units;
 	std::unordered_map<const char*, std::vector<uint8_t>> m_memory_spaces;
