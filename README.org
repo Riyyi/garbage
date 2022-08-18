@@ -43,13 +43,12 @@ Or
 
 *** Test ROMs
 
-https://github.com/gbdev/awesome-gbdev#testing
-https://tasvideos.org/EmulatorResources/GBAccuracyTests
+- https://github.com/gbdev/awesome-gbdev#testing
+- https://tasvideos.org/EmulatorResources/GBAccuracyTests
 
 *** Opcodes
 
-https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
-https://github.com/lmmendes/game-boy-opcodes
-
-https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7/
-https://gbdev.io/pandocs/CPU_Instruction_Set.html
+- https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
+- https://github.com/lmmendes/game-boy-opcodes
+- https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7/
+- https://gbdev.io/pandocs/CPU_Instruction_Set.html
