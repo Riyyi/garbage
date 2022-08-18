@@ -9,30 +9,38 @@ Accurate GameBoy emulator.
 
 *** Clone
 
-#+BEGIN_SRC sh
-  $ git clone https://gitlab.com/riyyi/garbage
-  $ cd garbage
-  $ git submodule init
-  $ git submodule update
+#+BEGIN_SRC shell-script
+$ git clone https://gitlab.com/riyyi/garbage
+$ cd garbage
+$ git submodule init
+$ git submodule update
 #+END_SRC
 Or
-#+BEGIN_SRC sh
-  $ git clone --recursive https://gitlab.com/riyyi/garbage
+#+BEGIN_SRC shell-script
+$ git clone --recursive https://gitlab.com/riyyi/garbage
 #+END_SRC
 
 *** Update
 
-#+BEGIN_SRC sh
-  $ git pull
-  $ git submodule update --recursive
+#+BEGIN_SRC shell-script
+$ git pull
+$ git submodule update --recursive
 #+END_SRC
 
 ** Build instructions
 
-#+BEGIN_SRC sh
-  $ mkdir build
-  $ cd build
-  $ cmake .. && make
+#+BEGIN_SRC shell-script
+$ mkdir build
+$ cd build
+$ cmake .. && make
+#+END_SRC
+
+** Contributing
+
+Enable 'commit-hooks' to lint your changes before committing them.
+
+#+BEGIN_SRC shell-script
+$ ./vendor/ruc/script/pre-commit.sh install
 #+END_SRC
 
 ** Libraries
