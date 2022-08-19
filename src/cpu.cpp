@@ -13,25 +13,23 @@
 
 CPU::CPU(uint32_t frequency)
 	: ProcessingUnit(frequency)
-{
-	// CGB registers
 	// https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
-	m_a = 0x11;
-	m_b = 0x0;
-	m_c = 0x0;
-	m_d = 0xff;
-	m_e = 0x56;
-	m_h = 0x0;
-	m_l = 0x0d;
-	m_pc = 0x100;
-	m_sp = 0xffe;
-
+    // CGB registers
+	, m_a(0x11)
+	, m_b(0x0)
+	, m_c(0x0)
+	, m_d(0xff)
+	, m_e(0x56)
+	, m_h(0x0)
+	, m_l(0x0d)
+	, m_pc(0x100)
+	, m_sp(0xffe)
 	// Flags
-	m_zf = 0x1;
-	m_nf = 0x0;
-	m_hf = 0x0;
-	m_cf = 0x0;
-
+	, m_zf(0x1)
+	, m_nf(0x0)
+	, m_hf(0x0)
+	, m_cf(0x0)
+{
 	m_shared_registers.emplace("a", &m_a);
 	m_shared_registers.emplace("b", &m_b);
 	m_shared_registers.emplace("c", &m_c);
