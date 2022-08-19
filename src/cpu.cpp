@@ -9,6 +9,7 @@
 
 #include "cpu.h"
 #include "ruc/format/print.h"
+#include "ruc/meta/assert.h"
 
 CPU::CPU(uint32_t frequency)
 	: ProcessingUnit(frequency)
@@ -60,8 +61,12 @@ void CPU::add(uint8_t opcode, uint8_t immediate)
 
 		// A = A + r
 		m_a += immediate;
+
+		// Drop overflown bits, the 'A' register is 8-bit
+		m_a &= 0xff;
 		break;
 	default:
+		VERIFY_NOT_REACHED();
 		break;
 	}
 }
