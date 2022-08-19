@@ -3,13 +3,17 @@
 #include "cpu.h"
 #include "emu.h"
 #include "ppu.h"
+#include "ruc/format/print.h"
 #include "ruc/timer.h"
 
 int main(int argc, char* argv[])
 {
+	(void)argc;
+	(void)argv;
+
 	ruc::Timer t;
 
-	printf("%fms\n", t.elapsedNanoseconds() / 1000000.0);
+	print("{}ms\n", t.elapsedNanoseconds() / 1000000.0);
 
 	Emu::the().init(8000000);
 
@@ -23,6 +27,11 @@ int main(int argc, char* argv[])
 	Emu::the().addMemorySpace("VRAM", 1024);
 	Emu::the().addMemorySpace("ROM", 1024);
 	Emu::the().addMemorySpace("CARDROM", 1024);
+
+	// Get shared register
+	Emu::the().processingUnit("cpu")->update();
+	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("a"));
+	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("bc"));
 
 	while (true) {
 		Emu::the().update();

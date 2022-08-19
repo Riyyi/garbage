@@ -20,5 +20,5 @@ PPU ::~PPU()
 
 void PPU::update()
 {
-	print("ppu update\n");
+	// print("ppu update\n");
 }

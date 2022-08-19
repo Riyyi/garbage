@@ -13,6 +13,16 @@
 CPU::CPU(uint32_t frequency)
 	: ProcessingUnit(frequency)
 {
+	m_shared_registers.emplace("a", &m_a);
+	m_shared_registers.emplace("bc", &m_bc);
+	m_shared_registers.emplace("de", &m_de);
+	m_shared_registers.emplace("hl", &m_hl);
+	m_shared_registers.emplace("sp", &m_sp);
+	m_shared_registers.emplace("pc", &m_pc);
+	m_shared_registers.emplace("z", &m_z);
+	m_shared_registers.emplace("n", &m_n);
+	m_shared_registers.emplace("h", &m_h);
+	m_shared_registers.emplace("c", &m_c);
 }
 
 CPU::~CPU()
@@ -26,7 +36,10 @@ void CPU::update()
 		// Read next opcode
 	}
 
-	print("This is an update from the CPU\n");
+	m_a = 6;
+	m_bc = 732;
+
+	// print("This is an update from the CPU\n");
 }
 
 void CPU::add(uint8_t opcode, uint8_t immediate)

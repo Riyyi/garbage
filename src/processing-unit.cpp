@@ -17,8 +17,3 @@ ProcessingUnit::ProcessingUnit(uint32_t frequency)
 ProcessingUnit::~ProcessingUnit()
 {
 }
-
-uint32_t ProcessingUnit::frequency()
-{
-	return m_frequency;
-}

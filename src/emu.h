@@ -22,6 +22,10 @@ public:
 	void writeMemory(const char* memory_space, uint32_t location, uint32_t value);
 	uint32_t readMemory(const char* memory_space, uint32_t location);
 
+	// -------------------------------------
+
+	ProcessingUnit* processingUnit(const char* name) const { return m_processing_units.at(name); }
+
 private:
 	uint32_t m_frequency { 0 };
 	double m_timestep { 0 };
