@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint> // uint8_t, uint32_t
+#include <cstdint> // uint32_t
 #include <unordered_map>
 #include <vector>
 
@@ -20,15 +20,14 @@ public:
 	void addMemorySpace(const char* name, uint32_t size);
 
 	void writeMemory(const char* memory_space, uint32_t location, uint32_t value);
-
-	uint8_t readMemory(const char* memory_space, uint32_t location);
+	uint32_t readMemory(const char* memory_space, uint32_t location);
 
 private:
-	uint32_t m_frequency = 0;
-	double m_timestep = 0;
-	uint32_t m_cycle = 0;
-	double m_cycle_time = 0;
-	double m_previous_time = 0;
+	uint32_t m_frequency { 0 };
+	double m_timestep { 0 };
+	uint32_t m_cycle { 0 };
+	double m_cycle_time { 0 };
+	double m_previous_time { 0 };
 
 	ruc::Timer m_timer;
 

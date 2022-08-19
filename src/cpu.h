@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <cstdint> // int8_t, uint8_t, uint16_t, uint32_t
+#include <cstdint> // int8_t, uint8_t, uint32_t
 
 #include "processing-unit.h"
 
@@ -38,18 +38,18 @@ public:
 
 private:
 	// Registers
-	uint8_t m_a { 0 };   // Accumulator
-	uint16_t m_bc { 0 }; // BC
-	uint16_t m_de { 0 }; // DE
-	uint16_t m_hl { 0 }; // HL
-	uint16_t m_sp { 0 }; // Stack Pointer
-	uint16_t m_pc { 0 }; // Program Counter
+	uint32_t m_a { 0 };  // Accumulator
+	uint32_t m_bc { 0 }; // BC
+	uint32_t m_de { 0 }; // DE
+	uint32_t m_hl { 0 }; // HL
+	uint32_t m_sp { 0 }; // Stack Pointer
+	uint32_t m_pc { 0 }; // Program Counter
 
 	// Flags
-	uint8_t m_z { 0 }; // Zero flag
-	uint8_t m_n { 0 }; // Subtraction flag (BCD)
-	uint8_t m_h { 0 }; // Half Carry flag (BCD)
-	uint8_t m_c { 0 }; // Carry flag
+	uint32_t m_z { 0 }; // Zero flag
+	uint32_t m_n { 0 }; // Subtraction flag (BCD)
+	uint32_t m_h { 0 }; // Half Carry flag (BCD)
+	uint32_t m_c { 0 }; // Carry flag
 
 	int8_t m_wait_cycles { 0 };
 };

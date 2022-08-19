@@ -1,4 +1,4 @@
-#include <cstdint> // uint8_t, uint32_t
+#include <cstdint> // uint32_t
 
 #include "cpu.h"
 #include "emu.h"
@@ -42,7 +42,7 @@ void Emu::writeMemory(const char* memory_space, uint32_t location, uint32_t valu
 	m_memory_spaces[memory_space][location] = value;
 }
 
-uint8_t Emu::readMemory(const char* memory_space, uint32_t location)
+uint32_t Emu::readMemory(const char* memory_space, uint32_t location)
 {
 	return m_memory_spaces[memory_space][location];
 }
