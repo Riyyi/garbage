@@ -39,17 +39,20 @@ public:
 private:
 	// Registers
 	uint32_t m_a { 0 };  // Accumulator
-	uint32_t m_bc { 0 }; // BC
-	uint32_t m_de { 0 }; // DE
-	uint32_t m_hl { 0 }; // HL
+	uint32_t m_b { 0 };  // B
+	uint32_t m_c { 0 };  // C
+	uint32_t m_d { 0 };  // D
+	uint32_t m_e { 0 };  // E
+	uint32_t m_h { 0 };  // H
+	uint32_t m_l { 0 };  // L
 	uint32_t m_pc { 0 }; // Program Counter
 	uint32_t m_sp { 0 }; // Stack Pointer
 
 	// Flags
-	uint32_t m_z { 0 }; // Zero flag
-	uint32_t m_n { 0 }; // Subtraction flag (BCD)
-	uint32_t m_h { 0 }; // Half Carry flag (BCD)
-	uint32_t m_c { 0 }; // Carry flag
+	uint32_t m_zf { 0 }; // Zero flag
+	uint32_t m_nf { 0 }; // Subtraction flag (BCD)
+	uint32_t m_hf { 0 }; // Half Carry flag (BCD)
+	uint32_t m_cf { 0 }; // Carry flag
 
 	int8_t m_wait_cycles { 0 };
 };

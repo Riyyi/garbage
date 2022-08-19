@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
 	// Get shared register
 	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("a"));
-	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("bc"));
+	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("b"));
 
 	while (true) {
 		Emu::the().update();

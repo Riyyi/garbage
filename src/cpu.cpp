@@ -17,28 +17,34 @@ CPU::CPU(uint32_t frequency)
 	// CGB registers
 	// https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
 	m_a = 0x11;
-	m_bc = 0x0;    // B = 0x0,  C = 0x0
-	m_de = 0xff56; // D = 0xff, E = 0x56
-	m_hl = 0x000d; // H = 0x0,  L = 0x0d
+	m_b = 0x0;
+	m_c = 0x0;
+	m_d = 0xff;
+	m_e = 0x56;
+	m_h = 0x0;
+	m_l = 0x0d;
 	m_pc = 0x100;
 	m_sp = 0xffe;
 
 	// Flags
-	m_z = 0x1;
-	m_n = 0x0;
-	m_h = 0x0;
-	m_c = 0x0;
+	m_zf = 0x1;
+	m_nf = 0x0;
+	m_hf = 0x0;
+	m_cf = 0x0;
 
 	m_shared_registers.emplace("a", &m_a);
-	m_shared_registers.emplace("bc", &m_bc);
-	m_shared_registers.emplace("de", &m_de);
-	m_shared_registers.emplace("hl", &m_hl);
+	m_shared_registers.emplace("b", &m_b);
+	m_shared_registers.emplace("c", &m_c);
+	m_shared_registers.emplace("d", &m_d);
+	m_shared_registers.emplace("e", &m_e);
+	m_shared_registers.emplace("h", &m_h);
+	m_shared_registers.emplace("l", &m_l);
 	m_shared_registers.emplace("sp", &m_sp);
 	m_shared_registers.emplace("pc", &m_pc);
-	m_shared_registers.emplace("z", &m_z);
-	m_shared_registers.emplace("n", &m_n);
-	m_shared_registers.emplace("h", &m_h);
-	m_shared_registers.emplace("c", &m_c);
+	m_shared_registers.emplace("zf", &m_zf);
+	m_shared_registers.emplace("nf", &m_nf);
+	m_shared_registers.emplace("hf", &m_hf);
+	m_shared_registers.emplace("cf", &m_cf);
 }
 
 CPU::~CPU()
@@ -66,10 +72,10 @@ void CPU::add(uint8_t opcode, uint8_t immediate)
 		m_wait_cycles += 8;
 
 		// Flags: Z0HC
-		m_z = m_a + immediate == 0;
-		m_n = 0;
-		m_h = m_a + immediate > 16;
-		m_c = m_a + immediate > 255;
+		m_zf = m_a + immediate == 0;
+		m_nf = 0;
+		m_hf = m_a + immediate > 16;
+		m_cf = m_a + immediate > 255;
 
 		// A = A + r
 		m_a += immediate;
