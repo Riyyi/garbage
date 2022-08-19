@@ -42,8 +42,8 @@ private:
 	uint32_t m_bc { 0 }; // BC
 	uint32_t m_de { 0 }; // DE
 	uint32_t m_hl { 0 }; // HL
-	uint32_t m_sp { 0 }; // Stack Pointer
 	uint32_t m_pc { 0 }; // Program Counter
+	uint32_t m_sp { 0 }; // Stack Pointer
 
 	// Flags
 	uint32_t m_z { 0 }; // Zero flag

@@ -14,6 +14,21 @@
 CPU::CPU(uint32_t frequency)
 	: ProcessingUnit(frequency)
 {
+	// CGB registers
+	// https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
+	m_a = 0x11;
+	m_bc = 0x0;    // B = 0x0,  C = 0x0
+	m_de = 0xff56; // D = 0xff, E = 0x56
+	m_hl = 0x000d; // H = 0x0,  L = 0x0d
+	m_pc = 0x100;
+	m_sp = 0xffe;
+
+	// Flags
+	m_z = 0x1;
+	m_n = 0x0;
+	m_h = 0x0;
+	m_c = 0x0;
+
 	m_shared_registers.emplace("a", &m_a);
 	m_shared_registers.emplace("bc", &m_bc);
 	m_shared_registers.emplace("de", &m_de);
@@ -36,9 +51,6 @@ void CPU::update()
 	if (m_wait_cycles <= 0) {
 		// Read next opcode
 	}
-
-	m_a = 6;
-	m_bc = 732;
 
 	// print("This is an update from the CPU\n");
 }

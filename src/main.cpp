@@ -29,7 +29,6 @@ int main(int argc, char* argv[])
 	Emu::the().addMemorySpace("CARDROM", 1024);
 
 	// Get shared register
-	Emu::the().processingUnit("cpu")->update();
 	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("a"));
 	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("bc"));
 
