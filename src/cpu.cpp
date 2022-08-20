@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <cstdint> // uint8_t, uint32_t
+#include <cstdint> // int32_t, uint8_t, uint32_t
 
 #include "cpu.h"
 #include "emu.h"
@@ -25,7 +25,7 @@ CPU::CPU(uint32_t frequency)
 	, m_l(0x0d)
 	// , m_pc(0x100)
 	, m_pc(0x0)
-	, m_sp(0xffe)
+	, m_sp(0xfffe)
 	// Flags
 	, m_zf(0x1)
 	, m_nf(0x0)
@@ -48,22 +48,24 @@ CPU::CPU(uint32_t frequency)
 
 	// Add opcode functions to lookup table
 	m_opcode_lookup_table.emplace(0xc6, std::bind(&CPU::add, this));
-	m_opcode_lookup_table.emplace(0x08, std::bind(&CPU::ldStack, this));
-	m_opcode_lookup_table.emplace(0x31, std::bind(&CPU::ldStack, this));
-	m_opcode_lookup_table.emplace(0xf8, std::bind(&CPU::ldStack, this));
-	m_opcode_lookup_table.emplace(0xf9, std::bind(&CPU::ldStack, this));
+	m_opcode_lookup_table.emplace(0x01, std::bind(&CPU::ld16, this));
+	m_opcode_lookup_table.emplace(0x11, std::bind(&CPU::ld16, this));
+	m_opcode_lookup_table.emplace(0x21, std::bind(&CPU::ld16, this));
+	m_opcode_lookup_table.emplace(0x31, std::bind(&CPU::ld16, this));
 }
 
 CPU::~CPU()
 {
 }
 
+// -----------------------------------------
+
 void CPU::update()
 {
 	m_wait_cycles--;
 	if (m_wait_cycles <= 0) {
 		// Read next opcode
-		uint8_t opcode = Emu::the().bootrom()[m_pc];
+		uint8_t opcode = peekBootrom();
 		m_opcode_lookup_table[opcode]();
 	}
 
@@ -72,8 +74,8 @@ void CPU::update()
 
 void CPU::add()
 {
-	uint8_t opcode = Emu::the().bootrom()[m_pc];
-	uint8_t immediate = Emu::the().bootrom()[m_pc + 1];
+	uint8_t opcode = consumeBootrom();
+	uint8_t immediate = consumeBootrom();
 	switch (opcode) {
 	case 0xc6: // ADD A,d8
 		// Program counter +2
@@ -99,21 +101,59 @@ void CPU::add()
 	}
 }
 
-void CPU::ldStack()
+void CPU::ld16()
 {
-	print("Calling stack LD\n");
-
-	uint8_t opcode = Emu::the().bootrom()[m_pc];
+	uint8_t opcode = consumeBootrom();
 	switch (opcode) {
-	case 0x08:
+	case 0x01: {
+		m_wait_cycles += 12;
+		setBc(immediate16());
 		break;
-	case 0x31:
+	}
+	case 0x11:
+		m_wait_cycles += 12;
+		setDe(immediate16());
 		break;
-	case 0xf8:
+	case 0x21:
+		m_wait_cycles += 12;
+		setHl(immediate16());
 		break;
-	case 0xf9:
+	case 0x31: {
+		m_wait_cycles += 12;
+		m_sp = immediate16();
 		break;
+	}
 	default:
 		VERIFY_NOT_REACHED();
 	}
+}
+
+// -----------------------------------------
+
+uint8_t CPU::peekBootrom(int32_t offset) const
+{
+	return Emu::the().bootrom()[m_pc + offset];
+}
+
+uint8_t CPU::consumeBootrom()
+{
+	return Emu::the().bootrom()[m_pc++];
+}
+
+void CPU::setBc(uint32_t value)
+{
+	m_b = value >> 8;
+	m_c = value;
+}
+
+void CPU::setDe(uint32_t value)
+{
+	m_d = value >> 8;
+	m_e = value;
+}
+
+void CPU::setHl(uint32_t value)
+{
+	m_h = value >> 8;
+	m_l = value;
 }

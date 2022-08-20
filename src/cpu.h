@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include <cstdint>    // int8_t, uint8_t, uint32_t
-#include <functional> // function
+#include <cstdint>    // int8_t, int32_t, uint8_t, uint32_t
+#include <functional> // std::function
 #include <unordered_map>
 
 #include "processing-unit.h"
@@ -20,27 +20,51 @@ public:
 
 	void update() override;
 
-	// 8-bit Arithmetic and Logic Instructions
+	// -------------------------------------
+	// Arithmetic and Logic Instructions
 
+	// 8-bit
 	void add();
 
-	// 16-bit Arithmetic Instructions
+	// 16-bit
 
+	// -------------------------------------
 	// Bit Operations Instructions
 
+	// -------------------------------------
 	// Bit Shift Instructions
 
+	// -------------------------------------
 	// Load Instructions
 
+	// 8-bit
+
+	// 16-bit
+	void ld16();
+
+	// -------------------------------------
 	// Jumps and Subroutines
 
+	// -------------------------------------
 	// Stack Operations Instructions
 
-	void ldStack();
-
+	// -------------------------------------
 	// Miscellaneous Instructions
 
 private:
+	uint8_t peekBootrom(int32_t offset = 0) const;
+	uint8_t consumeBootrom();
+
+	uint32_t immediate16() { return (consumeBootrom() << 8) | consumeBootrom(); }
+
+	void setBc(uint32_t value);
+	void setDe(uint32_t value);
+	void setHl(uint32_t value);
+
+	uint32_t bc() const { return m_b << 8 | m_c; }
+	uint32_t de() const { return m_b << 8 | m_c; }
+	uint32_t hl() const { return m_b << 8 | m_c; }
+
 	// Registers
 	uint32_t m_a { 0 };  // Accumulator
 	uint32_t m_b { 0 };  // B
