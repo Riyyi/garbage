@@ -29,23 +29,23 @@ void Emu::update()
 	}
 }
 
-void Emu::addProcessingUnit(const char* name, ProcessingUnit* processing_unit)
+void Emu::addProcessingUnit(std::string_view name, ProcessingUnit* processing_unit)
 {
 	m_processing_units.emplace(name, processing_unit);
 }
 
-void Emu::addMemorySpace(const char* name, uint32_t size)
+void Emu::addMemorySpace(std::string_view name, uint32_t size)
 {
 	std::vector<uint32_t> memory(size);
 	m_memory_spaces.emplace(name, memory);
 }
 
-void Emu::writeMemory(const char* memory_space, uint32_t location, uint32_t value)
+void Emu::writeMemory(std::string_view memory_space, uint32_t location, uint32_t value)
 {
 	m_memory_spaces[memory_space][location] = value;
 }
 
-uint32_t Emu::readMemory(const char* memory_space, uint32_t location)
+uint32_t Emu::readMemory(std::string_view memory_space, uint32_t location)
 {
 	return m_memory_spaces[memory_space][location];
 }

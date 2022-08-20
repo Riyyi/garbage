@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstdint> // uint32_t
+#include <string_view>
 #include <unordered_map>
 
 class ProcessingUnit {
@@ -20,9 +21,9 @@ public:
 	// -------------------------------------
 
 	uint32_t frequency() const { return m_frequency; };
-	uint32_t* sharedRegister(const char* shared_register) const { return m_shared_registers.at(shared_register); }
+	uint32_t* sharedRegister(std::string_view shared_register) const { return m_shared_registers.at(shared_register); }
 
 protected:
 	uint32_t m_frequency { 0 };
-	std::unordered_map<const char*, uint32_t*> m_shared_registers;
+	std::unordered_map<std::string_view, uint32_t*> m_shared_registers;
 };

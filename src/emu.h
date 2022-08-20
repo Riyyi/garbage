@@ -17,15 +17,15 @@ public:
 
 	void update();
 
-	void addProcessingUnit(const char* name, ProcessingUnit* processing_unit);
-	void addMemorySpace(const char* name, uint32_t size);
+	void addProcessingUnit(std::string_view name, ProcessingUnit* processing_unit);
+	void addMemorySpace(std::string_view name, uint32_t size);
 
-	void writeMemory(const char* memory_space, uint32_t location, uint32_t value);
-	uint32_t readMemory(const char* memory_space, uint32_t location);
+	void writeMemory(std::string_view memory_space, uint32_t location, uint32_t value);
+	uint32_t readMemory(std::string_view memory_space, uint32_t location);
 
 	// -------------------------------------
 
-	ProcessingUnit* processingUnit(const char* name) const { return m_processing_units.at(name); }
+	ProcessingUnit* processingUnit(std::string_view name) const { return m_processing_units.at(name); }
 
 private:
 	uint32_t m_frequency { 0 };
@@ -36,8 +36,8 @@ private:
 
 	ruc::Timer m_timer;
 
-	std::unordered_map<const char*, ProcessingUnit*> m_processing_units;
-	std::unordered_map<const char*, std::vector<uint32_t>> m_memory_spaces;
+	std::unordered_map<std::string_view, ProcessingUnit*> m_processing_units;
+	std::unordered_map<std::string_view, std::vector<uint32_t>> m_memory_spaces;
 
 	std::string_view m_bootrom;
 };
