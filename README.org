@@ -49,11 +49,6 @@ $ ./vendor/ruc/script/pre-commit.sh install
 
 ** References
 
-*** Test ROMs
-
-- https://github.com/gbdev/awesome-gbdev#testing
-- https://tasvideos.org/EmulatorResources/GBAccuracyTests
-
 *** Opcodes
 
 - https://gbdev.io/gb-opcodes/optables/
@@ -61,6 +56,11 @@ $ ./vendor/ruc/script/pre-commit.sh install
 - https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7/
 - https://gbdev.io/pandocs/CPU_Instruction_Set.html
 
-*** Bootroms
+*** Bootstrap ROMs
 
-https://github.com/ISSOtm/gb-bootroms
+- https://github.com/ISSOtm/gb-bootroms
+
+*** Test ROMs
+
+- https://github.com/gbdev/awesome-gbdev#testing
+- https://tasvideos.org/EmulatorResources/GBAccuracyTests
