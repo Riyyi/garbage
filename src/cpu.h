@@ -7,7 +7,9 @@
 
 #pragma once
 
-#include <cstdint> // int8_t, uint8_t, uint32_t
+#include <cstdint>    // int8_t, uint8_t, uint32_t
+#include <functional> // function
+#include <unordered_map>
 
 #include "processing-unit.h"
 
@@ -34,6 +36,8 @@ public:
 
 	// Stack Operations Instructions
 
+	void ldStack();
+
 	// Miscellaneous Instructions
 
 private:
@@ -55,4 +59,6 @@ private:
 	uint32_t m_cf { 0 }; // Carry flag
 
 	int8_t m_wait_cycles { 0 };
+
+	std::unordered_map<uint32_t, std::function<void()>> m_opcode_lookup_table;
 };

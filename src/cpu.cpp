@@ -8,6 +8,7 @@
 #include <cstdint> // uint8_t, uint32_t
 
 #include "cpu.h"
+#include "emu.h"
 #include "ruc/format/print.h"
 #include "ruc/meta/assert.h"
 
@@ -22,7 +23,8 @@ CPU::CPU(uint32_t frequency)
 	, m_e(0x56)
 	, m_h(0x0)
 	, m_l(0x0d)
-	, m_pc(0x100)
+	// , m_pc(0x100)
+	, m_pc(0x0)
 	, m_sp(0xffe)
 	// Flags
 	, m_zf(0x1)
@@ -43,6 +45,12 @@ CPU::CPU(uint32_t frequency)
 	m_shared_registers.emplace("nf", &m_nf);
 	m_shared_registers.emplace("hf", &m_hf);
 	m_shared_registers.emplace("cf", &m_cf);
+
+	// Add opcode functions to lookup table
+	m_opcode_lookup_table.emplace(0x08, std::bind(&CPU::ldStack, this));
+	m_opcode_lookup_table.emplace(0x31, std::bind(&CPU::ldStack, this));
+	m_opcode_lookup_table.emplace(0xf8, std::bind(&CPU::ldStack, this));
+	m_opcode_lookup_table.emplace(0xf9, std::bind(&CPU::ldStack, this));
 }
 
 CPU::~CPU()
@@ -54,6 +62,8 @@ void CPU::update()
 	m_wait_cycles--;
 	if (m_wait_cycles <= 0) {
 		// Read next opcode
+		uint8_t opcode = Emu::the().bootrom()[m_pc];
+		m_opcode_lookup_table[opcode]();
 	}
 
 	// print("This is an update from the CPU\n");
@@ -83,6 +93,24 @@ void CPU::add(uint8_t opcode, uint8_t immediate)
 		break;
 	default:
 		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::ldStack()
+{
+	printf("Calling stack LD\n");
+
+	uint8_t opcode = Emu::the().bootrom()[m_pc];
+	switch (opcode) {
+	case 0x08:
 		break;
+	case 0x31:
+		break;
+	case 0xf8:
+		break;
+	case 0xf9:
+		break;
+	default:
+		VERIFY_NOT_REACHED();
 	}
 }
