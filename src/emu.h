@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint> // uint32_t
+#include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
@@ -27,6 +28,8 @@ public:
 
 	ProcessingUnit* processingUnit(std::string_view name) const { return m_processing_units.at(name); }
 
+	std::string_view bootrom() const { return m_bootrom; }
+
 private:
 	uint32_t m_frequency { 0 };
 	double m_timestep { 0 };
@@ -39,5 +42,5 @@ private:
 	std::unordered_map<std::string_view, ProcessingUnit*> m_processing_units;
 	std::unordered_map<std::string_view, std::vector<uint32_t>> m_memory_spaces;
 
-	std::string_view m_bootrom;
+	std::string m_bootrom;
 };
