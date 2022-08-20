@@ -22,7 +22,7 @@ public:
 
 	// 8-bit Arithmetic and Logic Instructions
 
-	void add(uint8_t opcode, uint8_t immediate = 0);
+	void add();
 
 	// 16-bit Arithmetic Instructions
 

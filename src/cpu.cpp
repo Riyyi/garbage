@@ -47,6 +47,7 @@ CPU::CPU(uint32_t frequency)
 	m_shared_registers.emplace("cf", &m_cf);
 
 	// Add opcode functions to lookup table
+	m_opcode_lookup_table.emplace(0xc6, std::bind(&CPU::add, this));
 	m_opcode_lookup_table.emplace(0x08, std::bind(&CPU::ldStack, this));
 	m_opcode_lookup_table.emplace(0x31, std::bind(&CPU::ldStack, this));
 	m_opcode_lookup_table.emplace(0xf8, std::bind(&CPU::ldStack, this));
@@ -69,8 +70,10 @@ void CPU::update()
 	// print("This is an update from the CPU\n");
 }
 
-void CPU::add(uint8_t opcode, uint8_t immediate)
+void CPU::add()
 {
+	uint8_t opcode = Emu::the().bootrom()[m_pc];
+	uint8_t immediate = Emu::the().bootrom()[m_pc + 1];
 	switch (opcode) {
 	case 0xc6: // ADD A,d8
 		// Program counter +2
@@ -98,7 +101,7 @@ void CPU::add(uint8_t opcode, uint8_t immediate)
 
 void CPU::ldStack()
 {
-	printf("Calling stack LD\n");
+	print("Calling stack LD\n");
 
 	uint8_t opcode = Emu::the().bootrom()[m_pc];
 	switch (opcode) {
