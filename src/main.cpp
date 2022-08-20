@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 
 	print("{}ms\n", t.elapsedNanoseconds() / 1000000.0);
 
-	Emu::the().init(8000000);
+	Emu::the().init(8000000, "gbc_bios.bin");
 
 	CPU cpu(8000000);
 	PPU ppu(4000000);

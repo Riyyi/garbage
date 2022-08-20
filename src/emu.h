@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint> // uint32_t
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -12,7 +13,7 @@ class Emu final : public ruc::Singleton<Emu> {
 public:
 	Emu(s) {}
 
-	void init(uint32_t frequency);
+	void init(uint32_t frequency, std::string_view bootrom);
 
 	void update();
 
@@ -37,4 +38,6 @@ private:
 
 	std::unordered_map<const char*, ProcessingUnit*> m_processing_units;
 	std::unordered_map<const char*, std::vector<uint32_t>> m_memory_spaces;
+
+	std::string_view m_bootrom;
 };
