@@ -28,10 +28,13 @@ int main(int argc, char* argv[])
 	Emu::the().addProcessingUnit("cpu", &cpu);
 	Emu::the().addProcessingUnit("ppu", &ppu);
 
-	Emu::the().addMemorySpace("RAM", 1024);
-	Emu::the().addMemorySpace("VRAM", 1024);
-	Emu::the().addMemorySpace("ROM", 1024);
-	Emu::the().addMemorySpace("CARDROM", 1024);
+	// https://gbdev.io/pandocs/Memory_Map.html
+	Emu::the().addMemorySpace("CARDROM", (1 + 0x3fff - 0x0000));                          // 16KiB
+	Emu::the().addMemorySpace("VRAM", (1 + 0x9fff - 0x8000) * 2);                         // 8KiB * 2 banks
+	Emu::the().addMemorySpace("CARDRAM", (1 + 0xbfff - 0xa000));                          // 8KiB
+	Emu::the().addMemorySpace("WRAM", (1 + 0xcfff - 0xc000) + (1 + 0xdfff - 0xd000) * 7); // 4 KiB + 4 KiB * 7 banks, Work RAM
+	Emu::the().addMemorySpace("ECHORAM", (1 + 0xfdff - 0xe000));                          // 7679B, Mirror of 0xc000~0xddff
+	Emu::the().addMemorySpace("HRAM", (1 + 0xfffe - 0xff80));                             // 126B, High RAM (CPU cache)
 
 	// Get shared register
 	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("a"));
