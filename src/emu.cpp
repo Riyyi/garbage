@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2022 Riyyi
+ * Copyright (C) 2022 Th3FrankXD
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
 #include <cstdint> // uint32_t
 #include <string_view>
 
