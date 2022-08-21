@@ -8,6 +8,7 @@
 #include "cpu.h"
 #include "emu.h"
 #include "ppu.h"
+#include "ruc/file.h"
 #include "ruc/format/print.h"
 #include "ruc/timer.h"
 
@@ -39,6 +40,17 @@ int main(int argc, char* argv[])
 	Emu::the().addMemorySpace("ECHORAM", 0xe000, 0xfdff, 1); // 7680B, Mirror of 0xc000~0xddff
 	Emu::the().addMemorySpace("OAM", 0xfe00, 0xfe9f, 1);     // 160B, Object Attribute Memory (VRAM Sprite Attribute Table)
 	Emu::the().addMemorySpace("HRAM", 0xff80, 0xfffe, 1);    // 127B, High RAM (CPU cache)
+
+	// Load bootrom
+	auto bootrom = ruc::File("gbc_bios.bin").data();
+	for (size_t i = 0; i < bootrom.length(); ++i) {
+		// Skip cartridge header memory range
+		if (i >= 0x0100 && i <= 0x01ff) {
+			continue;
+		}
+
+		Emu::the().writeMemory(i, bootrom[i]);
+	}
 
 	// Get shared register
 	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("a"));
