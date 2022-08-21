@@ -29,12 +29,16 @@ int main(int argc, char* argv[])
 	Emu::the().addProcessingUnit("ppu", &ppu);
 
 	// https://gbdev.io/pandocs/Memory_Map.html
-	Emu::the().addMemorySpace("CARDROM", (1 + 0x3fff - 0x0000));                          // 16KiB
-	Emu::the().addMemorySpace("VRAM", (1 + 0x9fff - 0x8000) * 2);                         // 8KiB * 2 banks
-	Emu::the().addMemorySpace("CARDRAM", (1 + 0xbfff - 0xa000));                          // 8KiB
-	Emu::the().addMemorySpace("WRAM", (1 + 0xcfff - 0xc000) + (1 + 0xdfff - 0xd000) * 7); // 4 KiB + 4 KiB * 7 banks, Work RAM
-	Emu::the().addMemorySpace("ECHORAM", (1 + 0xfdff - 0xe000));                          // 7679B, Mirror of 0xc000~0xddff
-	Emu::the().addMemorySpace("HRAM", (1 + 0xfffe - 0xff80));                             // 126B, High RAM (CPU cache)
+	// https://gbdev.io/pandocs/Power_Up_Sequence.html
+	Emu::the().addMemorySpace("BOOTROM1", 0x0000, 0x0100);   // 256B
+	Emu::the().addMemorySpace("BOOTROM2", 0x0200, 0x08ff);   // 1792B
+	Emu::the().addMemorySpace("VRAM", 0x8000, 0x9fff, 2);    // 8KiB * 2 banks
+	Emu::the().addMemorySpace("CARDRAM", 0xa000, 0xbfff);    // 8KiB
+	Emu::the().addMemorySpace("WRAM1", 0xc000, 0xcfff, 1);   // 4 KiB, Work RAM
+	Emu::the().addMemorySpace("WRAM2", 0xd000, 0xdfff, 7);   // 4 KiB * 7 banks, Work RAM
+	Emu::the().addMemorySpace("ECHORAM", 0xe000, 0xfdff, 1); // 7679B, Mirror of 0xc000~0xddff
+	Emu::the().addMemorySpace("OAM", 0xfe00, 0xfe9f, 1);     // 4KiB, Object Attribute Memory (VRAM Sprite Attribute Table)
+	Emu::the().addMemorySpace("HRAM", 0xff80, 0xfffe, 1);    // 126B, High RAM (CPU cache)
 
 	// Get shared register
 	print("{}\n", *Emu::the().processingUnit("cpu")->sharedRegister("a"));
