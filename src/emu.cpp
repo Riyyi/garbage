@@ -41,18 +41,38 @@ void Emu::addProcessingUnit(std::string_view name, ProcessingUnit* processing_un
 	m_processing_units.emplace(name, processing_unit);
 }
 
-void Emu::addMemorySpace(std::string_view name, uint32_t size)
+void Emu::addMemorySpace(std::string_view name, uint32_t start_address, uint32_t end_adress, uint32_t amount_of_banks)
 {
-	std::vector<uint32_t> memory(size);
-	m_memory_spaces.emplace(name, memory);
+	uint32_t bank_length = 1 + end_adress - start_address;
+	MemorySpace memory_space {
+		.memory = BankedMemory(amount_of_banks, std::vector<uint32_t>(bank_length)),
+		.active_bank = 0,
+		.start_address = start_address,
+		.end_address = end_adress,
+	};
+
+	m_memory_spaces.emplace(name, memory_space);
 }
 
-void Emu::writeMemory(std::string_view memory_space, uint32_t location, uint32_t value)
+void Emu::writeMemory(uint32_t address, uint32_t value)
 {
-	m_memory_spaces[memory_space][location] = value;
+	for (auto& memory_space : m_memory_spaces) {
+		auto memory = memory_space.second;
+		if (address >= memory.start_address && address <= memory.end_address) {
+			memory.memory[memory.active_bank][address] = value;
+		}
+	}
 }
 
-uint32_t Emu::readMemory(std::string_view memory_space, uint32_t location)
+uint32_t Emu::readMemory(uint32_t address)
 {
-	return m_memory_spaces[memory_space][location];
+	for (auto& memory_space : m_memory_spaces) {
+		auto memory = memory_space.second;
+		if (address >= memory.start_address && address <= memory.end_address) {
+			return memory.memory[memory.active_bank][address];
+			break;
+		}
+	}
+
+	return 0;
 }

@@ -17,6 +17,15 @@
 #include "ruc/singleton.h"
 #include "ruc/timer.h"
 
+using BankedMemory = std::vector<std::vector<uint32_t>>;
+
+struct MemorySpace {
+	BankedMemory memory;
+	uint32_t active_bank { 0 };
+	uint32_t start_address { 0 };
+	uint32_t end_address { 0 };
+};
+
 class Emu final : public ruc::Singleton<Emu> {
 public:
 	Emu(s) {}
@@ -26,10 +35,10 @@ public:
 	void update();
 
 	void addProcessingUnit(std::string_view name, ProcessingUnit* processing_unit);
-	void addMemorySpace(std::string_view name, uint32_t size);
+	void addMemorySpace(std::string_view name, uint32_t start_address, uint32_t end_address, uint32_t amount_of_banks = 1);
 
-	void writeMemory(std::string_view memory_space, uint32_t location, uint32_t value);
-	uint32_t readMemory(std::string_view memory_space, uint32_t location);
+	void writeMemory(uint32_t address, uint32_t value);
+	uint32_t readMemory(uint32_t address);
 
 	// -------------------------------------
 
@@ -47,7 +56,7 @@ private:
 	ruc::Timer m_timer;
 
 	std::unordered_map<std::string_view, ProcessingUnit*> m_processing_units;
-	std::unordered_map<std::string_view, std::vector<uint32_t>> m_memory_spaces;
+	std::unordered_map<std::string_view, MemorySpace> m_memory_spaces;
 
 	std::string m_bootrom;
 };
