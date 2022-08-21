@@ -38,7 +38,7 @@ public:
 	void addMemorySpace(std::string_view name, uint32_t start_address, uint32_t end_address, uint32_t amount_of_banks = 1);
 
 	void writeMemory(uint32_t address, uint32_t value);
-	uint32_t readMemory(uint32_t address);
+	uint32_t readMemory(uint32_t address) const;
 
 	// -------------------------------------
 

@@ -58,7 +58,6 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 {
 	for (auto& memory_space : m_memory_spaces) {
 		auto memory = memory_space.second;
-
 		if (address >= memory.start_address && address <= memory.end_address) {
 			// Note: ECHO RAM hack
 			if (address >= 0xc000 && address <= 0xddff) {
@@ -71,9 +70,9 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 	}
 }
 
-uint32_t Emu::readMemory(uint32_t address)
+uint32_t Emu::readMemory(uint32_t address) const
 {
-	for (auto& memory_space : m_memory_spaces) {
+	for (const auto& memory_space : m_memory_spaces) {
 		auto memory = memory_space.second;
 		if (address >= memory.start_address && address <= memory.end_address) {
 			return memory.memory[memory.active_bank][address];
