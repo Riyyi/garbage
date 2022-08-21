@@ -30,7 +30,7 @@ class Emu final : public ruc::Singleton<Emu> {
 public:
 	Emu(s) {}
 
-	void init(uint32_t frequency, std::string_view bootrom);
+	void init(uint32_t frequency);
 
 	void update();
 
@@ -44,8 +44,6 @@ public:
 
 	ProcessingUnit* processingUnit(std::string_view name) const { return m_processing_units.at(name); }
 
-	std::string_view bootrom() const { return m_bootrom; }
-
 private:
 	uint32_t m_frequency { 0 };
 	double m_timestep { 0 };
@@ -57,6 +55,4 @@ private:
 
 	std::unordered_map<std::string_view, ProcessingUnit*> m_processing_units;
 	std::unordered_map<std::string_view, MemorySpace> m_memory_spaces;
-
-	std::string m_bootrom;
 };

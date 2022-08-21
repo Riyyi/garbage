@@ -52,10 +52,10 @@ public:
 	// Miscellaneous Instructions
 
 private:
-	uint8_t peekBootrom(int32_t offset = 0) const;
-	uint8_t consumeBootrom();
+	uint8_t peekMemory(int32_t offset = 0) const;
+	uint8_t consumeMemory();
 
-	uint32_t immediate16() { return (consumeBootrom() << 8) | consumeBootrom(); }
+	uint32_t immediate16() { return (consumeMemory() << 8) | consumeMemory(); }
 
 	void setBc(uint32_t value);
 	void setDe(uint32_t value);

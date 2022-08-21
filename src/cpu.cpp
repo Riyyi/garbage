@@ -23,7 +23,6 @@ CPU::CPU(uint32_t frequency)
 	, m_e(0x56)
 	, m_h(0x0)
 	, m_l(0x0d)
-	// , m_pc(0x100)
 	, m_pc(0x0)
 	, m_sp(0xfffe)
 	// Flags
@@ -65,7 +64,8 @@ void CPU::update()
 	m_wait_cycles--;
 	if (m_wait_cycles <= 0) {
 		// Read next opcode
-		uint8_t opcode = peekBootrom();
+		uint8_t opcode = peekMemory();
+		VERIFY(m_opcode_lookup_table.find(opcode) != m_opcode_lookup_table.end(), "opcode {:#x} not implemented", opcode);
 		m_opcode_lookup_table[opcode]();
 	}
 
@@ -74,8 +74,8 @@ void CPU::update()
 
 void CPU::add()
 {
-	uint8_t opcode = consumeBootrom();
-	uint8_t immediate = consumeBootrom();
+	uint8_t opcode = consumeMemory();
+	uint8_t immediate = consumeMemory();
 	switch (opcode) {
 	case 0xc6: // ADD A,d8
 		// Program counter +2
@@ -103,7 +103,7 @@ void CPU::add()
 
 void CPU::ld16()
 {
-	uint8_t opcode = consumeBootrom();
+	uint8_t opcode = consumeMemory();
 	switch (opcode) {
 	case 0x01: {
 		m_wait_cycles += 12;
@@ -130,14 +130,14 @@ void CPU::ld16()
 
 // -----------------------------------------
 
-uint8_t CPU::peekBootrom(int32_t offset) const
+uint8_t CPU::peekMemory(int32_t offset) const
 {
-	return Emu::the().bootrom()[m_pc + offset];
+	return Emu::the().readMemory(m_pc + offset);
 }
 
-uint8_t CPU::consumeBootrom()
+uint8_t CPU::consumeMemory()
 {
-	return Emu::the().bootrom()[m_pc++];
+	return Emu::the().readMemory(m_pc++);
 }
 
 void CPU::setBc(uint32_t value)

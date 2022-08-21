@@ -10,15 +10,13 @@
 
 #include "cpu.h"
 #include "emu.h"
-#include "ruc/file.h"
 #include "ruc/format/print.h"
 #include "ruc/meta/assert.h"
 
-void Emu::init(uint32_t frequency, std::string_view bootrom)
+void Emu::init(uint32_t frequency)
 {
 	m_frequency = frequency;
 	m_timestep = 1.0 / m_frequency * 1000000;
-	m_bootrom = ruc::File(bootrom.data()).data();
 }
 
 void Emu::update()
