@@ -7,6 +7,8 @@
 
 #include <cstdint> // uint32_t
 #include <string_view>
+#include <utility> // std::move
+#include <vector>
 
 #include "cpu.h"
 #include "emu.h"
@@ -50,13 +52,13 @@ void Emu::addMemorySpace(std::string_view name, uint32_t start_address, uint32_t
 		.end_address = end_adress,
 	};
 
-	m_memory_spaces.emplace(name, memory_space);
+	m_memory_spaces.emplace(name, std::move(memory_space));
 }
 
 void Emu::writeMemory(uint32_t address, uint32_t value)
 {
 	for (auto& memory_space : m_memory_spaces) {
-		auto memory = memory_space.second;
+		auto& memory = memory_space.second;
 		if (address >= memory.start_address && address <= memory.end_address) {
 			// Note: ECHO RAM hack
 			if (address >= 0xc000 && address <= 0xddff) {
@@ -74,7 +76,7 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 uint32_t Emu::readMemory(uint32_t address) const
 {
 	for (const auto& memory_space : m_memory_spaces) {
-		auto memory = memory_space.second;
+		const auto& memory = memory_space.second;
 		if (address >= memory.start_address && address <= memory.end_address) {
 			return memory.memory[memory.active_bank][address];
 		}
