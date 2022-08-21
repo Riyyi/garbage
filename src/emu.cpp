@@ -12,6 +12,7 @@
 #include "emu.h"
 #include "ruc/file.h"
 #include "ruc/format/print.h"
+#include "ruc/meta/assert.h"
 
 void Emu::init(uint32_t frequency, std::string_view bootrom)
 {
@@ -65,9 +66,11 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 			}
 
 			memory.memory[memory.active_bank][address] = value;
-			break;
+			return;
 		}
 	}
+
+	VERIFY_NOT_REACHED();
 }
 
 uint32_t Emu::readMemory(uint32_t address) const
@@ -76,9 +79,9 @@ uint32_t Emu::readMemory(uint32_t address) const
 		auto memory = memory_space.second;
 		if (address >= memory.start_address && address <= memory.end_address) {
 			return memory.memory[memory.active_bank][address];
-			break;
 		}
 	}
 
+	VERIFY_NOT_REACHED();
 	return 0;
 }
