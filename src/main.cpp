@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
 	// https://gbdev.io/pandocs/Memory_Map.html
 	// https://gbdev.io/pandocs/Power_Up_Sequence.html
-	Emu::the().addMemorySpace("BOOTROM1", 0x0000, 0x0100);   // 256B
+	Emu::the().addMemorySpace("BOOTROM1", 0x0000, 0x00ff);   // 256B
 	Emu::the().addMemorySpace("BOOTROM2", 0x0200, 0x08ff);   // 1792B
 	Emu::the().addMemorySpace("VRAM", 0x8000, 0x9fff, 2);    // 8KiB * 2 banks
 	Emu::the().addMemorySpace("CARDRAM", 0xa000, 0xbfff);    // 8KiB
