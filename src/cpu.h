@@ -57,17 +57,14 @@ public:
 
 private:
 	uint8_t peekMemory(int32_t offset = 0) const;
-	uint8_t consumeMemory();
 
-	uint32_t immediate8() { return consumeMemory(); }
 	uint32_t immediate16() { return consumeMemory() | (consumeMemory() << 8); }
 
-	void writeFf(uint32_t value);
-	uint32_t readFf();
+	void write(uint32_t address, uint32_t value);
+	uint32_t read(uint32_t address);
 
-	void setBc(uint32_t value);
-	void setDe(uint32_t value);
-	void setHl(uint32_t value);
+	void writeFf(uint32_t value);
+	uint32_t readFf(uint32_t address);
 
 	uint32_t bc() const { return m_b << 8 | m_c; }
 	uint32_t de() const { return m_b << 8 | m_c; }

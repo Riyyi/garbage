@@ -82,8 +82,8 @@ void CPU::update()
 
 void CPU::add()
 {
-	uint8_t opcode = consumeMemory();
-	uint8_t immediate = consumeMemory();
+	uint8_t opcode = read(m_pc++);
+	uint8_t immediate = read(m_pc++);
 	switch (opcode) {
 	case 0xc6:
 		// ADD A,d8
@@ -108,7 +108,7 @@ void CPU::add()
 
 void CPU::ld8()
 {
-	uint8_t opcode = consumeMemory();
+	uint8_t opcode = read(m_pc++);
 	switch (opcode) {
 	case 0x3e:
 		m_wait_cycles += 8;
@@ -121,7 +121,7 @@ void CPU::ld8()
 
 void CPU::ldh8()
 {
-	uint8_t opcode = consumeMemory();
+	uint8_t opcode = read(m_pc++);
 	switch (opcode) {
 	case 0xe0:
 		// LD ($ff00 + n),A == LDH (n),A
@@ -133,7 +133,7 @@ void CPU::ldh8()
 		// LD A,($ff00 + n) == LDH A,(n)
 		// Put value at address (0xff00 + next byte in memory) into A:
 		m_wait_cycles += 12;
-		m_a = readFf();
+		m_a = readFf(immediate8());
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -142,20 +142,20 @@ void CPU::ldh8()
 
 void CPU::ld16()
 {
-	uint8_t opcode = consumeMemory();
+	uint8_t opcode = read(m_pc++);
 	switch (opcode) {
 	case 0x01: {
 		m_wait_cycles += 12;
-		setBc(immediate16());
+		write(bc(), immediate16());
 		break;
 	}
 	case 0x11:
 		m_wait_cycles += 12;
-		setDe(immediate16());
+		write(de(), immediate16());
 		break;
 	case 0x21:
 		m_wait_cycles += 12;
-		setHl(immediate16());
+		write(hl(), immediate16());
 		break;
 	case 0x31: {
 		m_wait_cycles += 12;
@@ -185,7 +185,7 @@ void CPU::ld16()
 
 void CPU::jp16()
 {
-	uint8_t opcode = consumeMemory();
+	uint8_t opcode = read(m_pc++);
 	switch (opcode) {
 	case 0xc3:
 		m_wait_cycles += 16;
@@ -203,35 +203,22 @@ uint8_t CPU::peekMemory(int32_t offset) const
 	return Emu::the().readMemory(m_pc + offset);
 }
 
-uint8_t CPU::consumeMemory()
+void CPU::write(uint32_t address, uint32_t value)
 {
-	return Emu::the().readMemory(m_pc++);
+	Emu::the().writeMemory(address, value);
+}
+
+uint32_t CPU::read(uint32_t address)
+{
+	return Emu::the().readMemory(address);
 }
 
 void CPU::writeFf(uint32_t value)
 {
-	Emu::the().writeMemory(immediate8() | (0xff << 8), value);
+	Emu::the().writeMemory(read(m_pc++) | (0xff << 8), value);
 }
 
-uint32_t CPU::readFf()
+uint32_t CPU::readFf(uint32_t address)
 {
-	return Emu::the().readMemory(immediate8() | (0xff << 8));
-}
-
-void CPU::setBc(uint32_t value)
-{
-	m_b = value >> 8;
-	m_c = value;
-}
-
-void CPU::setDe(uint32_t value)
-{
-	m_d = value >> 8;
-	m_e = value;
-}
-
-void CPU::setHl(uint32_t value)
-{
-	m_h = value >> 8;
-	m_l = value;
+	return Emu::the().readMemory(address | (0xff << 8));
 }
