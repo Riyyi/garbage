@@ -25,6 +25,7 @@ public:
 
 	// 8-bit
 	void add();
+	void xor8();
 
 	// 16-bit
 

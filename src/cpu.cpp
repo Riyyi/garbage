@@ -75,6 +75,8 @@ void CPU::update()
 		case 0x32: ld8(); break;
 		case 0x36: ld8(); break;
 		case 0x3e: ld8(); break;
+		case 0xa8: xor8(); break;
+		case 0xaf: xor8(); break;
 		case 0xc3: jp16(); break;
 		case 0xc6: add(); break;
 		case 0xcd: call(); break;
@@ -110,6 +112,27 @@ void CPU::add()
 
 		// Drop overflown bits, the 'A' register is 8-bit
 		m_a &= 0x00ff;
+		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::xor8()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xa8:
+		// XOR B, flags: Z 0 0 0
+		m_nf = m_hf = m_cf = 0;
+		m_a ^= m_b;
+		m_zf = m_a == 0;
+		break;
+	case 0xaf:
+		// XOR A, flags: 1 0 0 0
+		// A^A will always be 0
+		m_a = m_nf = m_hf = m_cf = 0;
+		m_zf = 1;
 		break;
 	default:
 		VERIFY_NOT_REACHED();
