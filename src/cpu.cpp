@@ -62,10 +62,14 @@ void CPU::update()
 		switch (opcode) {
 
 		case 0x01: ld16(); break;
+		case 0x02: ld8(); break;
 		case 0x08: ld16(); break;
 		case 0x11: ld16(); break;
+		case 0x12: ld8(); break;
 		case 0x21: ld16(); break;
+		case 0x22: ld8(); break;
 		case 0x31: ld16(); break;
+		case 0x32: ld8(); break;
 		case 0x3e: ld8(); break;
 		case 0xc3: jp16(); break;
 		case 0xc6: add(); break;
@@ -111,6 +115,44 @@ void CPU::ld8()
 {
 	uint8_t opcode = read(m_pc++);
 	switch (opcode) {
+	case 0x02:
+		// LD (BC),A
+		m_wait_cycles += 8;
+		write(bc(), m_a);
+		break;
+	case 0x12:
+		// LD (DE),A
+		m_wait_cycles += 8;
+		write(de(), m_a);
+		break;
+	case 0x22: {
+		// LD (HL+),A == LD (HLI),A == LDI (HL),A
+		m_wait_cycles += 8;
+
+		// Put A into memory address in HL
+		uint32_t address = hl();
+		write(address, m_a);
+
+		// Increment HL
+		address = (address + 1) & 0xffff;
+		m_l = address & 0x00ff;
+		m_h = address >> 8;
+		break;
+	}
+	case 0x32: {
+		// LD (HL-),A == LD (HLD),A == LDD (HL),A
+		m_wait_cycles += 8;
+
+		// Put A into memory address in hl
+		uint32_t address = hl();
+		write(address, m_a);
+
+		// Decrement HL
+		address = (address - 1) & 0xffff;
+		m_l = address & 0x00ff;
+		m_h = address >> 8;
+		break;
+	}
 	case 0x3e:
 		// LD A,n
 		m_wait_cycles += 8;
