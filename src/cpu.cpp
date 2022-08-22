@@ -143,7 +143,7 @@ void CPU::ld8()
 		// LD (HL-),A == LD (HLD),A == LDD (HL),A
 		m_wait_cycles += 8;
 
-		// Put A into memory address in hl
+		// Put A into memory address in HL
 		uint32_t address = hl();
 		write(address, m_a);
 
@@ -196,30 +196,42 @@ void CPU::ld16()
 		break;
 	}
 	case 0x08: {
+		// LD (nn),SP
 		m_wait_cycles += 20;
+
+		// Put value of SP into address given by next 2 bytes in memory
 		// TODO
 		break;
 	}
 	case 0x11:
+		// LD DE,nn
 		m_wait_cycles += 12;
 		write(de(), pcRead16());
 		break;
 	case 0x21:
+		// LD HL,nn
 		m_wait_cycles += 12;
 		write(hl(), pcRead16());
 		break;
 	case 0x31: {
+		// LD SP,nn
 		m_wait_cycles += 12;
 		m_sp = pcRead16();
 		break;
 	}
 	case 0xf8: {
+		// LD HL,SP + e8 == LDHL SP,e8
 		m_wait_cycles += 12;
+
+		// Put SP + next (signed) byte in memory into HL
 		// TODO
+
+		// Unsets ZF and NF, may enable HF and CF
 		// TODO flags
 		break;
 	}
 	case 0xf9: {
+		// LD SP,HL
 		m_wait_cycles += 8;
 		m_sp = hl();
 		break;
@@ -234,6 +246,7 @@ void CPU::jp16()
 	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0xc3:
+		// JP nn
 		m_wait_cycles += 16;
 		m_pc = pcRead16();
 		break;
