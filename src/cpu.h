@@ -38,12 +38,15 @@ public:
 	// Load Instructions
 
 	// 8-bit
+	void ld8();
 
 	// 16-bit
 	void ld16();
 
 	// -------------------------------------
 	// Jumps and Subroutines
+
+	void jp16();
 
 	// -------------------------------------
 	// Stack Operations Instructions
@@ -55,6 +58,7 @@ private:
 	uint8_t peekMemory(int32_t offset = 0) const;
 	uint8_t consumeMemory();
 
+	uint32_t immediate8() { return consumeMemory(); }
 	uint32_t immediate16() { return consumeMemory() | (consumeMemory() << 8); }
 
 	void setBc(uint32_t value);

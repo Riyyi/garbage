@@ -77,11 +77,8 @@ void CPU::add()
 	uint8_t opcode = consumeMemory();
 	uint8_t immediate = consumeMemory();
 	switch (opcode) {
-	case 0xc6: // ADD A,d8
-		// Program counter +2
-		m_pc += 2;
-
-		// Clock cycles +8
+	case 0xc6:
+		// ADD A,d8
 		m_wait_cycles += 8;
 
 		// Flags: Z0HC
@@ -95,6 +92,19 @@ void CPU::add()
 
 		// Drop overflown bits, the 'A' register is 8-bit
 		m_a &= 0xff;
+		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::ld8()
+{
+	uint8_t opcode = consumeMemory();
+	switch (opcode) {
+	case 0x3e:
+		m_wait_cycles += 8;
+		m_a = immediate8();
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -123,6 +133,35 @@ void CPU::ld16()
 		m_sp = immediate16();
 		break;
 	}
+	case 0x08: {
+		m_wait_cycles += 20;
+		// TODO
+		break;
+	}
+	case 0xf8: {
+		m_wait_cycles += 12;
+		// TODO
+		// TODO flags
+		break;
+	}
+	case 0xf9: {
+		m_wait_cycles += 8;
+		m_sp = hl();
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::jp16()
+{
+	uint8_t opcode = consumeMemory();
+	switch (opcode) {
+	case 0xc3:
+		m_wait_cycles += 16;
+		m_pc = immediate16();
+		break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
