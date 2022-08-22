@@ -56,15 +56,14 @@ public:
 	// Miscellaneous Instructions
 
 private:
-	uint8_t peekMemory(int32_t offset = 0) const;
-
-	uint32_t immediate16() { return consumeMemory() | (consumeMemory() << 8); }
+	uint32_t pcRead();
+	uint32_t pcRead16() { return pcRead() | (pcRead() << 8); }
 
 	void write(uint32_t address, uint32_t value);
 	uint32_t read(uint32_t address);
 
-	void writeFf(uint32_t value);
-	uint32_t readFf(uint32_t address);
+	void ffWrite(uint32_t address, uint32_t value);
+	uint32_t ffRead(uint32_t address);
 
 	uint32_t bc() const { return m_b << 8 | m_c; }
 	uint32_t de() const { return m_b << 8 | m_c; }

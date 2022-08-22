@@ -57,7 +57,7 @@ void CPU::update()
 	m_wait_cycles--;
 	if (m_wait_cycles <= 0) {
 		// Read next opcode
-		uint8_t opcode = peekMemory();
+		uint8_t opcode = read(m_pc);
 		print("running opcode: {:#x}\n", opcode);
 		switch (opcode) {
 
@@ -87,8 +87,8 @@ void CPU::update()
 
 void CPU::add()
 {
-	uint8_t opcode = read(m_pc++);
-	uint8_t immediate = read(m_pc++);
+	uint8_t opcode = pcRead();
+	uint8_t immediate = pcRead();
 	switch (opcode) {
 	case 0xc6:
 		// ADD A,d8
@@ -113,7 +113,7 @@ void CPU::add()
 
 void CPU::ld8()
 {
-	uint8_t opcode = read(m_pc++);
+	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0x02:
 		// LD (BC),A
@@ -156,7 +156,7 @@ void CPU::ld8()
 	case 0x3e:
 		// LD A,n
 		m_wait_cycles += 8;
-		m_a = read(m_pc++);
+		m_a = pcRead();
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -165,21 +165,21 @@ void CPU::ld8()
 
 void CPU::ldh8()
 {
-	uint8_t opcode = read(m_pc++);
+	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0xe0:
 		// LD ($ff00 + n),A == LDH (n),A
 		m_wait_cycles += 12;
 
 		// Put value in A into address (0xff00 + next byte in memory)
-		writeFf(m_a);
+		ffWrite(pcRead(), m_a);
 		break;
 	case 0xf0:
 		// LD A,($ff00 + n) == LDH A,(n)
 		m_wait_cycles += 12;
 
 		// Put value at address (0xff00 + next byte in memory) into A
-		m_a = readFf(read(m_pc++));
+		m_a = ffRead(pcRead());
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -188,11 +188,11 @@ void CPU::ldh8()
 
 void CPU::ld16()
 {
-	uint8_t opcode = read(m_pc++);
+	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0x01: {
 		m_wait_cycles += 12;
-		write(bc(), immediate16());
+		write(bc(), pcRead16());
 		break;
 	}
 	case 0x08: {
@@ -202,15 +202,15 @@ void CPU::ld16()
 	}
 	case 0x11:
 		m_wait_cycles += 12;
-		write(de(), immediate16());
+		write(de(), pcRead16());
 		break;
 	case 0x21:
 		m_wait_cycles += 12;
-		write(hl(), immediate16());
+		write(hl(), pcRead16());
 		break;
 	case 0x31: {
 		m_wait_cycles += 12;
-		m_sp = immediate16();
+		m_sp = pcRead16();
 		break;
 	}
 	case 0xf8: {
@@ -231,11 +231,11 @@ void CPU::ld16()
 
 void CPU::jp16()
 {
-	uint8_t opcode = read(m_pc++);
+	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0xc3:
 		m_wait_cycles += 16;
-		m_pc = immediate16();
+		m_pc = pcRead16();
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -244,9 +244,11 @@ void CPU::jp16()
 
 // -----------------------------------------
 
-uint8_t CPU::peekMemory(int32_t offset) const
+uint32_t CPU::pcRead()
 {
-	return Emu::the().readMemory(m_pc + offset);
+	uint32_t data = Emu::the().readMemory(m_pc);
+	m_pc = (m_pc + 1) & 0xffff;
+	return data;
 }
 
 void CPU::write(uint32_t address, uint32_t value)
@@ -259,12 +261,12 @@ uint32_t CPU::read(uint32_t address)
 	return Emu::the().readMemory(address);
 }
 
-void CPU::writeFf(uint32_t value)
+void CPU::ffWrite(uint32_t address, uint32_t value)
 {
-	Emu::the().writeMemory(read(m_pc++) | (0xff << 8), value);
+	Emu::the().writeMemory(address | (0xff << 8), value);
 }
 
-uint32_t CPU::readFf(uint32_t address)
+uint32_t CPU::ffRead(uint32_t address)
 {
 	return Emu::the().readMemory(address | (0xff << 8));
 }
