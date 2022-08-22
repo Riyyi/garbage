@@ -44,13 +44,6 @@ CPU::CPU(uint32_t frequency)
 	m_shared_registers.emplace("nf", &m_nf);
 	m_shared_registers.emplace("hf", &m_hf);
 	m_shared_registers.emplace("cf", &m_cf);
-
-	// Add opcode functions to lookup table
-	m_opcode_lookup_table.emplace(0xc6, std::bind(&CPU::add, this));
-	m_opcode_lookup_table.emplace(0x01, std::bind(&CPU::ld16, this));
-	m_opcode_lookup_table.emplace(0x11, std::bind(&CPU::ld16, this));
-	m_opcode_lookup_table.emplace(0x21, std::bind(&CPU::ld16, this));
-	m_opcode_lookup_table.emplace(0x31, std::bind(&CPU::ld16, this));
 }
 
 CPU::~CPU()
@@ -65,8 +58,23 @@ void CPU::update()
 	if (m_wait_cycles <= 0) {
 		// Read next opcode
 		uint8_t opcode = peekMemory();
-		VERIFY(m_opcode_lookup_table.find(opcode) != m_opcode_lookup_table.end(), "opcode {:#x} not implemented", opcode);
-		m_opcode_lookup_table[opcode]();
+		switch (opcode) {
+		case 0x01: ld16(); break;
+		case 0x08: ld16(); break;
+		case 0x11: ld16(); break;
+		case 0x21: ld16(); break;
+		case 0x31: ld16(); break;
+		case 0x3e: ld8(); break;
+		case 0xc3: jp16(); break;
+		case 0xc6: add(); break;
+		case 0xe0: ldh8(); break;
+		case 0xf0: ldh8(); break;
+		case 0xf8: ld16(); break;
+		case 0xf9: ld16(); break;
+		default:
+			print("opcode {:#x} not implemented", opcode);
+			VERIFY_NOT_REACHED();
+		}
 	}
 
 	// print("This is an update from the CPU\n");
