@@ -77,6 +77,7 @@ void CPU::update()
 		case 0x3e: ld8(); break;
 		case 0xc3: jp16(); break;
 		case 0xc6: add(); break;
+		case 0xcd: call(); break;
 		case 0xe0: ldh8(); break;
 		case 0xf0: ldh8(); break;
 		case 0xf8: ld16(); break;
@@ -258,6 +259,31 @@ void CPU::ld16()
 		// LD SP,HL
 		m_wait_cycles += 8;
 		m_sp = hl();
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::call()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xcd: {
+		// CALL nn
+		m_wait_cycles += 24;
+
+		uint32_t data = pcRead16();
+
+		// Push address of next 2 bytes in memory onto stack
+		m_sp = (m_sp - 1) & 0xffff;
+		write(m_sp, data >> 8);
+		m_sp = (m_sp - 1) & 0xffff;
+		write(m_sp, data & 0x00ff);
+
+		// Jump to this address
+		m_pc = data;
 		break;
 	}
 	default:
