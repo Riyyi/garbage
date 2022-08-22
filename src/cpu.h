@@ -39,6 +39,7 @@ public:
 
 	// 8-bit
 	void ld8();
+	void ldh8();
 
 	// 16-bit
 	void ld16();
@@ -60,6 +61,9 @@ private:
 
 	uint32_t immediate8() { return consumeMemory(); }
 	uint32_t immediate16() { return consumeMemory() | (consumeMemory() << 8); }
+
+	void writeFf(uint32_t value);
+	uint32_t readFf();
 
 	void setBc(uint32_t value);
 	void setDe(uint32_t value);

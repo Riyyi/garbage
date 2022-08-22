@@ -111,6 +111,27 @@ void CPU::ld8()
 	}
 }
 
+void CPU::ldh8()
+{
+	uint8_t opcode = consumeMemory();
+	switch (opcode) {
+	case 0xe0:
+		// LD ($ff00 + n),A == LDH (n),A
+		// Put value in A into address (0xff00 + next byte in memory):
+		m_wait_cycles += 12;
+		writeFf(m_a);
+		break;
+	case 0xf0:
+		// LD A,($ff00 + n) == LDH A,(n)
+		// Put value at address (0xff00 + next byte in memory) into A:
+		m_wait_cycles += 12;
+		m_a = readFf();
+		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
 void CPU::ld16()
 {
 	uint8_t opcode = consumeMemory();
@@ -177,6 +198,16 @@ uint8_t CPU::peekMemory(int32_t offset) const
 uint8_t CPU::consumeMemory()
 {
 	return Emu::the().readMemory(m_pc++);
+}
+
+void CPU::writeFf(uint32_t value)
+{
+	Emu::the().writeMemory(immediate8() | (0xff << 8), value);
+}
+
+uint32_t CPU::readFf()
+{
+	return Emu::the().readMemory(immediate8() | (0xff << 8));
 }
 
 void CPU::setBc(uint32_t value)
