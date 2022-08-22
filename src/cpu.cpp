@@ -63,13 +63,17 @@ void CPU::update()
 
 		case 0x01: ld16(); break;
 		case 0x02: ld8(); break;
+		case 0x06: ld8(); break;
 		case 0x08: ld16(); break;
 		case 0x11: ld16(); break;
 		case 0x12: ld8(); break;
+		case 0x16: ld8(); break;
 		case 0x21: ld16(); break;
 		case 0x22: ld8(); break;
+		case 0x26: ld8(); break;
 		case 0x31: ld16(); break;
 		case 0x32: ld8(); break;
+		case 0x36: ld8(); break;
 		case 0x3e: ld8(); break;
 		case 0xc3: jp16(); break;
 		case 0xc6: add(); break;
@@ -120,10 +124,20 @@ void CPU::ld8()
 		m_wait_cycles += 8;
 		write(bc(), m_a);
 		break;
+	case 0x06:
+		// LD B,n
+		m_wait_cycles += 8;
+		m_b = pcRead();
+		break;
 	case 0x12:
 		// LD (DE),A
 		m_wait_cycles += 8;
 		write(de(), m_a);
+		break;
+	case 0x16:
+		// LD D,n
+		m_wait_cycles += 8;
+		m_d = pcRead();
 		break;
 	case 0x22: {
 		// LD (HL+),A == LD (HLI),A == LDI (HL),A
@@ -139,6 +153,11 @@ void CPU::ld8()
 		m_h = address >> 8;
 		break;
 	}
+	case 0x26:
+		// LD H,n
+		m_wait_cycles += 8;
+		m_h = pcRead();
+		break;
 	case 0x32: {
 		// LD (HL-),A == LD (HLD),A == LDD (HL),A
 		m_wait_cycles += 8;
@@ -153,6 +172,11 @@ void CPU::ld8()
 		m_h = address >> 8;
 		break;
 	}
+	case 0x36:
+		// LD (HL),n
+		m_wait_cycles += 12;
+		write(hl(), pcRead());
+		break;
 	case 0x3e:
 		// LD A,n
 		m_wait_cycles += 8;
