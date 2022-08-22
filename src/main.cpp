@@ -34,12 +34,15 @@ int main(int argc, char* argv[])
 	Emu::the().addMemorySpace("BOOTROM1", 0x0000, 0x00ff);   // 256B
 	Emu::the().addMemorySpace("BOOTROM2", 0x0200, 0x08ff);   // 1792B
 	Emu::the().addMemorySpace("VRAM", 0x8000, 0x9fff, 2);    // 8KiB * 2 banks
-	Emu::the().addMemorySpace("CARDRAM", 0xa000, 0xbfff);    // 8KiB
-	Emu::the().addMemorySpace("WRAM1", 0xc000, 0xcfff, 1);   // 4 KiB, Work RAM
+	Emu::the().addMemorySpace("CARDRAM", 0xa000, 0xbfff, 1); // 8KiB * ? banks, if any
+	Emu::the().addMemorySpace("WRAM1", 0xc000, 0xcfff);      // 4 KiB, Work RAM
 	Emu::the().addMemorySpace("WRAM2", 0xd000, 0xdfff, 7);   // 4 KiB * 7 banks, Work RAM
-	Emu::the().addMemorySpace("ECHORAM", 0xe000, 0xfdff, 1); // 7680B, Mirror of 0xc000~0xddff
-	Emu::the().addMemorySpace("OAM", 0xfe00, 0xfe9f, 1);     // 160B, Object Attribute Memory (VRAM Sprite Attribute Table)
-	Emu::the().addMemorySpace("HRAM", 0xff80, 0xfffe, 1);    // 127B, High RAM (CPU cache)
+	Emu::the().addMemorySpace("ECHORAM", 0xe000, 0xfdff);    // 7680B, Mirror of 0xc000~0xddff
+	Emu::the().addMemorySpace("OAM", 0xfe00, 0xfe9f);        // 160B, Object Attribute Memory (VRAM Sprite Attribute Table)
+	Emu::the().addMemorySpace("Not Usable", 0xfea0, 0xfeff); // 96B, Nintendo probibits this area
+	Emu::the().addMemorySpace("IO", 0xff00, 0xff7f);         // 128B, I/O Registers
+	Emu::the().addMemorySpace("HRAM", 0xff80, 0xfffe);       // 127B, High RAM (CPU cache)
+	Emu::the().addMemorySpace("IE", 0xffff, 0xffff);         // 1B, Interrupt Enable register
 
 	// Load bootrom
 	auto bootrom = ruc::File("gbc_bios.bin").data();
