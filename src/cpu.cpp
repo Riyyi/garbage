@@ -58,7 +58,9 @@ void CPU::update()
 	if (m_wait_cycles <= 0) {
 		// Read next opcode
 		uint8_t opcode = peekMemory();
+		print("running opcode: {:#x}\n", opcode);
 		switch (opcode) {
+
 		case 0x01: ld16(); break;
 		case 0x08: ld16(); break;
 		case 0x11: ld16(); break;
@@ -71,13 +73,12 @@ void CPU::update()
 		case 0xf0: ldh8(); break;
 		case 0xf8: ld16(); break;
 		case 0xf9: ld16(); break;
+
 		default:
-			print("opcode {:#x} not implemented", opcode);
+			print("opcode {:#x} not implemented\n", opcode);
 			VERIFY_NOT_REACHED();
 		}
 	}
-
-	// print("This is an update from the CPU\n");
 }
 
 void CPU::add()
@@ -99,7 +100,7 @@ void CPU::add()
 		m_a += immediate;
 
 		// Drop overflown bits, the 'A' register is 8-bit
-		m_a &= 0xff;
+		m_a &= 0x00ff;
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -111,8 +112,9 @@ void CPU::ld8()
 	uint8_t opcode = read(m_pc++);
 	switch (opcode) {
 	case 0x3e:
+		// LD A,n
 		m_wait_cycles += 8;
-		m_a = immediate8();
+		m_a = read(m_pc++);
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -125,15 +127,17 @@ void CPU::ldh8()
 	switch (opcode) {
 	case 0xe0:
 		// LD ($ff00 + n),A == LDH (n),A
-		// Put value in A into address (0xff00 + next byte in memory):
 		m_wait_cycles += 12;
+
+		// Put value in A into address (0xff00 + next byte in memory)
 		writeFf(m_a);
 		break;
 	case 0xf0:
 		// LD A,($ff00 + n) == LDH A,(n)
-		// Put value at address (0xff00 + next byte in memory) into A:
 		m_wait_cycles += 12;
-		m_a = readFf(immediate8());
+
+		// Put value at address (0xff00 + next byte in memory) into A
+		m_a = readFf(read(m_pc++));
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -149,6 +153,11 @@ void CPU::ld16()
 		write(bc(), immediate16());
 		break;
 	}
+	case 0x08: {
+		m_wait_cycles += 20;
+		// TODO
+		break;
+	}
 	case 0x11:
 		m_wait_cycles += 12;
 		write(de(), immediate16());
@@ -160,11 +169,6 @@ void CPU::ld16()
 	case 0x31: {
 		m_wait_cycles += 12;
 		m_sp = immediate16();
-		break;
-	}
-	case 0x08: {
-		m_wait_cycles += 20;
-		// TODO
 		break;
 	}
 	case 0xf8: {
