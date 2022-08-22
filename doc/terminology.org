@@ -1,0 +1,46 @@
+#+TITLE: Terminology
+#+AUTHOR: Riyyi
+#+LANGUAGE: en
+#+OPTIONS: toc:nil
+
+GameBoy terminology.
+
+** Terminology
+
+*** Hardware
+
+https://gbdev.io/pandocs/Specifications.html
+https://gbdev.io/pandocs/Memory_Map.html
+
+| Name            | Modern equivalent | Description                               |
+|-----------------+-------------------+-------------------------------------------|
+| APU             |                   | Audio Processing Unit                     |
+| PPU             | GPU               | Pixel Processing Unit                     |
+| Bootrom         | BIOS              |                                           |
+| HRAM (High RAM) | CPU cache         | Embedded memory inside the CPU, 127 bytes |
+| WRAM (Work RAM) | RAM               |                                           |
+
+*** Opcode
+
+| Name      | Bits | Sign     | Mnemonics |    1 |   2 |    3 |   4 | Description                  | Note              |
+|-----------+------+----------+-----------+------+-----+------+-----+------------------------------+-------------------|
+|           |      |          |           |  <r> | <r> |  <r> | <r> |                              |                   |
+| immediate |    8 | unsigned |           |   d8 |  n8 |    n |     | Next byte in memory          |                   |
+| immediate |   16 | unsigned |           |  d16 | n16 |   nn |     | Next byte in memory          | little-endian     |
+| register  |    8 | unsigned |           |      |  r8 |    r |     | Any of the registers         |                   |
+| register  |   16 | unsigned |           |      | r16 |   rr |     | Any of the registers         | little-endian     |
+| address   |    8 | unsigned |           |      |     |  (n) |     | Address at value             |                   |
+| address   |   16 | unsigned |           |  a16 | n16 | (nn) |  nn | Address at value             | little-endian     |
+| immediate |    8 | signed   |           |   r8 |  e8 |    e |  dd | Next byte in memory          |                   |
+| immediate |    8 | unsigned |           | (a8) | n16 |  (n) |   n | 0xff00 + next byte in memory | write to I/O-port |
+| condition |      |          |           |   NZ |  cc |      |   f | Execute if condition met     |                   |
+
+d = data
+n = constant
+
+*** Variables
+
+| Name   | Meaning            |
+|--------+--------------------|
+| size   | amount of bytes    |
+| length | amount of elements |
