@@ -65,15 +65,22 @@ void CPU::update()
 		case 0x02: ld8(); break;
 		case 0x06: ld8(); break;
 		case 0x08: ld16(); break;
+		case 0x0a: ld8(); break;
+		case 0x0e: ld8(); break;
 		case 0x11: ld16(); break;
 		case 0x12: ld8(); break;
 		case 0x16: ld8(); break;
+		case 0x1a: ld8(); break;
+		case 0x1e: ld8(); break;
 		case 0x21: ld16(); break;
 		case 0x22: ld8(); break;
 		case 0x26: ld8(); break;
+		case 0x2a: ld8(); break;
+		case 0x2e: ld8(); break;
 		case 0x31: ld16(); break;
 		case 0x32: ld8(); break;
 		case 0x36: ld8(); break;
+		case 0x3a: ld8(); break;
 		case 0x3e: ld8(); break;
 		case 0xa8: xor8(); break;
 		case 0xaf: xor8(); break;
@@ -153,6 +160,16 @@ void CPU::ld8()
 		m_wait_cycles += 8;
 		m_b = pcRead();
 		break;
+	case 0x0a:
+		// LD A,(BC)
+		m_wait_cycles += 8;
+		m_a = read(bc());
+		break;
+	case 0x0e:
+		// LD C,n
+		m_wait_cycles += 8;
+		m_c = pcRead();
+		break;
 	case 0x12:
 		// LD (DE),A
 		m_wait_cycles += 8;
@@ -162,6 +179,16 @@ void CPU::ld8()
 		// LD D,n
 		m_wait_cycles += 8;
 		m_d = pcRead();
+		break;
+	case 0x1a:
+		// LD A,(DE)
+		m_wait_cycles += 8;
+		m_a = read(de());
+		break;
+	case 0x1e:
+		// LD E,n
+		m_wait_cycles += 8;
+		m_e = pcRead();
 		break;
 	case 0x22: {
 		// LD (HL+),A == LD (HLI),A == LDI (HL),A
@@ -182,6 +209,25 @@ void CPU::ld8()
 		m_wait_cycles += 8;
 		m_h = pcRead();
 		break;
+	case 0x2a: {
+		// LD A,(HL+) == LD A,(HLI) == LDI A,(HL)
+		m_wait_cycles += 8;
+
+		// Put value at address in HL into A
+		uint32_t address = hl();
+		m_a = read(address);
+
+		// Increment HL
+		address = (address + 1) & 0xffff;
+		m_l = address & 0x00ff;
+		m_h = address >> 8;
+		break;
+	}
+	case 0x2e:
+		// LD L,n
+		m_wait_cycles += 8;
+		m_l = pcRead();
+		break;
 	case 0x32: {
 		// LD (HL-),A == LD (HLD),A == LDD (HL),A
 		m_wait_cycles += 8;
@@ -201,6 +247,20 @@ void CPU::ld8()
 		m_wait_cycles += 12;
 		write(hl(), pcRead());
 		break;
+	case 0x3a: {
+		// LD A,(HL-) == LD A,(HLD) == LDD A,(HL)
+		m_wait_cycles += 8;
+
+		// Put value at address in HL into A
+		uint32_t address = hl();
+		m_a = read(address);
+
+		// Decrement HL
+		address = (address + 1) & 0xffff;
+		m_l = address & 0x00ff;
+		m_h = address >> 8;
+		break;
+	}
 	case 0x3e:
 		// LD A,n
 		m_wait_cycles += 8;
