@@ -65,7 +65,7 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 				writeMemory(address + (0xe000 - 0xc000), value);
 			}
 
-			memory.memory[memory.active_bank][address] = value;
+			memory.memory[memory.active_bank][address - memory.start_address] = value;
 			return;
 		}
 	}
