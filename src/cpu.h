@@ -26,6 +26,7 @@ public:
 
 	// 8-bit
 	void add();
+	void dec8();
 	void xor8();
 
 	// 16-bit
@@ -51,12 +52,15 @@ public:
 
 	void call();
 	void jp16();
+	void jr8();
 
 	// -------------------------------------
 	// Stack Operations Instructions
 
 	// -------------------------------------
 	// Miscellaneous Instructions
+
+	void misc();
 
 	// -------------------------------------
 

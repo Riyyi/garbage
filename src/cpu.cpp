@@ -62,11 +62,13 @@ void CPU::update()
 		print("running opcode: {:#x}\n", opcode);
 		switch (opcode) {
 
+		case 0x20: jr8(); break;
 		case 0x01: ld16(); break;
 		case 0x02: ld8(); break;
 		case 0x06: ld8(); break;
 		case 0x08: ld16(); break;
 		case 0x0a: ld8(); break;
+		case 0x0d: dec8(); break;
 		case 0x0e: ld8(); break;
 		case 0x11: ld16(); break;
 		case 0x12: ld8(); break;
@@ -78,6 +80,7 @@ void CPU::update()
 		case 0x26: ld8(); break;
 		case 0x2a: ld8(); break;
 		case 0x2e: ld8(); break;
+		case 0x2f: misc(); break;
 		case 0x31: ld16(); break;
 		case 0x32: ld8(); break;
 		case 0x36: ld8(); break;
@@ -106,21 +109,40 @@ void CPU::add()
 	uint8_t immediate = pcRead();
 	switch (opcode) {
 	case 0xc6:
-		// ADD A,d8
+		// ADD A,d8, flags: Z 0 H C
 		m_wait_cycles += 8;
 
-		// Flags: Z0HC
+		// Set flags
 		m_zf = m_a + immediate == 0;
 		m_nf = 0;
 		m_hf = m_a + immediate > 16;
 		m_cf = m_a + immediate > 255;
 
 		// A = A + r
-		m_a += immediate;
-
-		// Drop overflown bits, the 'A' register is 8-bit
-		m_a &= 0x00ff;
+		m_a = (m_a + immediate) & 0x00ff;
 		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::dec8()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x0d: {
+		// DEC C, flags: Z 1 H -
+		m_wait_cycles += 4;
+
+		m_c = (m_c - 1) & 0x00ff;
+
+		// Set flags
+		// TODO
+		// m_zf = ?
+		m_nf = 1;
+		// m_hf = ?
+		break;
+	}
 	default:
 		VERIFY_NOT_REACHED();
 	}
@@ -383,6 +405,45 @@ void CPU::jp16()
 		// JP nn
 		m_wait_cycles += 16;
 		m_pc = pcRead16();
+		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+// Jump relative
+void CPU::jr8()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x20: {
+		// JR NZ,e8
+		m_wait_cycles += 8;
+
+		if (!m_zf) {
+			m_wait_cycles += 4;
+			// TODO
+		}
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::misc()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x2f:
+		// CPL, flags: - 1 1 -
+		m_wait_cycles += 4;
+
+		// Complement register A (flip all bits)
+		m_a ^= 0x00ff; // equivalent to: m_a = ~m_a & 0x00ff
+
+		// Set flags
+		m_nf = m_hf = 1;
 		break;
 	default:
 		VERIFY_NOT_REACHED();
