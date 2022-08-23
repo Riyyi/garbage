@@ -11,26 +11,33 @@ GameBoy terminology.
 
 | Name            | Modern equivalent | Description                               |
 |-----------------+-------------------+-------------------------------------------|
-| APU             |                   | Audio Processing Unit                     |
+| APU             | Sound card        | Audio Processing Unit                     |
 | PPU             | GPU               | Pixel Processing Unit                     |
 | Bootrom         | BIOS              |                                           |
 | HRAM (High RAM) | CPU cache         | Embedded memory inside the CPU, 127 bytes |
 | WRAM (Work RAM) | RAM               |                                           |
+
+*** Flags
+
+The Half Cary (H) flag differs between 8-bit or 16-bit operations. The 8-bit
+variant indicates carry for the lower 4 bits of the result, or overflow from bit
+4 to bit 5. The 16-bit variant indicates carry for the lower 4 bits of the
+*second* byte of the result, or overflow from bit 12 to bit 13.
 
 *** Opcode
 
 | Name      | Bits | Sign     | Mnemonics |    [[https://gbdev.io/gb-opcodes/optables/][1]] |   [[https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7/][2]] |  [[https://gekkio.fi/files/gb-docs/gbctr.pdf][3]]/[[http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf][3]] |   [[https://gbdev.io/pandocs/CPU_Instruction_Set.html][4]] | Description                  | Note              |
 |-----------+------+----------+-----------+------+-----+------+-----+------------------------------+-------------------|
 |           |      |          |           |  <r> | <r> |  <r> | <r> |                              |                   |
-| immediate |    8 | unsigned |           |   d8 |  n8 |    n |     | Next byte in memory          |                   |
-| immediate |   16 | unsigned |           |  d16 | n16 |   nn |     | Next byte in memory          | little-endian     |
-| register  |    8 | unsigned |           |      |  r8 |    r |     | Any of the registers         |                   |
-| register  |   16 | unsigned |           |      | r16 |   rr |     | Any of the registers         | little-endian     |
-| address   |    8 | unsigned |           |      |     |  (n) |     | Address at value             |                   |
-| address   |   16 | unsigned |           |  a16 | n16 | (nn) |  nn | Address at value             | little-endian     |
-| immediate |    8 | signed   |           |   r8 |  e8 |    e |  dd | Next byte in memory          |                   |
-| immediate |    8 | unsigned |           | (a8) | n16 |  (n) |   n | 0xff00 + next byte in memory | write to I/O-port |
-| condition |      |          |           |   NZ |  cc |      |   f | Execute if condition met     |                   |
+| immediate |    8 | unsigned | i8        |   d8 |  n8 |    n |     | Next byte in memory          |                   |
+| immediate |   16 | unsigned | i16       |  d16 | n16 |   nn |     | Next byte in memory          | little-endian     |
+| register  |    8 | unsigned | r8        |      |  r8 |    r |     | Any of the registers         |                   |
+| register  |   16 | unsigned | r16       |      | r16 |   rr |     | Any of the registers         | little-endian     |
+| address   |    8 | unsigned | a8        |      |     |  (n) |     | Address at value             |                   |
+| address   |   16 | unsigned | a16       |  a16 | n16 | (nn) |  nn | Address at value             | little-endian     |
+| immediate |    8 | signed   | s8        |   r8 |  e8 |    e |  dd | Next byte in memory          |                   |
+| immediate |    8 | unsigned | io8       | (a8) | n16 |  (n) |   n | 0xff00 + next byte in memory | write to I/O-port |
+| condition |      |          | <ZNHC>    |   NZ |  cc |      |   f | Execute if condition met     |                   |
 
 d = data \\
 n = constant
@@ -41,6 +48,9 @@ n = constant
 |--------+--------------------|
 | length | amount of elements |
 | size   | amount of bytes    |
+|--------+--------------------|
+| lhs    | left hand side     |
+| rhs    | right hand side    |
 
 ** References
 
