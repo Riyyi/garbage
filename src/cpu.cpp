@@ -9,6 +9,7 @@
 
 #include "cpu.h"
 #include "emu.h"
+#include "ruc/format/color.h"
 #include "ruc/format/print.h"
 #include "ruc/meta/assert.h"
 
@@ -415,4 +416,35 @@ void CPU::ffWrite(uint32_t address, uint32_t value)
 uint32_t CPU::ffRead(uint32_t address)
 {
 	return Emu::the().readMemory(address | (0xff << 8)) & 0x00ff;
+}
+
+// -----------------------------------------
+
+void Formatter<CPU>::parse(Parser& parser)
+{
+	parser.parseSpecifier(specifier, Parser::ParameterType::UserDefined);
+}
+
+void Formatter<CPU>::format(Builder& builder, const CPU& value) const
+{
+	if (!specifier.alternativeForm) {
+		builder.putString(
+			::format("| AF {:#06x} | BC {:#06x} | DE {:#06x} | HL {:#06x} | PC {:#06x} | SP {:#06x} |",
+		             value.af(), value.bc(), value.de(), value.hl(), value.pc(), value.sp()));
+		return;
+	}
+
+	Formatter<uint32_t> formatter { .specifier = specifier };
+	builder.putString("AF: ");
+	formatter.format(builder, value.af());
+	builder.putString("\nBC: ");
+	formatter.format(builder, value.bc());
+	builder.putString("\nDE: ");
+	formatter.format(builder, value.de());
+	builder.putString("\nHL: ");
+	formatter.format(builder, value.hl());
+	builder.putString("\nPC: ");
+	formatter.format(builder, value.pc());
+	builder.putString("\nSP: ");
+	formatter.format(builder, value.sp());
 }

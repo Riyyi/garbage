@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include "processing-unit.h"
+#include "ruc/format/formatter.h"
 
 class CPU final : public ProcessingUnit {
 public:
@@ -94,4 +95,10 @@ private:
 	uint32_t m_cf { 0 }; // Carry flag
 
 	int8_t m_wait_cycles { 0 };
+};
+
+template<>
+struct ruc::format::Formatter<CPU> : Formatter<uint32_t> {
+	void parse(Parser& parser);
+	void format(Builder& builder, const CPU& value) const;
 };
