@@ -57,6 +57,15 @@ public:
 	// -------------------------------------
 	// Miscellaneous Instructions
 
+	// -------------------------------------
+
+	uint32_t af() const { return (m_cf << 4 | m_hf << 5 | m_nf << 6 | m_zf << 7) | m_a << 8; }
+	uint32_t bc() const { return m_c | m_b << 8; }
+	uint32_t de() const { return m_e | m_d << 8; }
+	uint32_t hl() const { return m_l | m_h << 8; }
+	uint32_t pc() const { return m_pc; }
+	uint32_t sp() const { return m_sp; }
+
 private:
 	uint32_t pcRead();
 	uint32_t pcRead16() { return pcRead() | (pcRead() << 8); }
@@ -66,10 +75,6 @@ private:
 
 	void ffWrite(uint32_t address, uint32_t value);
 	uint32_t ffRead(uint32_t address);
-
-	uint32_t bc() const { return m_b << 8 | m_c; }
-	uint32_t de() const { return m_b << 8 | m_c; }
-	uint32_t hl() const { return m_b << 8 | m_c; }
 
 	// Registers
 	uint32_t m_a { 0 };  // Accumulator
