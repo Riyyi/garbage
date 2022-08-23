@@ -392,27 +392,27 @@ void CPU::jp16()
 
 uint32_t CPU::pcRead()
 {
-	uint32_t data = Emu::the().readMemory(m_pc);
+	uint32_t data = Emu::the().readMemory(m_pc) & 0x00ff;
 	m_pc = (m_pc + 1) & 0xffff;
 	return data;
 }
 
 void CPU::write(uint32_t address, uint32_t value)
 {
-	Emu::the().writeMemory(address, value);
+	Emu::the().writeMemory(address, value & 0x00ff);
 }
 
 uint32_t CPU::read(uint32_t address)
 {
-	return Emu::the().readMemory(address);
+	return Emu::the().readMemory(address) & 0x00ff;
 }
 
 void CPU::ffWrite(uint32_t address, uint32_t value)
 {
-	Emu::the().writeMemory(address | (0xff << 8), value);
+	Emu::the().writeMemory(address | (0xff << 8), value & 0x00ff);
 }
 
 uint32_t CPU::ffRead(uint32_t address)
 {
-	return Emu::the().readMemory(address | (0xff << 8));
+	return Emu::the().readMemory(address | (0xff << 8)) & 0x00ff;
 }
