@@ -70,7 +70,7 @@ void CPU::update()
 		case 0x01: ldi16(); break;
 		case 0x02: ldr8(); break;
 		case 0x06: ldi8(); break;
-		case 0x08: lda16(); break;
+		case 0x08: ldr16(); break;
 		case 0x0a: ldr8(); break;
 		case 0x0d: dec8(); break;
 		case 0x0e: ldi8(); break;
@@ -478,22 +478,6 @@ void CPU::ldffi8()
 	}
 }
 
-void CPU::lda16()
-{
-	uint8_t opcode = pcRead();
-	switch (opcode) {
-	case 0x08: { // LD a16,SP
-		m_wait_cycles += 20;
-
-		// Put value of SP into address given by next 2 bytes in memory
-		// TODO
-		break;
-	}
-	default:
-		VERIFY_NOT_REACHED();
-	}
-}
-
 void CPU::ldi16()
 {
 	uint8_t opcode = pcRead();
@@ -525,6 +509,13 @@ void CPU::ldr16()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {
+	case 0x08: { // LD a16,SP
+		m_wait_cycles += 20;
+
+		// Put value of SP into address given by next 2 bytes in memory
+		write(pcRead16(), m_sp);
+		break;
+	}
 	case 0xf8: { // LD HL,SP + s8 == LDHL SP,s8, flags: 0 0 H C
 		m_wait_cycles += 12;
 

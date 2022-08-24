@@ -50,7 +50,6 @@ public:
 	void ldr8();
 
 	// 16-bit
-	void lda16();
 	void ldi16();
 	void ldr16();
 
