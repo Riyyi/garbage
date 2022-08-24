@@ -15,6 +15,9 @@
 #include "ruc/format/formatter.h"
 
 class CPU final : public ProcessingUnit {
+private:
+	friend struct CPUTest;
+
 public:
 	explicit CPU(uint32_t frequency);
 	virtual ~CPU();
