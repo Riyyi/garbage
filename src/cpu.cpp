@@ -468,27 +468,26 @@ void CPU::ldi16()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x01: { // LD BC,i16
-		m_wait_cycles += 12;
-		write(bc(), pcRead16());
+	case 0x01: /* LD BC,i16 */
+		m_c = pcRead();
+		m_b = pcRead();
 		break;
-	}
-	case 0x11: // LD DE,i16
-		m_wait_cycles += 12;
-		write(de(), pcRead16());
+	case 0x11: /* LD DE,i16 */
+		m_e = pcRead();
+		m_d = pcRead();
 		break;
-	case 0x21: // LD HL,i16
-		m_wait_cycles += 12;
-		write(hl(), pcRead16());
+	case 0x21: /* LD HL,i16 */
+		m_l = pcRead();
+		m_h = pcRead();
 		break;
-	case 0x31: { // LD SP,i16
-		m_wait_cycles += 12;
+	case 0x31: /* LD SP,i16 */
 		m_sp = pcRead16();
 		break;
-	}
 	default:
 		VERIFY_NOT_REACHED();
 	}
+
+	m_wait_cycles += 12;
 }
 
 void CPU::ldr16()
