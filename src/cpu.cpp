@@ -283,31 +283,17 @@ void CPU::ldi8()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x06: // LD B,i8
-		m_b = pcRead();
-		break;
-	case 0x0e: // LD C,i8
-		m_c = pcRead();
-		break;
-	case 0x16: // LD D,i8
-		m_d = pcRead();
-		break;
-	case 0x1e: // LD E,i8
-		m_e = pcRead();
-		break;
-	case 0x26: // LD H,i8
-		m_h = pcRead();
-		break;
-	case 0x2e: // LD L,i8
-		m_l = pcRead();
-		break;
+	case 0x06: /* LD B,i8 */ m_b = pcRead(); break;
+	case 0x0e: /* LD C,i8 */ m_c = pcRead(); break;
+	case 0x16: /* LD D,i8 */ m_d = pcRead(); break;
+	case 0x1e: /* LD E,i8 */ m_e = pcRead(); break;
+	case 0x26: /* LD H,i8 */ m_h = pcRead(); break;
+	case 0x2e: /* LD L,i8 */ m_l = pcRead(); break;
 	case 0x36: // LD (HL),i8
 		m_wait_cycles += 4;
 		write(hl(), pcRead());
 		break;
-	case 0x3e: // LD A,i8
-		m_a = pcRead();
-		break;
+	case 0x3e: /* LD A,i8 */ m_a = pcRead(); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
