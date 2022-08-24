@@ -91,6 +91,63 @@ void CPU::update()
 		case 0x36: ldi8(); break;
 		case 0x3a: ldr8(); break;
 		case 0x3e: ldi8(); break;
+		case 0x40: ldr8(); break;
+		case 0x41: ldr8(); break;
+		case 0x42: ldr8(); break;
+		case 0x43: ldr8(); break;
+		case 0x44: ldr8(); break;
+		case 0x45: ldr8(); break;
+		case 0x47: ldr8(); break;
+		case 0x48: ldr8(); break;
+		case 0x49: ldr8(); break;
+		case 0x4a: ldr8(); break;
+		case 0x4b: ldr8(); break;
+		case 0x4c: ldr8(); break;
+		case 0x4d: ldr8(); break;
+		case 0x4f: ldr8(); break;
+		case 0x50: ldr8(); break;
+		case 0x51: ldr8(); break;
+		case 0x52: ldr8(); break;
+		case 0x53: ldr8(); break;
+		case 0x54: ldr8(); break;
+		case 0x55: ldr8(); break;
+		case 0x57: ldr8(); break;
+		case 0x58: ldr8(); break;
+		case 0x59: ldr8(); break;
+		case 0x5a: ldr8(); break;
+		case 0x5b: ldr8(); break;
+		case 0x5c: ldr8(); break;
+		case 0x5d: ldr8(); break;
+		case 0x5f: ldr8(); break;
+		case 0x60: ldr8(); break;
+		case 0x61: ldr8(); break;
+		case 0x62: ldr8(); break;
+		case 0x63: ldr8(); break;
+		case 0x64: ldr8(); break;
+		case 0x65: ldr8(); break;
+		case 0x67: ldr8(); break;
+		case 0x68: ldr8(); break;
+		case 0x69: ldr8(); break;
+		case 0x6a: ldr8(); break;
+		case 0x6b: ldr8(); break;
+		case 0x6c: ldr8(); break;
+		case 0x6d: ldr8(); break;
+		case 0x6f: ldr8(); break;
+		case 0x70: ldr8(); break;
+		case 0x71: ldr8(); break;
+		case 0x72: ldr8(); break;
+		case 0x73: ldr8(); break;
+		case 0x74: ldr8(); break;
+		case 0x75: ldr8(); break;
+		case 0x77: ldr8(); break;
+		case 0x78: ldr8(); break;
+		case 0x79: ldr8(); break;
+		case 0x7a: ldr8(); break;
+		case 0x7b: ldr8(); break;
+		case 0x7c: ldr8(); break;
+		case 0x7d: ldr8(); break;
+		case 0x7e: ldr8(); break;
+		case 0x7f: ldr8(); break;
 		case 0xa8: xor8(); break;
 		case 0xaf: xor8(); break;
 		case 0xc3: jp16(); break;
@@ -179,19 +236,6 @@ void CPU::lda8()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x22: { // LD (HL+),A == LD (HLI),A == LDI (HL),A
-		m_wait_cycles += 8;
-
-		// Put A into memory address in HL
-		uint32_t address = hl();
-		write(address, m_a);
-
-		// Increment HL
-		address = (address + 1) & 0xffff;
-		m_l = address & 0xff;
-		m_h = address >> 8;
-		break;
-	}
 	case 0x2a: { // LD A,(HL+) == LD A,(HLI) == LDI A,(HL)
 		m_wait_cycles += 8;
 
@@ -201,19 +245,6 @@ void CPU::lda8()
 
 		// Increment HL
 		address = (address + 1) & 0xffff;
-		m_l = address & 0xff;
-		m_h = address >> 8;
-		break;
-	}
-	case 0x32: { // LD (HL-),A == LD (HLD),A == LDD (HL),A
-		m_wait_cycles += 8;
-
-		// Put A into memory address in HL
-		uint32_t address = hl();
-		write(address, m_a);
-
-		// Decrement HL
-		address = (address - 1) & 0xffff;
 		m_l = address & 0xff;
 		m_h = address >> 8;
 		break;
@@ -277,24 +308,133 @@ void CPU::ldr8()
 	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0x02: // LD (BC),A
-		m_wait_cycles += 8;
+		m_wait_cycles += 4;
 		write(bc(), m_a);
 		break;
 	case 0x0a: // LD A,(BC)
-		m_wait_cycles += 8;
+		m_wait_cycles += 4;
 		m_a = read(bc());
 		break;
 	case 0x12: // LD (DE),A
-		m_wait_cycles += 8;
+		m_wait_cycles += 4;
 		write(de(), m_a);
 		break;
 	case 0x1a: // LD A,(DE)
-		m_wait_cycles += 8;
+		m_wait_cycles += 4;
 		m_a = read(de());
 		break;
+	case 0x22: { // LD (HL+),A == LD (HLI),A == LDI (HL),A
+		m_wait_cycles += 4;
+
+		// Put A into memory address in HL
+		uint32_t address = hl();
+		write(address, m_a);
+
+		// Increment HL
+		address = (address + 1) & 0xffff;
+		m_l = address & 0xff;
+		m_h = address >> 8;
+		break;
+	}
+	case 0x32: { // LD (HL-),A == LD (HLD),A == LDD (HL),A
+		m_wait_cycles += 4;
+
+		// Put A into memory address in HL
+		uint32_t address = hl();
+		write(address, m_a);
+
+		// Decrement HL
+		address = (address - 1) & 0xffff;
+		m_l = address & 0xff;
+		m_h = address >> 8;
+		break;
+	}
+	case 0x40: /* LD B,B    m_b = m_b; */ break;
+	case 0x41: /* LD B,C */ m_b = m_c; break;
+	case 0x42: /* LD B,D */ m_b = m_d; break;
+	case 0x43: /* LD B,E */ m_b = m_e; break;
+	case 0x44: /* LD B,H */ m_b = m_h; break;
+	case 0x45: /* LD B,L */ m_b = m_l; break;
+	case 0x47: /* LD B,A */ m_b = m_a; break;
+	case 0x48: /* LD C,B */ m_c = m_b; break;
+	case 0x49: /* LD C,C    m_c = m_c; */ break;
+	case 0x4a: /* LD C,D */ m_c = m_d; break;
+	case 0x4b: /* LD C,E */ m_c = m_e; break;
+	case 0x4c: /* LD C,H */ m_c = m_h; break;
+	case 0x4d: /* LD C,L */ m_c = m_l; break;
+	case 0x4f: /* LD C,A */ m_c = m_a; break;
+	case 0x50: /* LD D,B */ m_d = m_b; break;
+	case 0x51: /* LD D,C */ m_d = m_c; break;
+	case 0x52: /* LD D,D    m_d = m_d; */ break;
+	case 0x53: /* LD D,E */ m_d = m_e; break;
+	case 0x54: /* LD D,H */ m_d = m_h; break;
+	case 0x55: /* LD D,L */ m_d = m_l; break;
+	case 0x57: /* LD D,A */ m_d = m_a; break;
+	case 0x58: /* LD E,B */ m_e = m_b; break;
+	case 0x59: /* LD E,C */ m_e = m_c; break;
+	case 0x5a: /* LD E,D */ m_e = m_d; break;
+	case 0x5b: /* LD E,E    m_e = m_e; */ break;
+	case 0x5c: /* LD E,H */ m_e = m_h; break;
+	case 0x5d: /* LD E,L */ m_e = m_l; break;
+	case 0x5f: /* LD E,A */ m_e = m_a; break;
+	case 0x60: /* LD H,B */ m_h = m_b; break;
+	case 0x61: /* LD H,C */ m_h = m_c; break;
+	case 0x62: /* LD H,D */ m_h = m_d; break;
+	case 0x63: /* LD H,E */ m_h = m_e; break;
+	case 0x64: /* LD H,H    m_h = m_h; */ break;
+	case 0x65: /* LD H,L */ m_h = m_l; break;
+	case 0x67: /* LD H,A */ m_h = m_a; break;
+	case 0x68: /* LD L,B */ m_l = m_b; break;
+	case 0x69: /* LD L,C */ m_l = m_c; break;
+	case 0x6a: /* LD L,D */ m_l = m_d; break;
+	case 0x6b: /* LD L,E */ m_l = m_e; break;
+	case 0x6c: /* LD L,H */ m_l = m_h; break;
+	case 0x6d: /* LD L,L    m_l = m_l; */ break;
+	case 0x6f: /* LD L,A */ m_l = m_a; break;
+	case 0x70: // LD (HL),B
+		m_wait_cycles += 4;
+		write(hl(), m_b);
+		break;
+	case 0x71: // LD (HL),C
+		m_wait_cycles += 4;
+		write(hl(), m_c);
+		break;
+	case 0x72: // LD (HL),D
+		m_wait_cycles += 4;
+		write(hl(), m_d);
+		break;
+	case 0x73: // LD (HL),E
+		m_wait_cycles += 4;
+		write(hl(), m_e);
+		break;
+	case 0x74: // LD (HL),H
+		m_wait_cycles += 4;
+		write(hl(), m_h);
+		break;
+	case 0x75: // LD (HL),L
+		m_wait_cycles += 4;
+		write(hl(), m_l);
+		break;
+	case 0x77: // LD (HL),A
+		m_wait_cycles += 4;
+		write(hl(), m_a);
+		break;
+	case 0x78: /* LD A,B */ m_a = m_b; break;
+	case 0x79: /* LD A,B */ m_a = m_c; break;
+	case 0x7a: /* LD A,D */ m_a = m_d; break;
+	case 0x7b: /* LD A,E */ m_a = m_e; break;
+	case 0x7c: /* LD A,H */ m_a = m_h; break;
+	case 0x7d: /* LD A,L */ m_a = m_l; break;
+	case 0x7e: // LD A,(HL)
+		m_wait_cycles += 4;
+		m_a = read(hl());
+		break;
+	case 0x7f: /* LD A,A    m_a = m_a; */ break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
+
+	m_wait_cycles += 4;
 }
 
 void CPU::ldffi8()
