@@ -154,9 +154,13 @@ void CPU::update()
 		case 0xc6: add(); break;
 		case 0xcd: call(); break;
 		case 0xe0: ldffi8(); break;
+		case 0xe2: ldr8(); break;
+		case 0xea: ldr8(); break;
 		case 0xf0: ldffi8(); break;
+		case 0xf2: lda8(); break;
 		case 0xf8: ldr16(); break;
 		case 0xf9: ldr16(); break;
+		case 0xfa: lda8(); break;
 
 		default:
 			print("opcode {:#x} not implemented\n", opcode);
@@ -262,6 +266,14 @@ void CPU::lda8()
 		m_h = address >> 8;
 		break;
 	}
+	case 0xf2: // LD A,(C)
+		m_wait_cycles += 8;
+		m_a = read(m_c);
+		break;
+	case 0xfa: // LD A,a16
+		m_wait_cycles += 16;
+		m_a = pcRead16();
+		break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
@@ -430,6 +442,14 @@ void CPU::ldr8()
 		m_a = read(hl());
 		break;
 	case 0x7f: /* LD A,A    m_a = m_a; */ break;
+	case 0xe2: // LD (C),A
+		m_wait_cycles += 4;
+		write(m_c, m_a);
+		break;
+	case 0xea: // LD a16,A
+		m_wait_cycles += 16;
+		write(pcRead16(), m_a);
+		break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
