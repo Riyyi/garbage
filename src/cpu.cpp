@@ -72,24 +72,28 @@ void CPU::update()
 		case 0x06: ldi8(); break;
 		case 0x08: ldr16(); break;
 		case 0x0a: ldr8(); break;
+		case 0x0b: decr16(); break;
 		case 0x0d: dec8(); break;
 		case 0x0e: ldi8(); break;
 		case 0x11: ldi16(); break;
 		case 0x12: ldr8(); break;
 		case 0x16: ldi8(); break;
 		case 0x1a: ldr8(); break;
+		case 0x1b: decr16(); break;
 		case 0x1e: ldi8(); break;
 		case 0x20: jr8(); break;
 		case 0x21: ldi16(); break;
 		case 0x22: ldr8(); break;
 		case 0x26: ldi8(); break;
-		case 0x2a: ldr8(); break;
+		case 0x2a: lda8(); break;
+		case 0x2b: decr16(); break;
 		case 0x2e: ldi8(); break;
 		case 0x2f: misc(); break;
 		case 0x31: ldi16(); break;
 		case 0x32: ldr8(); break;
 		case 0x36: ldi8(); break;
 		case 0x3a: ldr8(); break;
+		case 0x3b: decr16(); break;
 		case 0x3e: ldi8(); break;
 		case 0x40: ldr8(); break;
 		case 0x41: ldr8(); break;
@@ -169,6 +173,8 @@ void CPU::update()
 		}
 	}
 }
+
+// -------------------------------------
 
 void CPU::add()
 {
@@ -278,6 +284,38 @@ void CPU::lda8()
 		VERIFY_NOT_REACHED();
 	}
 }
+
+void CPU::decr16()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x0b: { // DEC BC
+		uint32_t data = (bc() - 1) & 0xffff;
+		m_c = data & 0xff;
+		m_b = data >> 8;
+		break;
+	}
+	case 0x1b: { // DEC DE
+		uint32_t data = (de() - 1) & 0xffff;
+		m_e = data & 0xff;
+		m_d = data >> 8;
+		break;
+	}
+	case 0x2b: { // DEC HL
+		uint32_t data = (hl() - 1) & 0xffff;
+		m_l = data & 0xff;
+		m_h = data >> 8;
+		break;
+	}
+	case 0x3b: /* DEC SP */ m_sp = (m_sp - 1) & 0xffff; break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+
+	m_wait_cycles += 8;
+}
+
+// -------------------------------------
 
 void CPU::ldi8()
 {
