@@ -44,8 +44,9 @@ public:
 	// Load Instructions
 
 	// 8-bit
-	void ld8();
-	void ldh8();
+	void ldffi8();
+	void ldi8();
+	void ldr8();
 
 	// 16-bit
 	void ld16();
