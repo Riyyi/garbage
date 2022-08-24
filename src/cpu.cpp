@@ -115,7 +115,7 @@ void CPU::add()
 	uint8_t immediate = pcRead();
 	switch (opcode) {
 	case 0xc6:
-		// ADD A,d8, flags: Z 0 H C
+		// ADD A,i8, flags: Z 0 H C
 		m_wait_cycles += 8;
 
 		// Set flags
@@ -170,7 +170,7 @@ void CPU::xor8()
 		break;
 	case 0xaf:
 		// XOR A, flags: 1 0 0 0
-		// A^A will always be 0
+		// A ^ A will always be 0
 		m_a = m_nf = m_hf = m_cf = 0;
 		m_zf = 1;
 		break;
@@ -189,7 +189,7 @@ void CPU::ld8()
 		write(bc(), m_a);
 		break;
 	case 0x06:
-		// LD B,n
+		// LD B,i8
 		m_wait_cycles += 8;
 		m_b = pcRead();
 		break;
@@ -199,7 +199,7 @@ void CPU::ld8()
 		m_a = read(bc());
 		break;
 	case 0x0e:
-		// LD C,n
+		// LD C,i8
 		m_wait_cycles += 8;
 		m_c = pcRead();
 		break;
@@ -209,7 +209,7 @@ void CPU::ld8()
 		write(de(), m_a);
 		break;
 	case 0x16:
-		// LD D,n
+		// LD D,i8
 		m_wait_cycles += 8;
 		m_d = pcRead();
 		break;
@@ -219,7 +219,7 @@ void CPU::ld8()
 		m_a = read(de());
 		break;
 	case 0x1e:
-		// LD E,n
+		// LD E,i8
 		m_wait_cycles += 8;
 		m_e = pcRead();
 		break;
@@ -233,12 +233,12 @@ void CPU::ld8()
 
 		// Increment HL
 		address = (address + 1) & 0xffff;
-		m_l = address & 0x00ff;
+		m_l = address & 0xff;
 		m_h = address >> 8;
 		break;
 	}
 	case 0x26:
-		// LD H,n
+		// LD H,i8
 		m_wait_cycles += 8;
 		m_h = pcRead();
 		break;
@@ -252,12 +252,12 @@ void CPU::ld8()
 
 		// Increment HL
 		address = (address + 1) & 0xffff;
-		m_l = address & 0x00ff;
+		m_l = address & 0xff;
 		m_h = address >> 8;
 		break;
 	}
 	case 0x2e:
-		// LD L,n
+		// LD L,i8
 		m_wait_cycles += 8;
 		m_l = pcRead();
 		break;
@@ -271,12 +271,12 @@ void CPU::ld8()
 
 		// Decrement HL
 		address = (address - 1) & 0xffff;
-		m_l = address & 0x00ff;
+		m_l = address & 0xff;
 		m_h = address >> 8;
 		break;
 	}
 	case 0x36:
-		// LD (HL),n
+		// LD (HL),i8
 		m_wait_cycles += 12;
 		write(hl(), pcRead());
 		break;
@@ -290,12 +290,12 @@ void CPU::ld8()
 
 		// Decrement HL
 		address = (address + 1) & 0xffff;
-		m_l = address & 0x00ff;
+		m_l = address & 0xff;
 		m_h = address >> 8;
 		break;
 	}
 	case 0x3e:
-		// LD A,n
+		// LD A,i8
 		m_wait_cycles += 8;
 		m_a = pcRead();
 		break;
@@ -309,14 +309,14 @@ void CPU::ldh8()
 	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0xe0:
-		// LD ($ff00 + n),A == LDH (n),A
+		// LD ($ff00 + i8),A == LDH (io8),A
 		m_wait_cycles += 12;
 
 		// Put value in A into address (0xff00 + next byte in memory)
 		ffWrite(pcRead(), m_a);
 		break;
 	case 0xf0:
-		// LD A,($ff00 + n) == LDH A,(n)
+		// LD A,($ff00 + i8) == LDH A,(io8)
 		m_wait_cycles += 12;
 
 		// Put value at address (0xff00 + next byte in memory) into A
@@ -337,7 +337,7 @@ void CPU::ld16()
 		break;
 	}
 	case 0x08: {
-		// LD (nn),SP
+		// LD a16,SP
 		m_wait_cycles += 20;
 
 		// Put value of SP into address given by next 2 bytes in memory
@@ -345,23 +345,23 @@ void CPU::ld16()
 		break;
 	}
 	case 0x11:
-		// LD DE,nn
+		// LD DE,i16
 		m_wait_cycles += 12;
 		write(de(), pcRead16());
 		break;
 	case 0x21:
-		// LD HL,nn
+		// LD HL,i16
 		m_wait_cycles += 12;
 		write(hl(), pcRead16());
 		break;
 	case 0x31: {
-		// LD SP,nn
+		// LD SP,i16
 		m_wait_cycles += 12;
 		m_sp = pcRead16();
 		break;
 	}
 	case 0xf8: {
-		// LD HL,SP + e8 == LDHL SP,e8
+		// LD HL,SP + s8 == LDHL SP,s8, flags: 0 0 H C
 		m_wait_cycles += 12;
 
 		// Put SP + next (signed) byte in memory into HL
@@ -393,7 +393,7 @@ void CPU::call()
 	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0xcd: {
-		// CALL nn
+		// CALL a16
 		m_wait_cycles += 24;
 
 		uint32_t data = pcRead16();
@@ -402,7 +402,7 @@ void CPU::call()
 		m_sp = (m_sp - 1) & 0xffff;
 		write(m_sp, data >> 8);
 		m_sp = (m_sp - 1) & 0xffff;
-		write(m_sp, data & 0x00ff);
+		write(m_sp, data & 0xff);
 
 		// Jump to this address
 		m_pc = data;
@@ -418,7 +418,7 @@ void CPU::jp16()
 	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0xc3:
-		// JP nn
+		// JP a16
 		m_wait_cycles += 16;
 		m_pc = pcRead16();
 		break;
@@ -433,7 +433,7 @@ void CPU::jr8()
 	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0x20: {
-		// JR NZ,e8
+		// JR NZ,s8
 		m_wait_cycles += 8;
 
 		if (!m_zf) {
@@ -456,7 +456,7 @@ void CPU::misc()
 		m_wait_cycles += 4;
 
 		// Complement register A (flip all bits)
-		m_a ^= 0x00ff; // equivalent to: m_a = ~m_a & 0x00ff
+		m_a ^= 0xff; // equivalent to: m_a = ~m_a & 0xff
 
 		// Set flags
 		m_nf = m_hf = 1;
@@ -470,29 +470,29 @@ void CPU::misc()
 
 uint32_t CPU::pcRead()
 {
-	uint32_t data = Emu::the().readMemory(m_pc) & 0x00ff;
+	uint32_t data = Emu::the().readMemory(m_pc) & 0xff;
 	m_pc = (m_pc + 1) & 0xffff;
 	return data;
 }
 
 void CPU::write(uint32_t address, uint32_t value)
 {
-	Emu::the().writeMemory(address, value & 0x00ff);
+	Emu::the().writeMemory(address, value & 0xff);
 }
 
 uint32_t CPU::read(uint32_t address)
 {
-	return Emu::the().readMemory(address) & 0x00ff;
+	return Emu::the().readMemory(address) & 0xff;
 }
 
 void CPU::ffWrite(uint32_t address, uint32_t value)
 {
-	Emu::the().writeMemory(address | (0xff << 8), value & 0x00ff);
+	Emu::the().writeMemory(address | (0xff << 8), value & 0xff);
 }
 
 uint32_t CPU::ffRead(uint32_t address)
 {
-	return Emu::the().readMemory(address | (0xff << 8)) & 0x00ff;
+	return Emu::the().readMemory(address | (0xff << 8)) & 0xff;
 }
 
 bool CPU::isCarry(uint32_t lhs, uint32_t rhs, uint32_t limit_bit)
