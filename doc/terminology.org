@@ -36,7 +36,7 @@ We start counting from the right as bit *#0*!
 | register  |    8 | unsigned | r8        |      |  r8 |    r |     | Any of the registers         |                   |
 | register  |   16 | unsigned | r16       |      | r16 |   rr |     | Any of the registers         | little-endian     |
 | address   |    8 | unsigned | a8        |      |     |  (n) |     | Address at value             |                   |
-| address   |   16 | unsigned | a16       |  a16 | n16 | (nn) |  nn | Address at value             | little-endian     |
+| address   |   16 | unsigned | a16 or () |  a16 | n16 | (nn) |  nn | Address at value             | little-endian     |
 | immediate |    8 | signed   | s8        |   r8 |  e8 |    e |  dd | Next byte in memory          |                   |
 | immediate |    8 | unsigned | io8       | (a8) | n16 |  (n) |   n | 0xff00 + next byte in memory | write to I/O-port |
 | condition |      |          | <ZNHC>    |   NZ |  cc |      |   f | Execute if condition met     |                   |
