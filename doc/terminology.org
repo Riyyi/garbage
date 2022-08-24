@@ -19,10 +19,12 @@ GameBoy terminology.
 
 *** Flags
 
-The Half Cary (H) flag differs between 8-bit or 16-bit operations. The 8-bit
-variant indicates carry for the lower 4 bits of the result, or overflow from bit
-4 to bit 5. The 16-bit variant indicates carry for the lower 4 bits of the
-*second* byte of the result, or overflow from bit 12 to bit 13.
+The half-carry flag ~H~ is set when an arithmetic operation on two numbers
+causes a carry from bit #3 to bit #4 for 8-bit operations or a carry from bit
+#11 to bit #12 for 16-bit operations. For 16-bit operation this indicates the
+lower 4 bits of the *second* byte[[#references][(3)]].
+
+We start counting from the right as bit *#0*!
 
 *** Opcode
 
@@ -54,5 +56,6 @@ n = constant
 
 ** References
 
-- https://gbdev.io/pandocs/Memory_Map.html
-- https://gbdev.io/pandocs/Specifications.html
+1. https://gbdev.io/pandocs/Memory_Map.html
+2. https://gbdev.io/pandocs/Specifications.html
+3. [[https://robdor.com/2016/08/10/gameboy-emulator-half-carry-flag/]["A Visual Guide to the Gameboy's Half-Carry Flag"]]. robdor.com. Retrieved 24 Aug 2022.
