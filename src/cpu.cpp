@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <cstdint> // int32_t, uint8_t, uint32_t
+#include <cstdint> // uint8_t, uint32_t
 
 #include "cpu.h"
 #include "emu.h"
@@ -113,13 +113,15 @@ void CPU::add()
 		m_wait_cycles += 8;
 
 		// Set flags
-		m_zf = m_a + immediate == 0;
 		m_nf = 0;
-		m_hf = m_a + immediate > 16;
-		m_cf = m_a + immediate > 255;
+		m_hf = isCarry(m_a, immediate, 0x10);
+		m_cf = isCarry(m_a, immediate, 0x100);
 
 		// A = A + r
-		m_a = (m_a + immediate) & 0x00ff;
+		m_a = (m_a + immediate) & 0xff;
+
+		// Zero flag
+		m_zf = m_a == 0;
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -134,13 +136,15 @@ void CPU::dec8()
 		// DEC C, flags: Z 1 H -
 		m_wait_cycles += 4;
 
-		m_c = (m_c - 1) & 0x00ff;
-
 		// Set flags
-		// TODO
-		// m_zf = ?
 		m_nf = 1;
-		// m_hf = ?
+		m_hf = isCarry(m_c, -1, 0x10);
+
+		// C = C - 1
+		m_c = (m_c - 1) & 0xff;
+
+		// Zero flag
+		m_zf = m_c == 0;
 		break;
 	}
 	default:
@@ -355,10 +359,16 @@ void CPU::ld16()
 		m_wait_cycles += 12;
 
 		// Put SP + next (signed) byte in memory into HL
-		// TODO
+		uint32_t signed_data = (pcRead() ^ 0x80) - 0x80;
+		uint32_t sum = m_sp + signed_data;
+		m_h = sum >> 8;
+		m_l = sum & 0xff;
 
-		// Unsets ZF and NF, may enable HF and CF
-		// TODO flags
+		// Set flags
+		m_zf = 0;
+		m_nf = 0;
+		m_hf = isCarry(m_sp, signed_data, 0x10);
+		m_cf = isCarry(m_sp, signed_data, 0x100);
 		break;
 	}
 	case 0xf9: {
@@ -477,6 +487,34 @@ void CPU::ffWrite(uint32_t address, uint32_t value)
 uint32_t CPU::ffRead(uint32_t address)
 {
 	return Emu::the().readMemory(address | (0xff << 8)) & 0x00ff;
+}
+
+bool CPU::isCarry(uint32_t lhs, uint32_t rhs, uint32_t limit_bit)
+{
+	// limit_bit values:
+	//  8-bit half-carry = 0x10    or 16
+	//  8-bit carry      = 0x100   or 256
+	// 16-bit half-carry = 0x1000  or 4096
+	// 16-bit carry      = 0x10000 or 65536
+
+	// Example for 8-bit half-carry:
+	// 0b00111110 62      | 0b00111000 56
+	// 0b00100010 34 +    | 0b00010001 17 +
+	// ---------------    | ---------------
+	// 0b01100000 96      | 0b01001001 73
+	//                    |
+	// 0b00111110 62      | 0b00111000 56
+	// 0b00100010 34 ^    | 0b00010001 17 ^
+	// ---------------    | ---------------
+	// 0b00011100         | 0b00101001
+	// 0b01100000 96 ^    | 0b01001001 73 ^
+	// ---------------    | ---------------
+	// 0b01111100         | 0b01100000
+	// 0b00010000 16 &    | 0b00010000 16 &
+	// ---------------    | ---------------
+	// 0b00010000 = true! | 0b00000000 = false!
+
+	return (lhs ^ rhs ^ (lhs + rhs)) & limit_bit;
 }
 
 // -----------------------------------------

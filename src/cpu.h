@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <cstdint>    // int8_t, int32_t, uint8_t, uint32_t
+#include <cstdint>    // int8_t, uint8_t, uint32_t
 #include <functional> // std::function
 #include <unordered_map>
 
@@ -80,6 +80,8 @@ private:
 
 	void ffWrite(uint32_t address, uint32_t value);
 	uint32_t ffRead(uint32_t address);
+
+	bool isCarry(uint32_t lhs, uint32_t rhs, uint32_t limit_bit);
 
 	// Registers
 	uint32_t m_a { 0 };  // Accumulator
