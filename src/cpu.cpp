@@ -32,6 +32,8 @@ CPU::CPU(uint32_t frequency)
 	, m_hf(0x0)
 	, m_cf(0x0)
 {
+	// FIXME: Figure out if other ProcessingUnits require access to these registers,
+	//        delete this functionality if they dont
 	m_shared_registers.emplace("a", &m_a);
 	m_shared_registers.emplace("b", &m_b);
 	m_shared_registers.emplace("c", &m_c);
@@ -57,6 +59,9 @@ void CPU::update()
 {
 	m_wait_cycles--;
 	if (m_wait_cycles <= 0) {
+
+		// print(ruc::format::Emphasis::Underline | ruc::format::Emphasis::Bold | fg(ruc::format::TerminalColor::Blue), "{:#06x}\n", *this);
+
 		// Read next opcode
 		uint8_t opcode = read(m_pc);
 		print("running opcode: {:#x}\n", opcode);
@@ -98,6 +103,7 @@ void CPU::update()
 
 		default:
 			print("opcode {:#x} not implemented\n", opcode);
+			print("pc: {:#x}, immediate: {:#x}\n", m_pc, pcRead());
 			VERIFY_NOT_REACHED();
 		}
 	}
