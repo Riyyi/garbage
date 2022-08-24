@@ -6,18 +6,23 @@
 
 #pragma once
 
-#include "ruc/singleton.h"
+#include <string>
 #include <string_view>
+
+#include "ruc/singleton.h"
 
 class Loader final : public ruc::Singleton<Loader> {
 public:
 	Loader(s) {}
 
-	void init();
-	void destroy();
-
-	void setRomPath(std::string_view rom_path) { m_rom_path = rom_path; }
+	void loadRom(std::string_view rom_path);
 
 private:
-	std::string_view m_rom_path;
+	void init();
+	void update();
+	void destroy();
+
+	void loadCartridgeHeader();
+
+	std::string m_rom_data;
 };

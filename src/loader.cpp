@@ -4,11 +4,25 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "loader.h"
+#include <cstddef> // size_t
+
 #include "cpu.h"
 #include "emu.h"
+#include "loader.h"
 #include "ppu.h"
 #include "ruc/file.h"
+#include "ruc/format/print.h"
+
+void Loader::loadRom(std::string_view rom_path)
+{
+	if (!rom_path.empty()) {
+		m_rom_data = ruc::File(rom_path).data();
+	}
+
+	init();
+}
+
+// -----------------------------------------
 
 void Loader::init()
 {
@@ -24,7 +38,8 @@ void Loader::init()
 
 	// https://gbdev.io/pandocs/Memory_Map.html
 	// https://gbdev.io/pandocs/Power_Up_Sequence.html
-	Emu::the().addMemorySpace("BOOTROM1", 0x0000, 0x00ff);   // 256B
+	Emu::the().addMemorySpace("BOOTROM1", 0x0000, 0x00ff); // 256B
+	loadCartridgeHeader();
 	Emu::the().addMemorySpace("BOOTROM2", 0x0200, 0x08ff);   // 1792B
 	Emu::the().addMemorySpace("VRAM", 0x8000, 0x9fff, 2);    // 8KiB * 2 banks
 	Emu::the().addMemorySpace("CARDRAM", 0xa000, 0xbfff, 1); // 8KiB * ? banks, if any
@@ -48,6 +63,11 @@ void Loader::init()
 		Emu::the().writeMemory(i, bootrom[i]);
 	}
 
+	update();
+}
+
+void Loader::update()
+{
 	while (true) {
 		Emu::the().update();
 	}
@@ -56,4 +76,17 @@ void Loader::init()
 void Loader::destroy()
 {
 	Emu::destroy();
+}
+
+void Loader::loadCartridgeHeader()
+{
+	if (m_rom_data.empty()) {
+		return;
+	}
+
+	Emu::the().addMemorySpace("CARTHEADER", 0x100, 0x14f);
+
+	for (size_t i = 0x100; i <= 0x14f; ++i) {
+		Emu::the().writeMemory(i, m_rom_data[i]);
+	}
 }

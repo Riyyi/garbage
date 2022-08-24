@@ -19,8 +19,7 @@ int main(int argc, const char* argv[])
 	argParser.addOption(rom_path, 'r', "rom", nullptr, nullptr, "", ruc::ArgParser::Required::Yes);
 	argParser.parse(argc, argv);
 
-	Loader::the().setRomPath(rom_path);
-	Loader::the().init();
+	Loader::the().loadRom(rom_path);
 
 	return 0;
 }
