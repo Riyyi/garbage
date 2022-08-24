@@ -13,12 +13,15 @@
 
 int main(int argc, const char* argv[])
 {
+	std::string_view bootrom_path = "gbc_bios.bin";
 	std::string_view rom_path;
 
 	ruc::ArgParser argParser;
+	argParser.addOption(bootrom_path, 'b', "bootrom", nullptr, nullptr, "", ruc::ArgParser::Required::Yes);
 	argParser.addOption(rom_path, 'r', "rom", nullptr, nullptr, "", ruc::ArgParser::Required::Yes);
 	argParser.parse(argc, argv);
 
+	Loader::the().setBootromPath(bootrom_path);
 	Loader::the().loadRom(rom_path);
 
 	return 0;

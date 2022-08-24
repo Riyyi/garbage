@@ -53,7 +53,7 @@ void Loader::init()
 	Emu::the().addMemorySpace("IE", 0xffff, 0xffff);         // 1B, Interrupt Enable register
 
 	// Load bootrom
-	auto bootrom = ruc::File("gbc_bios.bin").data();
+	auto bootrom = ruc::File(m_bootrom_path).data();
 	for (size_t i = 0; i < bootrom.length(); ++i) {
 		// Skip cartridge header memory range
 		if (i >= 0x0100 && i <= 0x01ff) {

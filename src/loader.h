@@ -17,6 +17,8 @@ public:
 
 	void loadRom(std::string_view rom_path);
 
+	void setBootromPath(std::string_view bootrom_path) { m_bootrom_path = bootrom_path; }
+
 private:
 	void init();
 	void update();
@@ -24,5 +26,6 @@ private:
 
 	void loadCartridgeHeader();
 
+	std::string_view m_bootrom_path;
 	std::string m_rom_data;
 };
