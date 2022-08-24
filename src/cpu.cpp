@@ -67,26 +67,26 @@ void CPU::update()
 		print("running opcode: {:#x}\n", opcode);
 		switch (opcode) {
 
-		case 0x20: jr8(); break;
-		case 0x01: ld16(); break;
+		case 0x01: ldi16(); break;
 		case 0x02: ldr8(); break;
 		case 0x06: ldi8(); break;
-		case 0x08: ld16(); break;
+		case 0x08: lda16(); break;
 		case 0x0a: ldr8(); break;
 		case 0x0d: dec8(); break;
 		case 0x0e: ldi8(); break;
-		case 0x11: ld16(); break;
+		case 0x11: ldi16(); break;
 		case 0x12: ldr8(); break;
 		case 0x16: ldi8(); break;
 		case 0x1a: ldr8(); break;
 		case 0x1e: ldi8(); break;
-		case 0x21: ld16(); break;
+		case 0x20: jr8(); break;
+		case 0x21: ldi16(); break;
 		case 0x22: ldr8(); break;
 		case 0x26: ldi8(); break;
 		case 0x2a: ldr8(); break;
 		case 0x2e: ldi8(); break;
 		case 0x2f: misc(); break;
-		case 0x31: ld16(); break;
+		case 0x31: ldi16(); break;
 		case 0x32: ldr8(); break;
 		case 0x36: ldi8(); break;
 		case 0x3a: ldr8(); break;
@@ -98,8 +98,8 @@ void CPU::update()
 		case 0xcd: call(); break;
 		case 0xe0: ldffi8(); break;
 		case 0xf0: ldffi8(); break;
-		case 0xf8: ld16(); break;
-		case 0xf9: ld16(); break;
+		case 0xf8: ldr16(); break;
+		case 0xf9: ldr16(); break;
 
 		default:
 			print("opcode {:#x} not implemented\n", opcode);
@@ -175,62 +175,10 @@ void CPU::xor8()
 	}
 }
 
-void CPU::ldi8()
+void CPU::lda8()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x06: // LD B,i8
-		m_b = pcRead();
-		break;
-	case 0x0e: // LD C,i8
-		m_c = pcRead();
-		break;
-	case 0x16: // LD D,i8
-		m_d = pcRead();
-		break;
-	case 0x1e: // LD E,i8
-		m_e = pcRead();
-		break;
-	case 0x26: // LD H,i8
-		m_h = pcRead();
-		break;
-	case 0x2e: // LD L,i8
-		m_l = pcRead();
-		break;
-	case 0x36: // LD (HL),i8
-		m_wait_cycles += 4;
-		write(hl(), pcRead());
-		break;
-	case 0x3e: // LD A,i8
-		m_a = pcRead();
-		break;
-	default:
-		VERIFY_NOT_REACHED();
-	}
-
-	m_wait_cycles += 8;
-}
-
-void CPU::ldr8()
-{
-	uint8_t opcode = pcRead();
-	switch (opcode) {
-	case 0x02: // LD (BC),A
-		m_wait_cycles += 8;
-		write(bc(), m_a);
-		break;
-	case 0x0a: // LD A,(BC)
-		m_wait_cycles += 8;
-		m_a = read(bc());
-		break;
-	case 0x12: // LD (DE),A
-		m_wait_cycles += 8;
-		write(de(), m_a);
-		break;
-	case 0x1a: // LD A,(DE)
-		m_wait_cycles += 8;
-		m_a = read(de());
-		break;
 	case 0x22: { // LD (HL+),A == LD (HLI),A == LDI (HL),A
 		m_wait_cycles += 8;
 
@@ -288,6 +236,67 @@ void CPU::ldr8()
 	}
 }
 
+void CPU::ldi8()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x06: // LD B,i8
+		m_b = pcRead();
+		break;
+	case 0x0e: // LD C,i8
+		m_c = pcRead();
+		break;
+	case 0x16: // LD D,i8
+		m_d = pcRead();
+		break;
+	case 0x1e: // LD E,i8
+		m_e = pcRead();
+		break;
+	case 0x26: // LD H,i8
+		m_h = pcRead();
+		break;
+	case 0x2e: // LD L,i8
+		m_l = pcRead();
+		break;
+	case 0x36: // LD (HL),i8
+		m_wait_cycles += 4;
+		write(hl(), pcRead());
+		break;
+	case 0x3e: // LD A,i8
+		m_a = pcRead();
+		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+
+	m_wait_cycles += 8;
+}
+
+void CPU::ldr8()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x02: // LD (BC),A
+		m_wait_cycles += 8;
+		write(bc(), m_a);
+		break;
+	case 0x0a: // LD A,(BC)
+		m_wait_cycles += 8;
+		m_a = read(bc());
+		break;
+	case 0x12: // LD (DE),A
+		m_wait_cycles += 8;
+		write(de(), m_a);
+		break;
+	case 0x1a: // LD A,(DE)
+		m_wait_cycles += 8;
+		m_a = read(de());
+		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
 void CPU::ldffi8()
 {
 	uint8_t opcode = pcRead();
@@ -309,20 +318,29 @@ void CPU::ldffi8()
 	}
 }
 
-void CPU::ld16()
+void CPU::lda16()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x08: { // LD a16,SP
+		m_wait_cycles += 20;
+
+		// Put value of SP into address given by next 2 bytes in memory
+		// TODO
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::ldi16()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {
 	case 0x01: { // LD BC,i16
 		m_wait_cycles += 12;
 		write(bc(), pcRead16());
-		break;
-	}
-	case 0x08: { // LD a16,SP
-		m_wait_cycles += 20;
-
-		// Put value of SP into address given by next 2 bytes in memory
-		// TODO
 		break;
 	}
 	case 0x11: // LD DE,i16
@@ -338,6 +356,15 @@ void CPU::ld16()
 		m_sp = pcRead16();
 		break;
 	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::ldr16()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
 	case 0xf8: { // LD HL,SP + s8 == LDHL SP,s8, flags: 0 0 H C
 		m_wait_cycles += 12;
 

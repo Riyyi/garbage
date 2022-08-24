@@ -45,11 +45,14 @@ public:
 
 	// 8-bit
 	void ldffi8();
+	void lda8();
 	void ldi8();
 	void ldr8();
 
 	// 16-bit
-	void ld16();
+	void lda16();
+	void ldi16();
+	void ldr16();
 
 	// -------------------------------------
 	// Jumps and Subroutines
