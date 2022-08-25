@@ -175,6 +175,14 @@ void CPU::update()
 		case 0x7d: ldr8(); break;
 		case 0x7e: ldr8(); break;
 		case 0x7f: ldr8(); break;
+		case 0xa0: and8(); break;
+		case 0xa1: and8(); break;
+		case 0xa2: and8(); break;
+		case 0xa3: and8(); break;
+		case 0xa4: and8(); break;
+		case 0xa5: and8(); break;
+		case 0xa6: and8(); break;
+		case 0xa7: and8(); break;
 		case 0xa8: xor8(); break;
 		case 0xaf: xor8(); break;
 		case 0xb8: cp(); break;
@@ -190,6 +198,7 @@ void CPU::update()
 		case 0xcd: call(); break;
 		case 0xe0: ldffi8(); break;
 		case 0xe2: ldr8(); break;
+		case 0xe6: and8(); break;
 		case 0xe8: adds8(); break;
 		case 0xea: ldr8(); break;
 		case 0xf0: ldffi8(); break;
@@ -228,6 +237,52 @@ void CPU::addi8()
 		// Zero flag
 		m_zf = m_a == 0;
 		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::and8()
+{
+	auto bitwise_and = [this](uint32_t byte) {
+		// AND r8, flags: Z 0 1 0
+		m_wait_cycles += 4;
+
+		// Set flags
+		m_nf = 0;
+		m_hf = 1;
+		m_cf = 0;
+
+		// Bitwise AND between the value in r8 and A
+		m_a = m_a & byte;
+
+		// Zero flag
+		m_zf = m_a == 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xa0: /* AND B */ bitwise_and(m_b); break;
+	case 0xa1: /* AND C */ bitwise_and(m_c); break;
+	case 0xa2: /* AND D */ bitwise_and(m_d); break;
+	case 0xa3: /* AND E */ bitwise_and(m_e); break;
+	case 0xa4: /* AND H */ bitwise_and(m_h); break;
+	case 0xa5: /* AND L */ bitwise_and(m_l); break;
+	case 0xa6: /* AND (HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Bitwise AND between the byte pointed to by HL and A
+		bitwise_and(read(hl()));
+		break;
+	}
+	case 0xa7: /* AND A */ bitwise_and(m_a); break;
+	case 0xe6: /* AND i8 */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Bitwise AND between the value in i8 and A
+		bitwise_and(pcRead());
+		break;
+	}
 	default:
 		VERIFY_NOT_REACHED();
 	}

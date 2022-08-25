@@ -29,6 +29,7 @@ public:
 
 	// 8-bit
 	void addi8();
+	void and8();
 	void dec8();
 	void xor8();
 
