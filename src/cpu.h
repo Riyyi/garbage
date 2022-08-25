@@ -45,8 +45,10 @@ public:
 	// Load Instructions
 
 	// 8-bit
-	void ldffi8();
+	void cp();
+	void inc();
 	void lda8();
+	void ldffi8();
 	void ldi8();
 	void ldr8();
 
