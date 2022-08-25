@@ -74,7 +74,7 @@ void CPU::update()
 		case 0x06: ldi8(); break;
 		case 0x08: ldr16(); break;
 		case 0x0a: ldr8(); break;
-		case 0x0b: decr16(); break;
+		case 0x0b: dec16(); break;
 		case 0x0c: inc(); break;
 		case 0x0d: dec8(); break;
 		case 0x0e: ldi8(); break;
@@ -85,7 +85,7 @@ void CPU::update()
 		case 0x16: ldi8(); break;
 		case 0x18: jrs8(); break;
 		case 0x1a: ldr8(); break;
-		case 0x1b: decr16(); break;
+		case 0x1b: dec16(); break;
 		case 0x1c: inc(); break;
 		case 0x1d: dec8(); break;
 		case 0x1e: ldi8(); break;
@@ -97,7 +97,7 @@ void CPU::update()
 		case 0x26: ldi8(); break;
 		case 0x28: jrs8(); break;
 		case 0x2a: lda8(); break;
-		case 0x2b: decr16(); break;
+		case 0x2b: dec16(); break;
 		case 0x2c: inc(); break;
 		case 0x2d: dec8(); break;
 		case 0x2e: ldi8(); break;
@@ -110,7 +110,7 @@ void CPU::update()
 		case 0x36: ldi8(); break;
 		case 0x38: jrs8(); break;
 		case 0x3a: ldr8(); break;
-		case 0x3b: decr16(); break;
+		case 0x3b: dec16(); break;
 		case 0x3c: inc(); break;
 		case 0x3d: dec8(); break;
 		case 0x3e: ldi8(); break;
@@ -330,7 +330,7 @@ void CPU::lda8()
 	}
 }
 
-void CPU::decr16()
+void CPU::dec16()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {

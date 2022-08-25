@@ -33,7 +33,7 @@ public:
 	void xor8();
 
 	// 16-bit
-	void decr16();
+	void dec16();
 
 	// -------------------------------------
 	// Bit Operations Instructions
