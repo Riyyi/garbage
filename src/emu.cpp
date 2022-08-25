@@ -12,6 +12,7 @@
 
 #include "cpu.h"
 #include "emu.h"
+#include "ruc/format/log.h"
 #include "ruc/format/print.h"
 #include "ruc/meta/assert.h"
 
@@ -80,6 +81,11 @@ uint32_t Emu::readMemory(uint32_t address) const
 		if (address >= memory.start_address && address <= memory.end_address) {
 			return memory.memory[memory.active_bank][address];
 		}
+	}
+
+	// When trying to access the cartridge header
+	if (address >= 0x100 && address <= 0x14f) {
+		ruc::error("No cartridge loaded!");
 	}
 
 	VERIFY_NOT_REACHED();
