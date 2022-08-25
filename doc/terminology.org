@@ -44,6 +44,18 @@ We start counting from the right as bit *#0*!
 d = data \\
 n = constant
 
+**** Flag conditions
+
+Flag conditions, sometimes referred to as ~cc~, are the state the flags need to
+be in to execute the opcode. There are four possible checks[[#references][(4)]]:
+
+| Code | Meaning             | State |
+|------+---------------------+-------|
+| C    | Carry flag is set   |     1 |
+| NC   | Carry flag is unset |     0 |
+| Z    | Zero flag is set    |     1 |
+| NZ   | Zero flag is unset  |     0 |
+
 *** Variables
 
 | Name   | Meaning            |
@@ -59,3 +71,4 @@ n = constant
 1. https://gbdev.io/pandocs/Memory_Map.html
 2. https://gbdev.io/pandocs/Specifications.html
 3. [[https://robdor.com/2016/08/10/gameboy-emulator-half-carry-flag/]["A Visual Guide to the Gameboy's Half-Carry Flag"]]. robdor.com. Retrieved 24 Aug 2022.
+4. [[http://www.devrs.com/gb/files/opcodes.html]["GameBoy Opcode Summary"]]. devrs.com. Retrieved 25 Aug 2022.
