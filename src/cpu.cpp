@@ -73,6 +73,7 @@ void CPU::update()
 		case 0x05: dec8(); break;
 		case 0x06: ldi8(); break;
 		case 0x08: ldr16(); break;
+		case 0x09: addr16(); break;
 		case 0x0a: ldr8(); break;
 		case 0x0b: dec16(); break;
 		case 0x0c: inc(); break;
@@ -84,6 +85,7 @@ void CPU::update()
 		case 0x15: dec8(); break;
 		case 0x16: ldi8(); break;
 		case 0x18: jrs8(); break;
+		case 0x19: addr16(); break;
 		case 0x1a: ldr8(); break;
 		case 0x1b: dec16(); break;
 		case 0x1c: inc(); break;
@@ -96,6 +98,7 @@ void CPU::update()
 		case 0x25: dec8(); break;
 		case 0x26: ldi8(); break;
 		case 0x28: jrs8(); break;
+		case 0x29: addr16(); break;
 		case 0x2a: lda8(); break;
 		case 0x2b: dec16(); break;
 		case 0x2c: inc(); break;
@@ -109,6 +112,7 @@ void CPU::update()
 		case 0x35: dec8(); break;
 		case 0x36: ldi8(); break;
 		case 0x38: jrs8(); break;
+		case 0x39: addr16(); break;
 		case 0x3a: ldr8(); break;
 		case 0x3b: dec16(); break;
 		case 0x3c: inc(); break;
@@ -182,10 +186,11 @@ void CPU::update()
 		case 0xbe: cp(); break;
 		case 0xbf: cp(); break;
 		case 0xc3: jp16(); break;
-		case 0xc6: add(); break;
+		case 0xc6: addi8(); break;
 		case 0xcd: call(); break;
 		case 0xe0: ldffi8(); break;
 		case 0xe2: ldr8(); break;
+		case 0xe8: adds8(); break;
 		case 0xea: ldr8(); break;
 		case 0xf0: ldffi8(); break;
 		case 0xf2: lda8(); break;
@@ -204,7 +209,7 @@ void CPU::update()
 
 // -------------------------------------
 
-void CPU::add()
+void CPU::addi8()
 {
 	uint8_t opcode = pcRead();
 	uint8_t immediate = pcRead();
@@ -325,6 +330,58 @@ void CPU::lda8()
 		m_wait_cycles += 16;
 		m_a = pcRead16();
 		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::addr16()
+{
+	auto add = [this](uint32_t reg) -> void {
+		// ADD HL,r16, flags: - 0 H C
+		m_wait_cycles += 8;
+
+		// Set flags
+		m_nf = 0;
+		m_hf = isCarry(hl(), reg, 0x1000);
+		m_cf = isCarry(hl(), reg, 0x10000);
+
+		// Add the value in r16 to HL
+		uint32_t data = (hl() + reg) & 0xffff;
+		m_l = data & 0xff;
+		m_h = data >> 8;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x09: /* ADD HL,BC */ add(bc()); break;
+	case 0x19: /* ADD HL,DE */ add(de()); break;
+	case 0x29: /* ADD HL,HL */ add(hl()); break;
+	case 0x39: /* ADD HL,SP */ add(sp()); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::adds8()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xe8: { // ADD SP,s8, flags: 0 0 H C
+		m_wait_cycles += 16;
+
+		uint32_t signed_data = (pcRead() ^ 0x80) - 0x80;
+
+		// Set flags
+		m_zf = 0;
+		m_nf = 0;
+		m_hf = isCarry(m_sp, signed_data, 0x10);
+		m_cf = isCarry(m_sp, signed_data, 0x100);
+
+		// Add the signed value s8 to SP
+		m_sp = m_sp + signed_data;
+		break;
+	}
 	default:
 		VERIFY_NOT_REACHED();
 	}

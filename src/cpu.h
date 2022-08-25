@@ -28,11 +28,13 @@ public:
 	// Arithmetic and Logic Instructions
 
 	// 8-bit
-	void add();
+	void addi8();
 	void dec8();
 	void xor8();
 
 	// 16-bit
+	void addr16();
+	void adds8();
 	void dec16();
 
 	// -------------------------------------
