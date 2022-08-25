@@ -70,6 +70,7 @@ void CPU::update()
 		case 0x01: ldi16(); break;
 		case 0x02: ldr8(); break;
 		case 0x04: inc(); break;
+		case 0x05: dec8(); break;
 		case 0x06: ldi8(); break;
 		case 0x08: ldr16(); break;
 		case 0x0a: ldr8(); break;
@@ -80,32 +81,38 @@ void CPU::update()
 		case 0x11: ldi16(); break;
 		case 0x12: ldr8(); break;
 		case 0x14: inc(); break;
+		case 0x15: dec8(); break;
 		case 0x16: ldi8(); break;
 		case 0x18: jrs8(); break;
 		case 0x1a: ldr8(); break;
 		case 0x1b: decr16(); break;
 		case 0x1c: inc(); break;
+		case 0x1d: dec8(); break;
 		case 0x1e: ldi8(); break;
 		case 0x20: jrs8(); break;
 		case 0x21: ldi16(); break;
 		case 0x22: ldr8(); break;
 		case 0x24: inc(); break;
+		case 0x25: dec8(); break;
 		case 0x26: ldi8(); break;
 		case 0x28: jrs8(); break;
 		case 0x2a: lda8(); break;
 		case 0x2b: decr16(); break;
 		case 0x2c: inc(); break;
+		case 0x2d: dec8(); break;
 		case 0x2e: ldi8(); break;
 		case 0x2f: misc(); break;
 		case 0x30: jrs8(); break;
 		case 0x31: ldi16(); break;
 		case 0x32: ldr8(); break;
 		case 0x34: inc(); break;
+		case 0x35: dec8(); break;
 		case 0x36: ldi8(); break;
 		case 0x38: jrs8(); break;
 		case 0x3a: ldr8(); break;
 		case 0x3b: decr16(); break;
 		case 0x3c: inc(); break;
+		case 0x3d: dec8(); break;
 		case 0x3e: ldi8(); break;
 		case 0x40: ldr8(); break;
 		case 0x41: ldr8(); break;
@@ -223,22 +230,39 @@ void CPU::add()
 
 void CPU::dec8()
 {
-	uint8_t opcode = pcRead();
-	switch (opcode) {
-	case 0x0d: { // DEC C, flags: Z 1 H -
+	auto decrement = [this](uint32_t& reg) -> void {
+		// DEC r8, flags: Z 1 H -
 		m_wait_cycles += 4;
 
 		// Set flags
 		m_nf = 1;
-		m_hf = isCarry(m_c, -1, 0x10);
+		m_hf = isCarry(reg, -1, 0x10);
 
-		// C = C - 1
-		m_c = (m_c - 1) & 0xff;
+		// Decrement value in register r8 by 1
+		reg = (reg - 1) & 0xff;
 
 		// Zero flag
-		m_zf = m_c == 0;
+		m_zf = reg == 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x05: /* DEC B */ decrement(m_b); break;
+	case 0x0d: /* DEC C */ decrement(m_c); break;
+	case 0x15: /* DEC D */ decrement(m_d); break;
+	case 0x1d: /* DEC E */ decrement(m_e); break;
+	case 0x25: /* DEC H */ decrement(m_h); break;
+	case 0x2d: /* DEC L */ decrement(m_l); break;
+	case 0x35: /* DEC (HL) */ {
+		m_wait_cycles += 8; // + 4 = 12 total
+
+		// Decrement the byte pointed to by HL by 1
+		uint32_t data = read(hl());
+		decrement(data);
+		write(hl(), data);
 		break;
 	}
+	case 0x3d: /* DEC A */ decrement(m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
@@ -566,21 +590,13 @@ void CPU::inc()
 	case 0x1c: /* INC E */ increment(m_e); break;
 	case 0x24: /* INC H */ increment(m_h); break;
 	case 0x2c: /* INC L */ increment(m_l); break;
-	case 0x34: { /* INC (HL) */
-		m_wait_cycles += 12;
-
-		uint32_t data = read(hl());
-
-		// Set flags
-		m_nf = 0;
-		m_hf = isCarry(data, 1, 0x10);
+	case 0x34: /* INC (HL) */ {
+		m_wait_cycles += 8; // + 4 = 12 total
 
 		// Increment the byte pointed to by HL by 1
-		data = (data + 1) & 0xff;
+		uint32_t data = read(hl());
+		increment(data);
 		write(hl(), data);
-
-		// Zero flag
-		m_zf = data == 0;
 		break;
 	}
 	case 0x3c: /* INC A */ increment(m_a); break;
