@@ -44,6 +44,8 @@ public:
 	// -------------------------------------
 	// Bit Shift Instructions
 
+	void ra();
+
 	// -------------------------------------
 	// Load Instructions
 

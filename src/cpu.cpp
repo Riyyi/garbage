@@ -72,6 +72,7 @@ void CPU::update()
 		case 0x04: inc(); break;
 		case 0x05: dec8(); break;
 		case 0x06: ldi8(); break;
+		case 0x07: ra(); break;
 		case 0x08: ldr16(); break;
 		case 0x09: addr16(); break;
 		case 0x0a: ldr8(); break;
@@ -79,11 +80,13 @@ void CPU::update()
 		case 0x0c: inc(); break;
 		case 0x0d: dec8(); break;
 		case 0x0e: ldi8(); break;
+		case 0x0f: ra(); break;
 		case 0x11: ldi16(); break;
 		case 0x12: ldr8(); break;
 		case 0x14: inc(); break;
 		case 0x15: dec8(); break;
 		case 0x16: ldi8(); break;
+		case 0x17: ra(); break;
 		case 0x18: jrs8(); break;
 		case 0x19: addr16(); break;
 		case 0x1a: ldr8(); break;
@@ -91,6 +94,7 @@ void CPU::update()
 		case 0x1c: inc(); break;
 		case 0x1d: dec8(); break;
 		case 0x1e: ldi8(); break;
+		case 0x1f: ra(); break;
 		case 0x20: jrs8(); break;
 		case 0x21: ldi16(); break;
 		case 0x22: ldr8(); break;
@@ -636,6 +640,93 @@ void CPU::ldr8()
 	}
 
 	m_wait_cycles += 4;
+}
+
+// Rotate accumulator
+void CPU::ra()
+{
+	// Make sure we only look at the bottom 8 bits
+	m_a = m_a & 0xff;
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x07: // RLCA
+
+		// Rotates A to the left with bit 7 being moved to bit 0 and also stored
+		// into the carry
+		//     ┌──────────────┐
+		//     │ ┌─────────┐  │
+		// C <─┴─│7  <──  0│<─┘
+		//       └─────────┘
+		//            A
+
+		// Copy bit 7 into carry flag
+		m_cf = (m_a & 0x80) == 0x80;
+
+		// Rotate register A left
+		m_a = (m_a << 1) | (m_a >> 7);
+		break;
+	case 0x0f: // RRCA
+
+		// Rotates A to the right with bit 0 being moved to bit 7 and also
+		// stored into the carry
+		// ┌──────────────┐
+		// │  ┌─────────┐ │
+		// └─>│7  ──>  0│─┴─> C
+		//    └─────────┘
+		//         A
+
+		// Copy bit 0 into carry flag
+		m_cf = (m_a & 0x1) == 0x1;
+
+		// Rotate register A right
+		m_a = (m_a << 7) | (m_a >> 1);
+		break;
+	case 0x17: { // RLA
+
+		// Rotates A to the left with the carry's value put into bit 0 and bit 7
+		// is put into the carry
+		// ┌────────────────────┐
+		// │       ┌─────────┐  │
+		// └─ C <──│7  <──  0│<─┘
+		//         └─────────┘
+		//              A
+
+		uint32_t old_carry = m_cf != 0;
+		m_cf = (m_a & 0x80) == 0x80; // Copy bit 7 into carry flag
+
+		// Rotate register A left through carry
+		m_a = (m_a << 1) | old_carry;
+		break;
+	}
+	case 0x1f: { // RRA
+
+		// Rotates A to the right with the carry's value put into bit 7 and bit 0
+		// is put into the carry
+		// ┌────────────────────┐
+		// │  ┌─────────┐       │
+		// └─>│7  ──>  0│──> C ─┘
+		//    └─────────┘
+		//         A
+
+		uint32_t old_carry = m_cf != 0;
+		m_cf = (m_a & 0x1) == 0x1; // Copy bit 0 into carry flag
+
+		// Rotate register A right through carry
+		m_a = (old_carry << 7) | (m_a >> 1);
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+
+	// RLCA/RRCA/RLA/RRA, Flags: 0 0 0 C
+	m_wait_cycles += 4;
+
+	// Set flags
+	m_zf = 0;
+	m_nf = 0;
+	m_hf = 0;
 }
 
 void CPU::cp()
