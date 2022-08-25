@@ -61,7 +61,7 @@ public:
 
 	void call();
 	void jp16();
-	void jr8();
+	void jrs8();
 
 	// -------------------------------------
 	// Stack Operations Instructions

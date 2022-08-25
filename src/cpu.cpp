@@ -81,24 +81,28 @@ void CPU::update()
 		case 0x12: ldr8(); break;
 		case 0x14: inc(); break;
 		case 0x16: ldi8(); break;
+		case 0x18: jrs8(); break;
 		case 0x1a: ldr8(); break;
 		case 0x1b: decr16(); break;
 		case 0x1c: inc(); break;
 		case 0x1e: ldi8(); break;
-		case 0x20: jr8(); break;
+		case 0x20: jrs8(); break;
 		case 0x21: ldi16(); break;
 		case 0x22: ldr8(); break;
 		case 0x24: inc(); break;
 		case 0x26: ldi8(); break;
+		case 0x28: jrs8(); break;
 		case 0x2a: lda8(); break;
 		case 0x2b: decr16(); break;
 		case 0x2c: inc(); break;
 		case 0x2e: ldi8(); break;
 		case 0x2f: misc(); break;
+		case 0x30: jrs8(); break;
 		case 0x31: ldi16(); break;
 		case 0x32: ldr8(); break;
 		case 0x34: inc(); break;
 		case 0x36: ldi8(); break;
+		case 0x38: jrs8(); break;
 		case 0x3a: ldr8(); break;
 		case 0x3b: decr16(); break;
 		case 0x3c: inc(); break;
@@ -706,20 +710,31 @@ void CPU::jp16()
 	}
 }
 
-// Jump relative
-void CPU::jr8()
+void CPU::jrs8()
 {
+	auto jump_relative = [this](bool should_jump) -> void {
+		// JR cc,s8
+
+		// Note: the operand is read even when the condition is false
+		uint32_t signed_data = (pcRead() ^ 0x80) - 0x80;
+
+		if (!should_jump) {
+			m_wait_cycles += 8;
+			return;
+		}
+		m_wait_cycles += 12;
+
+		// Relative jump by adding s8 to the address of the instruction following the JR
+		m_pc = m_pc + signed_data;
+	};
+
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x20: { // JR NZ,s8
-		m_wait_cycles += 8;
-
-		if (!m_zf) {
-			m_wait_cycles += 4;
-			// TODO
-		}
-		break;
-	}
+	case 0x18: /* JR s8 */ jump_relative(true); break;
+	case 0x20: /* JR NZ,s8 */ jump_relative(!m_zf); break;
+	case 0x28: /* JR Z,s8 */ jump_relative(m_zf); break;
+	case 0x30: /* JR NC,s8 */ jump_relative(!m_cf); break;
+	case 0x38: /* JR C,s8 */ jump_relative(m_cf); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
