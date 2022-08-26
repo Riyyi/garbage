@@ -36,6 +36,7 @@ public:
 
 	void addProcessingUnit(std::string_view name, ProcessingUnit* processing_unit);
 	void addMemorySpace(std::string_view name, uint32_t start_address, uint32_t end_address, uint32_t amount_of_banks = 1);
+	void removeMemorySpace(std::string_view name);
 
 	void writeMemory(uint32_t address, uint32_t value);
 	uint32_t readMemory(uint32_t address) const;
@@ -43,6 +44,7 @@ public:
 	// -------------------------------------
 
 	ProcessingUnit* processingUnit(std::string_view name) const { return m_processing_units.at(name); }
+	MemorySpace memorySpace(std::string_view name) { return m_memory_spaces[name]; }
 
 private:
 	uint32_t m_frequency { 0 };

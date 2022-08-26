@@ -12,6 +12,7 @@
 
 #include "cpu.h"
 #include "emu.h"
+#include "loader.h"
 #include "ruc/format/log.h"
 #include "ruc/format/print.h"
 #include "ruc/meta/assert.h"
@@ -56,11 +57,19 @@ void Emu::addMemorySpace(std::string_view name, uint32_t start_address, uint32_t
 	m_memory_spaces.emplace(name, std::move(memory_space));
 }
 
+void Emu::removeMemorySpace(std::string_view name)
+{
+	m_memory_spaces.erase(name);
+}
+
 void Emu::writeMemory(uint32_t address, uint32_t value)
 {
 	for (auto& memory_space : m_memory_spaces) {
 		auto& memory = memory_space.second;
-		if (address >= memory.start_address && address <= memory.end_address) {
+		if (address == 0xff50) {
+			Loader::the().disableBootrom();
+		}
+		else if (address >= memory.start_address && address <= memory.end_address) {
 			// Note: ECHO RAM hack
 			if (address >= 0xc000 && address <= 0xddff) {
 				writeMemory(address + (0xe000 - 0xc000), value);

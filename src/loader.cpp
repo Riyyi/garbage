@@ -5,6 +5,7 @@
  */
 
 #include <cstddef> // size_t
+#include <cstdint> // uint32_t
 
 #include "cpu.h"
 #include "emu.h"
@@ -20,6 +21,19 @@ void Loader::loadRom(std::string_view rom_path)
 	}
 
 	init();
+}
+
+void Loader::disableBootrom()
+{
+	Emu::the().removeMemorySpace("BOOTROM1");
+	Emu::the().removeMemorySpace("CARTHEADER");
+	Emu::the().removeMemorySpace("BOOTROM2");
+
+	// Load cartridge bank 0
+	Emu::the().addMemorySpace("CARTROM1", 0x0000, 0x3fff); // 16KiB
+	for (size_t i = 0x0000; i <= 0x3fff; ++i) {
+		Emu::the().writeMemory(i, m_rom_data[i]);
+	}
 }
 
 // -----------------------------------------
@@ -40,9 +54,10 @@ void Loader::init()
 	// https://gbdev.io/pandocs/Power_Up_Sequence.html
 	Emu::the().addMemorySpace("BOOTROM1", 0x0000, 0x00ff); // 256B
 	loadCartridgeHeader();
-	Emu::the().addMemorySpace("BOOTROM2", 0x0200, 0x08ff);   // 1792B
+	Emu::the().addMemorySpace("BOOTROM2", 0x0200, 0x08ff); // 1792B
+	loadCartridgeBanks();
 	Emu::the().addMemorySpace("VRAM", 0x8000, 0x9fff, 2);    // 8KiB * 2 banks
-	Emu::the().addMemorySpace("CARDRAM", 0xa000, 0xbfff, 1); // 8KiB * ? banks, if any
+	Emu::the().addMemorySpace("CARTRAM", 0xa000, 0xbfff, 1); // 8KiB * ? banks, if any
 	Emu::the().addMemorySpace("WRAM1", 0xc000, 0xcfff);      // 4 KiB, Work RAM
 	Emu::the().addMemorySpace("WRAM2", 0xd000, 0xdfff, 7);   // 4 KiB * 7 banks, Work RAM
 	Emu::the().addMemorySpace("ECHORAM", 0xe000, 0xfdff);    // 7680B, Mirror of 0xc000~0xddff
@@ -84,9 +99,30 @@ void Loader::loadCartridgeHeader()
 		return;
 	}
 
-	Emu::the().addMemorySpace("CARTHEADER", 0x100, 0x14f);
+	Emu::the().addMemorySpace("CARTHEADER", 0x100, 0x14f); // 80B
 
-	for (size_t i = 0x100; i <= 0x14f; ++i) {
+	for (size_t i = 0x0100; i <= 0x014f; ++i) {
 		Emu::the().writeMemory(i, m_rom_data[i]);
 	}
+}
+
+void Loader::loadCartridgeBanks()
+{
+	if (m_rom_data.empty()) {
+		return;
+	}
+
+	uint32_t rom_size = 32 * 1024 * (1 << m_rom_data[0x0148]);
+	uint32_t rom_banks = rom_size / (16 * 1024) - 1;
+	Emu::the().addMemorySpace("CARTROM2", 0x4000, 0x7fff, rom_banks); // 16KiB * banks
+
+	// Load cartridge bank 1~NN
+	auto rom_memory_spaces = Emu::the().memorySpace("CARTROM2");
+	for (size_t i = 0; i < rom_banks; ++i) {
+		for (size_t i = 0x4000; i <= 0x7fff; ++i) {
+			Emu::the().writeMemory(i, m_rom_data[i]);
+		}
+		rom_memory_spaces.active_bank += 1;
+	}
+	rom_memory_spaces.active_bank = 0;
 }
