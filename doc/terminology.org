@@ -7,7 +7,7 @@ GameBoy terminology.
 
 ** Terminology
 
-*** Hardware
+*** Hardware [[#references][(1)]][[#references][(2)]]
 
 | Name            | Modern equivalent | Description                               |
 |-----------------+-------------------+-------------------------------------------|
@@ -28,18 +28,20 @@ We start counting from the right as bit *#0*!
 
 *** Opcode
 
-| Name      | Bits | Sign     | Mnemonics |    [[https://gbdev.io/gb-opcodes/optables/][1]] |   [[https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7/][2]] |  [[https://gekkio.fi/files/gb-docs/gbctr.pdf][3]]/[[http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf][3]] |   [[https://gbdev.io/pandocs/CPU_Instruction_Set.html][4]] | Description                  | Note              |
-|-----------+------+----------+-----------+------+-----+------+-----+------------------------------+-------------------|
-|           |      |          |           |  <r> | <r> |  <r> | <r> |                              |                   |
-| immediate |    8 | unsigned | i8        |   d8 |  n8 |    n |     | Next byte in memory          |                   |
-| immediate |   16 | unsigned | i16       |  d16 | n16 |   nn |     | Next byte in memory          | little-endian     |
-| register  |    8 | unsigned | r8        |      |  r8 |    r |     | Any of the registers         |                   |
-| register  |   16 | unsigned | r16       |      | r16 |   rr |     | Any of the registers         | little-endian     |
-| address   |    8 | unsigned | a8        |      |     |  (n) |     | Address at value             |                   |
-| address   |   16 | unsigned | a16 or () |  a16 | n16 | (nn) |  nn | Address at value             | little-endian     |
-| immediate |    8 | signed   | s8        |   r8 |  e8 |    e |  dd | Next byte in memory          |                   |
-| immediate |    8 | unsigned | io8       | (a8) | n16 |  (n) |   n | 0xff00 + next byte in memory | write to I/O-port |
-| condition |      |          | <ZNHC>    |   NZ |  cc |      |   f | Execute if condition met     |                   |
+| Name      | Bits | Sign     | Mnemonics |    [[https://gbdev.io/gb-opcodes/optables/][1]] |   [[https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7/][2]] |  [[https://gekkio.fi/files/gb-docs/gbctr.pdf][3]]/[[http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf][3]] |   [[https://gbdev.io/pandocs/CPU_Instruction_Set.html][4]] | Description                  | Note                   |
+|-----------+------+----------+-----------+------+-----+------+-----+------------------------------+------------------------|
+|           |      |          |           |  <r> | <r> |  <r> | <r> |                              |                        |
+| immediate |    8 | unsigned | i8        |   d8 |  n8 |    n |     | Next byte in memory          |                        |
+| immediate |   16 | unsigned | i16       |  d16 | n16 |   nn |     | Next byte in memory          | little-endian          |
+| register  |    8 | unsigned | r8        |      |  r8 |    r |     | Any of the registers         |                        |
+| register  |   16 | unsigned | r16       |      | r16 |   rr |     | Any of the registers         | little-endian          |
+| address   |    8 | unsigned | a8        |      |     |  (n) |     | Address at value             |                        |
+| address   |   16 | unsigned | a16 or () |  a16 | n16 | (nn) |  nn | Address at value             | little-endian          |
+| immediate |    8 | signed   | s8        |   r8 |  e8 |    e |  dd | Next byte in memory          | used as offset         |
+| immediate |    8 | unsigned | io8       | (a8) | n16 |  (n) |   n | 0xff00 + next byte in memory | write to I/O-port      |
+| condition |      |          | <ZNHC>    |      |  cc |      |   f | Execute if condition met     |                        |
+| constant  |    8 | unsigned | b         |      |  u3 |    b |   n | Single bit at position 'x'   |                        |
+| constant  |    8 | unsigned | vec       |      | vec |      |   n | One of RST vectors           | absolute fixed address |
 
 d = data \\
 n = constant
@@ -47,14 +49,19 @@ n = constant
 **** Flag conditions
 
 Flag conditions, sometimes referred to as ~cc~, are the state the flags need to
-be in to execute the opcode. There are four possible checks[[#references][(4)]]:
+be in to execute the opcode. There are four possible checks[[#references][(4)]][[#references][(5)]]:
 
-| Code | Meaning             | State |
-|------+---------------------+-------|
-| C    | Carry flag is set   |     1 |
-| NC   | Carry flag is unset |     0 |
-| Z    | Zero flag is set    |     1 |
-| NZ   | Zero flag is unset  |     0 |
+| Code | Meaning                        | State |
+|------+--------------------------------+-------|
+| Z    | Execute if Zero flag is set    |     1 |
+| NZ   | Execute if Zero flag is unset  |     0 |
+| C    | Execute if Carry flag is set   |     1 |
+| NC   | Execute if Carry flag is unset |     0 |
+
+**** RST vectors
+
+Absolute fixed address, possible values are[[#references][(4)]]: ~0x00~, ~0x08~, ~0x10~, ~0x18~,
+~0x20~, ~0x28~, ~0x30~, and ~0x38~.
 
 *** Variables
 
@@ -68,7 +75,8 @@ be in to execute the opcode. There are four possible checks[[#references][(4)]]:
 
 ** References
 
-1. https://gbdev.io/pandocs/Memory_Map.html
-2. https://gbdev.io/pandocs/Specifications.html
+1. [[https://gbdev.io/pandocs/Memory_Map.html]["Memory Map"]]. rgbdev.io. Retrieved 22 Aug 2022.
+2. [[https://gbdev.io/pandocs/Specifications.html]["Specifications"]]. rgbdev.io. Retrieved 22 Aug 2022.
 3. [[https://robdor.com/2016/08/10/gameboy-emulator-half-carry-flag/]["A Visual Guide to the Gameboy's Half-Carry Flag"]]. robdor.com. Retrieved 24 Aug 2022.
-4. [[http://www.devrs.com/gb/files/opcodes.html]["GameBoy Opcode Summary"]]. devrs.com. Retrieved 25 Aug 2022.
+4. [[https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7#LEGEND]["gbz80(7) — CPU opcode reference"]]. rgbds.gbdev.io. Retrieved 26 Aug 2022.
+5. [[http://www.devrs.com/gb/files/opcodes.html]["GameBoy Opcode Summary"]]. devrs.com. Retrieved 25 Aug 2022.
