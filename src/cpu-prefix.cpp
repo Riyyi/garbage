@@ -23,6 +23,9 @@ void CPU::prefix()
 	if (opcode >= 0x40 && opcode <= 0x7f) {
 		bit();
 	}
+	else if (opcode >= 0x80 && opcode <= 0xbf) {
+		res();
+	}
 	else {
 		print("opcode {:#04x} not implemented\n", opcode);
 		print("immediate: {:#04x}\n", m_pc, pcRead());
@@ -127,6 +130,104 @@ void CPU::bit()
 	case 0x7d: /* BIT 7,L */ test_bit(0x80, m_l); break;
 	case 0x7e: /* BIT 7,(HL) */ test_bit_hl(0x80); break;
 	case 0x7f: /* BIT 7,A */ test_bit(0x80, m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::res()
+{
+	auto reset_bit = [this](uint32_t bit, uint32_t& register_) -> void {
+		// RES b,r8
+		m_wait_cycles += 8;
+
+		// Reset bit at position 'x' in register r8
+		register_ = register_ & (~bit);
+	};
+
+	auto reset_bit_hl = [this](uint32_t bit) -> void {
+		// RES b,(HL)
+		m_wait_cycles += 16;
+
+		// Set bit at postition 'x' in the byte pointed by HL to 0
+		uint32_t data = read(hl());
+		data = data & (~bit);
+		write(hl(), data);
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x40: /* RES 0,B */ reset_bit(0x01, m_b); break;
+	case 0x41: /* RES 0,C */ reset_bit(0x01, m_c); break;
+	case 0x42: /* RES 0,D */ reset_bit(0x01, m_d); break;
+	case 0x43: /* RES 0,E */ reset_bit(0x01, m_e); break;
+	case 0x44: /* RES 0,H */ reset_bit(0x01, m_h); break;
+	case 0x45: /* RES 0,L */ reset_bit(0x01, m_l); break;
+	case 0x46: /* RES 0,(HL) */ reset_bit_hl(0x01); break;
+	case 0x47: /* RES 0,A */ reset_bit(0x01, m_a); break;
+
+	case 0x48: /* RES 1,B */ reset_bit(0x02, m_b); break;
+	case 0x49: /* RES 1,C */ reset_bit(0x02, m_c); break;
+	case 0x4a: /* RES 1,D */ reset_bit(0x02, m_d); break;
+	case 0x4b: /* RES 1,E */ reset_bit(0x02, m_e); break;
+	case 0x4c: /* RES 1,H */ reset_bit(0x02, m_h); break;
+	case 0x4d: /* RES 1,L */ reset_bit(0x02, m_l); break;
+	case 0x4e: /* RES 1,(HL) */ reset_bit_hl(0x02); break;
+	case 0x4f: /* RES 1,A */ reset_bit(0x02, m_a); break;
+
+	case 0x50: /* RES 2,B */ reset_bit(0x04, m_b); break;
+	case 0x51: /* RES 2,C */ reset_bit(0x04, m_c); break;
+	case 0x52: /* RES 2,D */ reset_bit(0x04, m_d); break;
+	case 0x53: /* RES 2,E */ reset_bit(0x04, m_e); break;
+	case 0x54: /* RES 2,H */ reset_bit(0x04, m_h); break;
+	case 0x55: /* RES 2,L */ reset_bit(0x04, m_l); break;
+	case 0x56: /* RES 2,(HL) */ reset_bit_hl(0x04); break;
+	case 0x57: /* RES 2,A */ reset_bit(0x04, m_a); break;
+
+	case 0x58: /* RES 3,B */ reset_bit(0x08, m_b); break;
+	case 0x59: /* RES 3,C */ reset_bit(0x08, m_c); break;
+	case 0x5a: /* RES 3,D */ reset_bit(0x08, m_d); break;
+	case 0x5b: /* RES 3,E */ reset_bit(0x08, m_e); break;
+	case 0x5c: /* RES 3,H */ reset_bit(0x08, m_h); break;
+	case 0x5d: /* RES 3,L */ reset_bit(0x08, m_l); break;
+	case 0x5e: /* RES 3,(HL) */ reset_bit_hl(0x08); break;
+	case 0x5f: /* RES 3,A */ reset_bit(0x08, m_a); break;
+
+	case 0x60: /* RES 4,B */ reset_bit(0x10, m_b); break;
+	case 0x61: /* RES 4,C */ reset_bit(0x10, m_c); break;
+	case 0x62: /* RES 4,D */ reset_bit(0x10, m_d); break;
+	case 0x63: /* RES 4,E */ reset_bit(0x10, m_e); break;
+	case 0x64: /* RES 4,H */ reset_bit(0x10, m_h); break;
+	case 0x65: /* RES 4,L */ reset_bit(0x10, m_l); break;
+	case 0x66: /* RES 4,(HL) */ reset_bit_hl(0x10); break;
+	case 0x67: /* RES 4,A */ reset_bit(0x10, m_a); break;
+
+	case 0x68: /* RES 5,B */ reset_bit(0x20, m_b); break;
+	case 0x69: /* RES 5,C */ reset_bit(0x20, m_c); break;
+	case 0x6a: /* RES 5,D */ reset_bit(0x20, m_d); break;
+	case 0x6b: /* RES 5,E */ reset_bit(0x20, m_e); break;
+	case 0x6c: /* RES 5,H */ reset_bit(0x20, m_h); break;
+	case 0x6d: /* RES 5,L */ reset_bit(0x20, m_l); break;
+	case 0x6e: /* RES 5,(HL) */ reset_bit_hl(0x20); break;
+	case 0x6f: /* RES 5,A */ reset_bit(0x20, m_a); break;
+
+	case 0x70: /* RES 6,B */ reset_bit(0x40, m_b); break;
+	case 0x71: /* RES 6,C */ reset_bit(0x40, m_c); break;
+	case 0x72: /* RES 6,D */ reset_bit(0x40, m_d); break;
+	case 0x73: /* RES 6,E */ reset_bit(0x40, m_e); break;
+	case 0x74: /* RES 6,H */ reset_bit(0x40, m_h); break;
+	case 0x75: /* RES 6,L */ reset_bit(0x40, m_l); break;
+	case 0x76: /* RES 6,(HL) */ reset_bit_hl(0x40); break;
+	case 0x77: /* RES 6,A */ reset_bit(0x40, m_a); break;
+
+	case 0x78: /* RES 7,B */ reset_bit(0x80, m_b); break;
+	case 0x79: /* RES 7,C */ reset_bit(0x80, m_c); break;
+	case 0x7a: /* RES 7,D */ reset_bit(0x80, m_d); break;
+	case 0x7b: /* RES 7,E */ reset_bit(0x80, m_e); break;
+	case 0x7c: /* RES 7,H */ reset_bit(0x80, m_h); break;
+	case 0x7d: /* RES 7,L */ reset_bit(0x80, m_l); break;
+	case 0x7e: /* RES 7,(HL) */ reset_bit_hl(0x80); break;
+	case 0x7f: /* RES 7,A */ reset_bit(0x80, m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}

@@ -42,6 +42,7 @@ public:
 	// Bit Operations Instructions
 
 	void bit();
+	void res();
 
 	// -------------------------------------
 	// Bit Shift Instructions
