@@ -67,6 +67,7 @@ public:
 	void call();
 	void jp16();
 	void jrs8();
+	void rst();
 
 	// -------------------------------------
 	// Stack Operations Instructions
@@ -75,6 +76,7 @@ public:
 	// Miscellaneous Instructions
 
 	void misc();
+	void nop();
 
 	// -------------------------------------
 

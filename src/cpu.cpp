@@ -67,6 +67,7 @@ void CPU::update()
 		print("running opcode: {:#x}\n", opcode);
 		switch (opcode) {
 
+		case 0x00: nop(); break;
 		case 0x01: ldi16(); break;
 		case 0x02: ldr8(); break;
 		case 0x04: inc(); break;
@@ -200,21 +201,29 @@ void CPU::update()
 		case 0xc3: jp16(); break;
 		case 0xc4: call(); break;
 		case 0xc6: addi8(); break;
+		case 0xc7: rst(); break;
 		case 0xcc: call(); break;
 		case 0xcd: call(); break;
+		case 0xcf: rst(); break;
 		case 0xd4: call(); break;
+		case 0xd7: rst(); break;
 		case 0xdc: call(); break;
+		case 0xdf: rst(); break;
 		case 0xe0: ldffi8(); break;
 		case 0xe2: ldr8(); break;
 		case 0xe6: and8(); break;
+		case 0xe7: rst(); break;
 		case 0xe8: adds8(); break;
 		case 0xea: ldr8(); break;
+		case 0xef: rst(); break;
 		case 0xf0: ldffi8(); break;
 		case 0xf2: lda8(); break;
+		case 0xf7: rst(); break;
 		case 0xf8: ldr16(); break;
 		case 0xf9: ldr16(); break;
 		case 0xfa: lda8(); break;
 		case 0xfe: cp(); break;
+		case 0xff: rst(); break;
 
 		default:
 			print("opcode {:#x} not implemented\n", opcode);
@@ -974,6 +983,37 @@ void CPU::jrs8()
 	}
 }
 
+void CPU::rst()
+{
+	auto function_call = [this](uint32_t fixed_address) -> void {
+		// RST vec
+		m_wait_cycles += 16;
+
+		// Push present address onto stack
+		m_sp = (m_sp - 1) & 0xffff;
+		write(m_sp, m_pc >> 8);
+		m_sp = (m_sp - 1) & 0xffff;
+		write(m_sp, m_pc & 0xff);
+
+		// Jump to this address
+		m_pc = fixed_address;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xc7: /* RST 0x00 */ function_call(0x00); break;
+	case 0xcf: /* RST 0x08 */ function_call(0x08); break;
+	case 0xd7: /* RST 0x10 */ function_call(0x10); break;
+	case 0xdf: /* RST 0x18 */ function_call(0x18); break;
+	case 0xe7: /* RST 0x20 */ function_call(0x20); break;
+	case 0xef: /* RST 0x28 */ function_call(0x28); break;
+	case 0xf7: /* RST 0x30 */ function_call(0x30); break;
+	case 0xff: /* RST 0x38 */ function_call(0x38); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
 void CPU::misc()
 {
 	uint8_t opcode = pcRead();
@@ -987,6 +1027,16 @@ void CPU::misc()
 		// Set flags
 		m_nf = m_hf = 1;
 		break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::nop()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x0: /* NOP */ m_wait_cycles += 4; break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
