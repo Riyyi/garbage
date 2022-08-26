@@ -198,8 +198,12 @@ void CPU::update()
 		case 0xbe: cp(); break;
 		case 0xbf: cp(); break;
 		case 0xc3: jp16(); break;
+		case 0xc4: call(); break;
 		case 0xc6: addi8(); break;
+		case 0xcc: call(); break;
 		case 0xcd: call(); break;
+		case 0xd4: call(); break;
+		case 0xdc: call(); break;
 		case 0xe0: ldffi8(); break;
 		case 0xe2: ldr8(); break;
 		case 0xe6: and8(); break;
@@ -894,12 +898,16 @@ void CPU::ldr16()
 
 void CPU::call()
 {
-	uint8_t opcode = pcRead();
-	switch (opcode) {
-	case 0xcd: { // CALL a16
-		m_wait_cycles += 24;
+	auto function_call = [this](bool should_call) -> void {
+		// CALL cc,i16
 
+		// Note: the operand is read even when the condition is false
 		uint32_t data = pcRead16();
+
+		if (!should_call) {
+			m_wait_cycles += 12;
+		}
+		m_wait_cycles += 24;
 
 		// Push address of next 2 bytes in memory onto stack
 		m_sp = (m_sp - 1) & 0xffff;
@@ -909,8 +917,15 @@ void CPU::call()
 
 		// Jump to this address
 		m_pc = data;
-		break;
-	}
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xc4: /* CALL NZ,i16 */ function_call(!m_nf); break;
+	case 0xcc: /* CALL Z,i16 */ function_call(m_nf); break;
+	case 0xcd: /* CALL i16 */ function_call(true); break;
+	case 0xd4: /* CALL NC,i16 */ function_call(!m_cf); break;
+	case 0xdc: /* CALL C,i16 */ function_call(m_cf); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
