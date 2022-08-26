@@ -41,6 +41,8 @@ public:
 	// -------------------------------------
 	// Bit Operations Instructions
 
+	void bit();
+
 	// -------------------------------------
 	// Bit Shift Instructions
 
@@ -77,6 +79,7 @@ public:
 
 	void misc();
 	void nop();
+	void prefix();
 
 	// -------------------------------------
 

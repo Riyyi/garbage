@@ -64,7 +64,7 @@ void CPU::update()
 
 		// Read next opcode
 		uint8_t opcode = read(m_pc);
-		print("running opcode: {:#x}\n", opcode);
+		print("running opcode: {:#04x} @ ({:#06x})\n", opcode, m_pc);
 		switch (opcode) {
 
 		case 0x00: nop(); break;
@@ -202,6 +202,7 @@ void CPU::update()
 		case 0xc4: call(); break;
 		case 0xc6: addi8(); break;
 		case 0xc7: rst(); break;
+		case 0xcb: prefix(); break;
 		case 0xcc: call(); break;
 		case 0xcd: call(); break;
 		case 0xcf: rst(); break;
@@ -227,7 +228,7 @@ void CPU::update()
 
 		default:
 			print("opcode {:#x} not implemented\n", opcode);
-			print("pc: {:#x}, immediate: {:#x}\n", m_pc, pcRead());
+			print("immediate: {:#04x}\n", m_pc, pcRead());
 			VERIFY_NOT_REACHED();
 		}
 	}
