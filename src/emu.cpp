@@ -71,6 +71,8 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 		}
 	}
 
+	ruc::error("writing into address '{:#06x}' which is not in a memory space!", address);
+
 	VERIFY_NOT_REACHED();
 }
 
@@ -85,7 +87,10 @@ uint32_t Emu::readMemory(uint32_t address) const
 
 	// When trying to access the cartridge header
 	if (address >= 0x100 && address <= 0x14f) {
-		ruc::error("No cartridge loaded!");
+		ruc::error("no cartridge loaded!");
+	}
+	else {
+		ruc::error("reading from address '{:#06x}' which is not in a memory space!", address);
 	}
 
 	VERIFY_NOT_REACHED();
