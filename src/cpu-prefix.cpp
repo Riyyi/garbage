@@ -26,6 +26,9 @@ void CPU::prefix()
 	else if (opcode >= 0x80 && opcode <= 0xbf) {
 		res();
 	}
+	else if (opcode >= 0xc0 && opcode <= 0xff) {
+		set();
+	}
 	else {
 		print("opcode {:#04x} not implemented\n", opcode);
 		print("immediate: {:#04x}\n", m_pc, pcRead());
@@ -228,6 +231,104 @@ void CPU::res()
 	case 0x7d: /* RES 7,L */ reset_bit(0x80, m_l); break;
 	case 0x7e: /* RES 7,(HL) */ reset_bit_hl(0x80); break;
 	case 0x7f: /* RES 7,A */ reset_bit(0x80, m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::set()
+{
+	auto set_bit = [this](uint32_t bit, uint32_t& register_) -> void {
+		// RES b,r8
+		m_wait_cycles += 8;
+
+		// Set bit at position 'x' in register r8
+		register_ = register_ | bit;
+	};
+
+	auto set_bit_hl = [this](uint32_t bit) -> void {
+		// RES b,(HL)
+		m_wait_cycles += 16;
+
+		// Set bit at postition 'x' in the byte pointed by HL to 0
+		uint32_t data = read(hl());
+		data = data | bit;
+		write(hl(), data);
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x40: /* SET 0,B */ set_bit(0x01, m_b); break;
+	case 0x41: /* SET 0,C */ set_bit(0x01, m_c); break;
+	case 0x42: /* SET 0,D */ set_bit(0x01, m_d); break;
+	case 0x43: /* SET 0,E */ set_bit(0x01, m_e); break;
+	case 0x44: /* SET 0,H */ set_bit(0x01, m_h); break;
+	case 0x45: /* SET 0,L */ set_bit(0x01, m_l); break;
+	case 0x46: /* SET 0,(HL) */ set_bit_hl(0x01); break;
+	case 0x47: /* SET 0,A */ set_bit(0x01, m_a); break;
+
+	case 0x48: /* SET 1,B */ set_bit(0x02, m_b); break;
+	case 0x49: /* SET 1,C */ set_bit(0x02, m_c); break;
+	case 0x4a: /* SET 1,D */ set_bit(0x02, m_d); break;
+	case 0x4b: /* SET 1,E */ set_bit(0x02, m_e); break;
+	case 0x4c: /* SET 1,H */ set_bit(0x02, m_h); break;
+	case 0x4d: /* SET 1,L */ set_bit(0x02, m_l); break;
+	case 0x4e: /* SET 1,(HL) */ set_bit_hl(0x02); break;
+	case 0x4f: /* SET 1,A */ set_bit(0x02, m_a); break;
+
+	case 0x50: /* SET 2,B */ set_bit(0x04, m_b); break;
+	case 0x51: /* SET 2,C */ set_bit(0x04, m_c); break;
+	case 0x52: /* SET 2,D */ set_bit(0x04, m_d); break;
+	case 0x53: /* SET 2,E */ set_bit(0x04, m_e); break;
+	case 0x54: /* SET 2,H */ set_bit(0x04, m_h); break;
+	case 0x55: /* SET 2,L */ set_bit(0x04, m_l); break;
+	case 0x56: /* SET 2,(HL) */ set_bit_hl(0x04); break;
+	case 0x57: /* SET 2,A */ set_bit(0x04, m_a); break;
+
+	case 0x58: /* SET 3,B */ set_bit(0x08, m_b); break;
+	case 0x59: /* SET 3,C */ set_bit(0x08, m_c); break;
+	case 0x5a: /* SET 3,D */ set_bit(0x08, m_d); break;
+	case 0x5b: /* SET 3,E */ set_bit(0x08, m_e); break;
+	case 0x5c: /* SET 3,H */ set_bit(0x08, m_h); break;
+	case 0x5d: /* SET 3,L */ set_bit(0x08, m_l); break;
+	case 0x5e: /* SET 3,(HL) */ set_bit_hl(0x08); break;
+	case 0x5f: /* SET 3,A */ set_bit(0x08, m_a); break;
+
+	case 0x60: /* SET 4,B */ set_bit(0x10, m_b); break;
+	case 0x61: /* SET 4,C */ set_bit(0x10, m_c); break;
+	case 0x62: /* SET 4,D */ set_bit(0x10, m_d); break;
+	case 0x63: /* SET 4,E */ set_bit(0x10, m_e); break;
+	case 0x64: /* SET 4,H */ set_bit(0x10, m_h); break;
+	case 0x65: /* SET 4,L */ set_bit(0x10, m_l); break;
+	case 0x66: /* SET 4,(HL) */ set_bit_hl(0x10); break;
+	case 0x67: /* SET 4,A */ set_bit(0x10, m_a); break;
+
+	case 0x68: /* SET 5,B */ set_bit(0x20, m_b); break;
+	case 0x69: /* SET 5,C */ set_bit(0x20, m_c); break;
+	case 0x6a: /* SET 5,D */ set_bit(0x20, m_d); break;
+	case 0x6b: /* SET 5,E */ set_bit(0x20, m_e); break;
+	case 0x6c: /* SET 5,H */ set_bit(0x20, m_h); break;
+	case 0x6d: /* SET 5,L */ set_bit(0x20, m_l); break;
+	case 0x6e: /* SET 5,(HL) */ set_bit_hl(0x20); break;
+	case 0x6f: /* SET 5,A */ set_bit(0x20, m_a); break;
+
+	case 0x70: /* SET 6,B */ set_bit(0x40, m_b); break;
+	case 0x71: /* SET 6,C */ set_bit(0x40, m_c); break;
+	case 0x72: /* SET 6,D */ set_bit(0x40, m_d); break;
+	case 0x73: /* SET 6,E */ set_bit(0x40, m_e); break;
+	case 0x74: /* SET 6,H */ set_bit(0x40, m_h); break;
+	case 0x75: /* SET 6,L */ set_bit(0x40, m_l); break;
+	case 0x76: /* SET 6,(HL) */ set_bit_hl(0x40); break;
+	case 0x77: /* SET 6,A */ set_bit(0x40, m_a); break;
+
+	case 0x78: /* SET 7,B */ set_bit(0x80, m_b); break;
+	case 0x79: /* SET 7,C */ set_bit(0x80, m_c); break;
+	case 0x7a: /* SET 7,D */ set_bit(0x80, m_d); break;
+	case 0x7b: /* SET 7,E */ set_bit(0x80, m_e); break;
+	case 0x7c: /* SET 7,H */ set_bit(0x80, m_h); break;
+	case 0x7d: /* SET 7,L */ set_bit(0x80, m_l); break;
+	case 0x7e: /* SET 7,(HL) */ set_bit_hl(0x80); break;
+	case 0x7f: /* RES 7,A */ set_bit(0x80, m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}

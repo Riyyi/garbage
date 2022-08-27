@@ -43,6 +43,7 @@ public:
 
 	void bit();
 	void res();
+	void set();
 
 	// -------------------------------------
 	// Bit Shift Instructions
