@@ -666,8 +666,7 @@ void CPU::ra()
 	switch (opcode) {
 	case 0x07: // RLCA
 
-		// Rotates A to the left with bit 7 being moved to bit 0 and also stored
-		// into the carry
+		// Rotates A to the left
 		//     ┌──────────────┐
 		//     │ ┌─────────┐  │
 		// C <─┴─│7  <──  0│<─┘
@@ -678,12 +677,11 @@ void CPU::ra()
 		m_cf = (m_a & 0x80) == 0x80;
 
 		// Rotate register A left
-		m_a = (m_a << 1) | (m_a >> 7);
+		m_a = (m_a >> 7) | (m_a << 1);
 		break;
 	case 0x0f: // RRCA
 
-		// Rotates A to the right with bit 0 being moved to bit 7 and also
-		// stored into the carry
+		// Rotates A to the right
 		// ┌──────────────┐
 		// │  ┌─────────┐ │
 		// └─>│7  ──>  0│─┴─> C
@@ -694,12 +692,11 @@ void CPU::ra()
 		m_cf = (m_a & 0x1) == 0x1;
 
 		// Rotate register A right
-		m_a = (m_a << 7) | (m_a >> 1);
+		m_a = (m_a >> 1) | (m_a << 7);
 		break;
 	case 0x17: { // RLA
 
-		// Rotates A to the left with the carry's value put into bit 0 and bit 7
-		// is put into the carry
+		// Rotate register A left through carry
 		// ┌────────────────────┐
 		// │       ┌─────────┐  │
 		// └─ C <──│7  <──  0│<─┘
@@ -710,13 +707,12 @@ void CPU::ra()
 		m_cf = (m_a & 0x80) == 0x80; // Copy bit 7 into carry flag
 
 		// Rotate register A left through carry
-		m_a = (m_a << 1) | old_carry;
+		m_a = old_carry | (m_a << 1);
 		break;
 	}
 	case 0x1f: { // RRA
 
-		// Rotates A to the right with the carry's value put into bit 7 and bit 0
-		// is put into the carry
+		// Rotate register A right through carry
 		// ┌────────────────────┐
 		// │  ┌─────────┐       │
 		// └─>│7  ──>  0│──> C ─┘
@@ -727,7 +723,7 @@ void CPU::ra()
 		m_cf = (m_a & 0x1) == 0x1; // Copy bit 0 into carry flag
 
 		// Rotate register A right through carry
-		m_a = (old_carry << 7) | (m_a >> 1);
+		m_a = (m_a >> 1) | (old_carry << 7);
 		break;
 	}
 	default:

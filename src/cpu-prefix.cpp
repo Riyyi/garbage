@@ -14,13 +14,21 @@
 
 void CPU::prefix()
 {
-	// Skip 0xcb opcode
+	// Note: All these opcodes are considered 2 bytes, as the prefix is included
+
+	// Skip 0xcb prefix opcode
 	m_pc = (m_pc + 1) & 0xffff;
 
 	// Read next opcode
 	uint8_t opcode = read(m_pc);
 	print("running opcode: {:#04x} @ ({:#06x})\n", opcode, m_pc);
-	if (opcode >= 30 && opcode <= 0x3f) {
+	if (opcode >= 0x00 && opcode <= 0x07) {
+		rlc();
+	}
+	else if (opcode >= 0x08 && opcode <= 0x0f) {
+		rrc();
+	}
+	else if (opcode >= 0x30 && opcode <= 0x3f) {
 		swap();
 	}
 	else if (opcode >= 0x40 && opcode <= 0x7f) {
@@ -372,6 +380,88 @@ void CPU::swap()
 		break;
 	}
 	case 0x7f: /* SWAP A */ swap_bits(m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::rlc()
+{
+	auto rotate_left = [this](uint32_t& register_) -> void {
+		// RLC r8, flags: Z 0 0 C
+		m_wait_cycles += 8;
+
+		// Copy bit 7 into carry flag
+		m_cf = (register_ & 0x80) == 0x80;
+
+		// Rotate register r8 left
+		register_ = ((register_ >> 7) | (register_ << 1)) & 0xff;
+
+		// Set other flags
+		m_zf = register_ == 0;
+		m_nf = 0;
+		m_hf = 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x00: /* RLC B */ rotate_left(m_b); break;
+	case 0x01: /* RLC C */ rotate_left(m_c); break;
+	case 0x02: /* RLC D */ rotate_left(m_d); break;
+	case 0x03: /* RLC E */ rotate_left(m_e); break;
+	case 0x04: /* RLC H */ rotate_left(m_h); break;
+	case 0x05: /* RLC L */ rotate_left(m_l); break;
+	case 0x06: /* RLC (HL) */ {
+		m_wait_cycles += 8; // + 8 = 16 total
+
+		// Rotate the byte pointed to by HL left
+		uint32_t data = read(hl());
+		rotate_left(data);
+		write(hl(), data);
+		break;
+	}
+	case 0x07: /* RLC A */ rotate_left(m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::rrc()
+{
+	auto rotate_right = [this](uint32_t& register_) -> void {
+		// RRC r8, flags: Z 0 0 C
+		m_wait_cycles += 8;
+
+		// Copy bit 0 into carry flag
+		m_cf = (register_ & 0x1) == 0x1;
+
+		// Rotate register r8 right
+		register_ = ((register_ >> 1) | (register_ << 7)) & 0xff;
+
+		// Set other flags
+		m_zf = register_ == 0;
+		m_nf = 0;
+		m_hf = 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x08: /* RRC B */ rotate_right(m_b); break;
+	case 0x09: /* RRC C */ rotate_right(m_c); break;
+	case 0x0a: /* RRC D */ rotate_right(m_d); break;
+	case 0x0b: /* RRC E */ rotate_right(m_e); break;
+	case 0x0c: /* RRC H */ rotate_right(m_h); break;
+	case 0x0d: /* RRC L */ rotate_right(m_l); break;
+	case 0x0e: /* RRC (HL) */ {
+		m_wait_cycles += 8; // + 8 = 16 total
+
+		// Rotate the byte pointed to by HL right
+		uint32_t data = read(hl());
+		rotate_right(data);
+		write(hl(), data);
+		break;
+	}
+	case 0x0f: /* RRC A */ rotate_right(m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}

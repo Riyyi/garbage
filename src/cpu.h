@@ -50,6 +50,8 @@ public:
 	// Bit Shift Instructions
 
 	void ra();
+	void rlc();
+	void rrc();
 
 	// -------------------------------------
 	// Load Instructions
