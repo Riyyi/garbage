@@ -54,6 +54,9 @@ public:
 	void rlc();
 	void rr();
 	void rrc();
+	void sla();
+	void sra();
+	void srl();
 
 	// -------------------------------------
 	// Load Instructions

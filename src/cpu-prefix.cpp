@@ -34,8 +34,17 @@ void CPU::prefix()
 	else if (opcode >= 0x18 && opcode <= 0x1f) {
 		rr();
 	}
+	else if (opcode >= 0x20 && opcode <= 0x27) {
+		sla();
+	}
+	else if (opcode >= 0x28 && opcode <= 0x2f) {
+		sra();
+	}
 	else if (opcode >= 0x30 && opcode <= 0x37) {
 		swap();
+	}
+	else if (opcode >= 0x38 && opcode <= 0x3f) {
+		srl();
 	}
 	else if (opcode >= 0x40 && opcode <= 0x7f) {
 		bit();
@@ -550,6 +559,148 @@ void CPU::rrc()
 		break;
 	}
 	case 0x0f: /* RRC A */ rotate_right(m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::sla()
+{
+	auto shift_left_arithmatically = [this](uint32_t& register_) -> void {
+		// SLA r8, flags: Z 0 0 C
+		m_wait_cycles += 8;
+
+		// Shift Left Arithmetically register r8
+		//     ┌─────────┐
+		// C <─│7  <──  0│<─ 0
+		//     └─────────┘
+		//         r8
+
+		// Copy bit 7 into carry flag
+		m_cf = (m_a & 0x80) == 0x80;
+
+		// Shift Left Arithmetically register r8
+		register_ = (register_ << 1) & 0xff;
+
+		// Set other flags
+		m_zf = register_ == 0;
+		m_nf = 0;
+		m_hf = 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x20: /* SLA B */ shift_left_arithmatically(m_b); break;
+	case 0x21: /* SLA C */ shift_left_arithmatically(m_c); break;
+	case 0x22: /* SLA D */ shift_left_arithmatically(m_d); break;
+	case 0x23: /* SLA E */ shift_left_arithmatically(m_e); break;
+	case 0x24: /* SLA H */ shift_left_arithmatically(m_h); break;
+	case 0x25: /* SLA L */ shift_left_arithmatically(m_l); break;
+	case 0x26: /* SLA (HL) */ {
+		m_wait_cycles += 8; // + 8 = 16 total
+
+		// Rotate the byte pointed to by HL right
+		uint32_t data = read(hl());
+		shift_left_arithmatically(data);
+		write(hl(), data);
+		break;
+	}
+	case 0x27: /* SLA A */ shift_left_arithmatically(m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::sra()
+{
+	auto shift_right_arithmatically = [this](uint32_t& register_) -> void {
+		// SRL r8, flags: Z 0 0 C
+		m_wait_cycles += 8;
+
+		// Shift Right Arithmatically register r8
+		//    ┌─────────┐
+		//  ┌─│7  ──>  0│─> C
+		//  │ └─────────┘
+		//  │  ^  r8
+		//  └──┘
+
+		// Copy bit 0 into carry flag
+		m_cf = (m_a & 0x01) == 0x01;
+
+		// Shift Right Arithmatically register r8
+		register_ = (register_ >> 1) | (register_ & 0x80); // Note: bit 7 remains
+
+		// Set other flags
+		m_zf = register_ == 0;
+		m_nf = 0;
+		m_hf = 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x28: /* SRA B */ shift_right_arithmatically(m_b); break;
+	case 0x29: /* SRA C */ shift_right_arithmatically(m_c); break;
+	case 0x2a: /* SRA D */ shift_right_arithmatically(m_d); break;
+	case 0x2b: /* SRA E */ shift_right_arithmatically(m_e); break;
+	case 0x2c: /* SRA H */ shift_right_arithmatically(m_h); break;
+	case 0x2d: /* SRA L */ shift_right_arithmatically(m_l); break;
+	case 0x2e: /* SRA (HL) */ {
+		m_wait_cycles += 8; // + 8 = 16 total
+
+		// Rotate the byte pointed to by HL right
+		uint32_t data = read(hl());
+		shift_right_arithmatically(data);
+		write(hl(), data);
+		break;
+	}
+	case 0x2f: /* SRA A */ shift_right_arithmatically(m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::srl()
+{
+	auto shift_right_logically = [this](uint32_t& register_) -> void {
+		// SRL r8, flags: Z 0 0 C
+		m_wait_cycles += 8;
+
+		// Shift Right Locically register r8
+		//     ┌─────────┐
+		// 0 ─>│7  ──>  0│─> C
+		//     └─────────┘
+		//         r8
+
+		// Copy bit 0 into carry flag
+		m_cf = (m_a & 0x01) == 0x01;
+
+		// Shift Right Locically register r8
+		register_ = (register_ >> 1) & 0x7f; // Note: bit 7 is set to 0
+
+		// Set other flags
+		m_zf = register_ == 0;
+		m_nf = 0;
+		m_hf = 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x38: /* SRL B */ shift_right_logically(m_b); break;
+	case 0x39: /* SRL C */ shift_right_logically(m_c); break;
+	case 0x3a: /* SRL D */ shift_right_logically(m_d); break;
+	case 0x3b: /* SRL E */ shift_right_logically(m_e); break;
+	case 0x3c: /* SRL H */ shift_right_logically(m_h); break;
+	case 0x3d: /* SRL L */ shift_right_logically(m_l); break;
+	case 0x3e: /* SRL (HL) */ {
+		m_wait_cycles += 8; // + 8 = 16 total
+
+		// Rotate the byte pointed to by HL right
+		uint32_t data = read(hl());
+		shift_right_logically(data);
+		write(hl(), data);
+		break;
+	}
+	case 0x3f: /* SRL A */ shift_right_logically(m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
