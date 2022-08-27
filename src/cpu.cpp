@@ -308,19 +308,19 @@ void CPU::and8()
 
 void CPU::dec8()
 {
-	auto decrement = [this](uint32_t& reg) -> void {
+	auto decrement = [this](uint32_t& register_) -> void {
 		// DEC r8, flags: Z 1 H -
 		m_wait_cycles += 4;
 
 		// Set flags
 		m_nf = 1;
-		m_hf = isCarry(reg, -1, 0x10);
+		m_hf = isCarry(register_, -1, 0x10);
 
 		// Decrement value in register r8 by 1
-		reg = (reg - 1) & 0xff;
+		register_ = (register_ - 1) & 0xff;
 
 		// Zero flag
-		m_zf = reg == 0;
+		m_zf = register_ == 0;
 	};
 
 	uint8_t opcode = pcRead();
@@ -410,17 +410,17 @@ void CPU::lda8()
 
 void CPU::addr16()
 {
-	auto add = [this](uint32_t reg) -> void {
+	auto add = [this](uint32_t register_) -> void {
 		// ADD HL,r16, flags: - 0 H C
 		m_wait_cycles += 8;
 
 		// Set flags
 		m_nf = 0;
-		m_hf = isCarry(hl(), reg, 0x1000);
-		m_cf = isCarry(hl(), reg, 0x10000);
+		m_hf = isCarry(hl(), register_, 0x1000);
+		m_cf = isCarry(hl(), register_, 0x10000);
 
 		// Add the value in r16 to HL
-		uint32_t data = (hl() + reg) & 0xffff;
+		uint32_t data = (hl() + register_) & 0xffff;
 		m_l = data & 0xff;
 		m_h = data >> 8;
 	};
@@ -782,19 +782,19 @@ void CPU::cp()
 
 void CPU::inc()
 {
-	auto increment = [this](uint32_t& reg) -> void {
+	auto increment = [this](uint32_t& register_) -> void {
 		// INC r8, flags: Z 0 H -
 		m_wait_cycles += 4;
 
 		// Set flags
 		m_nf = 0;
-		m_hf = isCarry(reg, 1, 0x10);
+		m_hf = isCarry(register_, 1, 0x10);
 
 		// Increment value in register r8 by 1
-		reg = (reg + 1) & 0xff;
+		register_ = (register_ + 1) & 0xff;
 
 		// Zero flag
-		m_zf = reg == 0;
+		m_zf = register_ == 0;
 	};
 
 	uint8_t opcode = pcRead();
