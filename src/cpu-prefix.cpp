@@ -28,6 +28,12 @@ void CPU::prefix()
 	else if (opcode >= 0x08 && opcode <= 0x0f) {
 		rrc();
 	}
+	else if (opcode >= 0x10 && opcode <= 0x17) {
+		rl();
+	}
+	else if (opcode >= 0x18 && opcode <= 0x1f) {
+		rr();
+	}
 	else if (opcode >= 0x30 && opcode <= 0x3f) {
 		swap();
 	}
@@ -385,6 +391,47 @@ void CPU::swap()
 	}
 }
 
+void CPU::rl()
+{
+	auto rotate_left_carry = [this](uint32_t& register_) -> void {
+		// RL r8, flags: Z 0 0 C
+		m_wait_cycles += 8;
+
+		// Copy bit 7 into carry flag
+		uint32_t old_carry = m_cf != 0;
+		m_cf = (register_ & 0x80) == 0x80;
+
+		// Rotate register r8 left through carry
+		register_ = (old_carry | (register_ << 1)) & 0xff;
+
+		// Set other flags
+		m_zf = register_ == 0;
+		m_nf = 0;
+		m_hf = 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x10: /* RL B */ rotate_left_carry(m_b); break;
+	case 0x11: /* RL C */ rotate_left_carry(m_c); break;
+	case 0x12: /* RL D */ rotate_left_carry(m_d); break;
+	case 0x13: /* RL E */ rotate_left_carry(m_e); break;
+	case 0x14: /* RL H */ rotate_left_carry(m_h); break;
+	case 0x15: /* RL L */ rotate_left_carry(m_l); break;
+	case 0x16: /* RL (HL) */ {
+		m_wait_cycles += 8; // + 8 = 16 total
+
+		uint32_t data = read(hl());
+		rotate_left_carry(data);
+		write(hl(), data);
+		break;
+	}
+	case 0x17: /* RL A */ rotate_left_carry(m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
 void CPU::rlc()
 {
 	auto rotate_left = [this](uint32_t& register_) -> void {
@@ -421,6 +468,47 @@ void CPU::rlc()
 		break;
 	}
 	case 0x07: /* RLC A */ rotate_left(m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::rr()
+{
+	auto rotate_right_carry = [this](uint32_t& register_) -> void {
+		// RR r8, flags: Z 0 0 C
+		m_wait_cycles += 8;
+
+		// Copy bit 0 into carry flag
+		uint32_t old_carry = m_cf != 0;
+		m_cf = (register_ & 0x01) == 0x01;
+
+		// Rotate register r8 right through carry
+		register_ = ((register_ >> 1) | (old_carry << 7)) & 0xff;
+
+		// Set other flags
+		m_zf = register_ == 0;
+		m_nf = 0;
+		m_hf = 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x18: /* RR B */ rotate_right_carry(m_b); break;
+	case 0x19: /* RR C */ rotate_right_carry(m_c); break;
+	case 0x1a: /* RR D */ rotate_right_carry(m_d); break;
+	case 0x1b: /* RR E */ rotate_right_carry(m_e); break;
+	case 0x1c: /* RR H */ rotate_right_carry(m_h); break;
+	case 0x1d: /* RR L */ rotate_right_carry(m_l); break;
+	case 0x1e: /* RR (HL) */ {
+		m_wait_cycles += 8; // + 8 = 16 total
+
+		uint32_t data = read(hl());
+		rotate_right_carry(data);
+		write(hl(), data);
+		break;
+	}
+	case 0x1f: /* RR A */ rotate_right_carry(m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
