@@ -20,7 +20,10 @@ void CPU::prefix()
 	// Read next opcode
 	uint8_t opcode = read(m_pc);
 	print("running opcode: {:#04x} @ ({:#06x})\n", opcode, m_pc);
-	if (opcode >= 0x40 && opcode <= 0x7f) {
+	if (opcode >= 30 && opcode <= 0x3f) {
+		swap();
+	}
+	else if (opcode >= 0x40 && opcode <= 0x7f) {
 		bit();
 	}
 	else if (opcode >= 0x80 && opcode <= 0xbf) {
@@ -31,7 +34,7 @@ void CPU::prefix()
 	}
 	else {
 		print("opcode {:#04x} not implemented\n", opcode);
-		print("immediate: {:#04x}\n", m_pc, pcRead());
+		print("immediate: {:#04x}\n", pcRead());
 		VERIFY_NOT_REACHED();
 	}
 }
@@ -328,7 +331,47 @@ void CPU::set()
 	case 0x7c: /* SET 7,H */ set_bit(0x80, m_h); break;
 	case 0x7d: /* SET 7,L */ set_bit(0x80, m_l); break;
 	case 0x7e: /* SET 7,(HL) */ set_bit_hl(0x80); break;
-	case 0x7f: /* RES 7,A */ set_bit(0x80, m_a); break;
+	case 0x7f: /* SET 7,A */ set_bit(0x80, m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::swap()
+{
+	auto swap_bits = [this](uint32_t& register_) -> void {
+		// SWAP r8, flags: Z 0 0 0
+		m_wait_cycles += 8;
+
+		// Swap upper 4 bits in register r8 with lower 4 bits
+		register_ = register_ & 0xff;
+		register_ = (register_ >> 4) | (register_ << 4);
+
+		// Set flags
+		m_zf = register_ == 0;
+		m_nf = 0;
+		m_hf = 0;
+		m_cf = 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x78: /* SWAP B */ swap_bits(m_b); break;
+	case 0x79: /* SWAP C */ swap_bits(m_c); break;
+	case 0x7a: /* SWAP D */ swap_bits(m_d); break;
+	case 0x7b: /* SWAP E */ swap_bits(m_e); break;
+	case 0x7c: /* SWAP H */ swap_bits(m_h); break;
+	case 0x7d: /* SWAP L */ swap_bits(m_l); break;
+	case 0x7e: /* SWAP (HL) */ {
+		m_wait_cycles += 8; // + 8 = 16 total
+
+		// Swap upper 4 bits in the byte pointed by HL with lower 4 bits
+		uint32_t data = read(hl());
+		swap_bits(data);
+		write(hl(), data);
+		break;
+	}
+	case 0x7f: /* SWAP A */ swap_bits(m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}

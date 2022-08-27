@@ -44,6 +44,7 @@ public:
 	void bit();
 	void res();
 	void set();
+	void swap();
 
 	// -------------------------------------
 	// Bit Shift Instructions

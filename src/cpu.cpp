@@ -228,7 +228,7 @@ void CPU::update()
 
 		default:
 			print("opcode {:#x} not implemented\n", opcode);
-			print("immediate: {:#04x}\n", m_pc, pcRead());
+			print("immediate: {:#04x}\n", pcRead());
 			VERIFY_NOT_REACHED();
 		}
 	}
