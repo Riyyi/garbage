@@ -34,7 +34,7 @@ void CPU::prefix()
 	else if (opcode >= 0x18 && opcode <= 0x1f) {
 		rr();
 	}
-	else if (opcode >= 0x30 && opcode <= 0x3f) {
+	else if (opcode >= 0x30 && opcode <= 0x37) {
 		swap();
 	}
 	else if (opcode >= 0x40 && opcode <= 0x7f) {
