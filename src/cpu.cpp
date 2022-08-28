@@ -208,6 +208,22 @@ void CPU::update()
 		case 0x8d: adc8(); break;
 		case 0x8e: adc8(); break;
 		case 0x8f: adc8(); break;
+		case 0x90: sub8(); break;
+		case 0x91: sub8(); break;
+		case 0x92: sub8(); break;
+		case 0x93: sub8(); break;
+		case 0x94: sub8(); break;
+		case 0x95: sub8(); break;
+		case 0x96: sub8(); break;
+		case 0x97: sub8(); break;
+		case 0x98: sbc8(); break;
+		case 0x99: sbc8(); break;
+		case 0x9a: sbc8(); break;
+		case 0x9b: sbc8(); break;
+		case 0x9c: sbc8(); break;
+		case 0x9d: sbc8(); break;
+		case 0x9e: sbc8(); break;
+		case 0x9f: sbc8(); break;
 		case 0xa0: and8(); break;
 		case 0xa1: and8(); break;
 		case 0xa2: and8(); break;
@@ -240,8 +256,10 @@ void CPU::update()
 		case 0xd1: pop(); break;
 		case 0xd4: call(); break;
 		case 0xd5: push(); break;
+		case 0xd6: sub8(); break;
 		case 0xd7: rst(); break;
 		case 0xdc: call(); break;
+		case 0xde: sbc8(); break;
 		case 0xdf: rst(); break;
 		case 0xe0: ldffi8(); break;
 		case 0xe1: pop(); break;
@@ -420,6 +438,54 @@ void CPU::and8()
 	}
 }
 
+void CPU::cp()
+{
+	auto compare = [this](uint32_t register_) -> void {
+		// CP A,r8, flags: Z 1 H C
+		m_wait_cycles += 4;
+
+		// Subtract the value in r8 from A and set flags accordingly,
+		// but don't store the result
+
+		// Set flags
+		// Zero flag
+		m_zf = ((m_a - register_) & 0xff) == 0;
+		m_nf = 1;
+		// Note: for negation between two positive numbers the carry result is flipped!
+		m_hf = !isCarry(m_a, register_, 0x10);
+		m_cf = !isCarry(m_a, register_, 0x100);
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xb8: /* CP A,B */ compare(m_b); break;
+	case 0xb9: /* CP A,C */ compare(m_c); break;
+	case 0xba: /* CP A,D */ compare(m_d); break;
+	case 0xbb: /* CP A,E */ compare(m_e); break;
+	case 0xbc: /* CP A,H */ compare(m_h); break;
+	case 0xbd: /* CP A,L */ compare(m_l); break;
+	case 0xbe: /* CP A,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Subtract the byte pointed to by HL from A and set flags accordingly,
+		// but don't store the result
+		compare(read(hl()));
+		break;
+	}
+	case 0xbf: /* CP A,A */ compare(m_a); break;
+	case 0xfe: /* CP A,i8 */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Subtract the value i8 from A and set flags accordingly,
+		// but don't store the result
+		compare(pcRead());
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
 void CPU::dec8()
 {
 	auto decrement = [this](uint32_t& register_) -> void {
@@ -495,6 +561,102 @@ void CPU::inc8()
 		break;
 	}
 	case 0x3c: /* INC A */ increment(m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::sbc8()
+{
+	auto subtract_carry = [this](uint32_t register_) -> void {
+		// SBC A,r8, flags: Z 1 H C
+		m_wait_cycles += 4;
+
+		uint32_t old_carry = m_cf;
+
+		// Set flags
+		m_nf = 1;
+		// Note: for negation between two positive numbers the carry result is flipped!
+		m_hf = !isCarry(m_a, register_, 0x10);
+		m_cf = !isCarry(m_a, (register_ + (old_carry) ? 1 : 0), 0x100);
+
+		// Subtract the value in r8 and the carry flag from A
+		m_a = (m_a - register_ - (old_carry) ? 1 : 0) & 0xff;
+
+		// Zero flag
+		m_zf = m_a == 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x98: /* SBC A,B */ subtract_carry(m_b); break;
+	case 0x99: /* SBC A,C */ subtract_carry(m_c); break;
+	case 0x9a: /* SBC A,D */ subtract_carry(m_d); break;
+	case 0x9b: /* SBC A,E */ subtract_carry(m_e); break;
+	case 0x9c: /* SBC A,H */ subtract_carry(m_h); break;
+	case 0x9d: /* SBC A,L */ subtract_carry(m_l); break;
+	case 0x9e: /* SBC A,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Subtract the byte pointed to by HL and the carry flag from A
+		subtract_carry(read(hl()));
+		break;
+	}
+	case 0x9f: /* SBC A,A */ subtract_carry(m_a); break;
+	case 0xde: /* SBC A,i8 */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Subtract the value i8 and the carry flag from A
+		subtract_carry(pcRead());
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::sub8()
+{
+	auto subtract = [this](uint32_t register_) -> void {
+		// SUB A,r8, flags: Z 1 H C
+		m_wait_cycles += 4;
+
+		// Set flags
+		m_nf = 1;
+		// Note: for negation between two positive numbers the carry result is flipped!
+		m_hf = !isCarry(m_a, register_, 0x10);
+		m_cf = !isCarry(m_a, register_, 0x100);
+
+		// Subtract the value in r8 from A
+		m_a = (m_a - register_) & 0xff;
+
+		// Zero flag
+		m_zf = m_a == 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x90: /* SUB A,B */ subtract(m_b); break;
+	case 0x91: /* SUB A,C */ subtract(m_c); break;
+	case 0x92: /* SUB A,D */ subtract(m_d); break;
+	case 0x93: /* SUB A,E */ subtract(m_e); break;
+	case 0x94: /* SUB A,H */ subtract(m_h); break;
+	case 0x95: /* SUB A,L */ subtract(m_l); break;
+	case 0x96: /* SUB A,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Subtract the byte pointed to by HL from A
+		subtract(read(hl()));
+		break;
+	}
+	case 0x97: /* SUB A,A */ subtract(m_a); break;
+	case 0xd6: /* SUB A,i8 */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Subtract the value i8 from A
+		subtract(pcRead());
+		break;
+	}
 	default:
 		VERIFY_NOT_REACHED();
 	}
@@ -933,45 +1095,6 @@ void CPU::ra()
 	m_zf = 0;
 	m_nf = 0;
 	m_hf = 0;
-}
-
-void CPU::cp()
-{
-	uint8_t opcode = pcRead();
-	uint8_t value = 0;
-	switch (opcode) {
-	case 0xb8: /* CP B */ value = m_b; break;
-	case 0xb9: /* CP C */ value = m_c; break;
-	case 0xba: /* CP D */ value = m_d; break;
-	case 0xbb: /* CP E */ value = m_e; break;
-	case 0xbc: /* CP H */ value = m_h; break;
-	case 0xbd: /* CP L */ value = m_l; break;
-	case 0xbe: // CP,(HL)
-		m_wait_cycles += 4;
-		value = read(hl());
-		break;
-	case 0xbf: // CP A, flags: 1 1 0 0
-		m_wait_cycles += 4;
-		// A - A
-		m_zf = m_nf = 1;
-		m_hf = m_cf = 0;
-		return; // Early return as we already set the flags
-	case 0xfe:  // CP i8
-		m_wait_cycles += 4;
-		value = pcRead();
-		break;
-	default:
-		VERIFY_NOT_REACHED();
-	}
-
-	// CP r8, flags: Z 1 H C
-	m_wait_cycles += 4;
-
-	// Set flags
-	m_zf = ((m_a - value) & 0xff) == 0;
-	m_nf = 1;
-	m_hf = isCarry(m_a, value, 0x10);
-	m_cf = isCarry(m_a, value, 0x100);
 }
 
 void CPU::ldffi8()

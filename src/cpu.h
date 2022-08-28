@@ -31,8 +31,11 @@ public:
 	void adc8();
 	void add8();
 	void and8();
+	void cp();
 	void dec8();
 	void inc8();
+	void sbc8();
+	void sub8();
 	void xor8();
 
 	// 16-bit
@@ -65,7 +68,6 @@ public:
 	// Load Instructions
 
 	// 8-bit
-	void cp();
 	void lda8();
 	void ldffi8();
 	void ldi8();
