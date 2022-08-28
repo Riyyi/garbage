@@ -198,27 +198,35 @@ void CPU::update()
 		case 0xbd: cp(); break;
 		case 0xbe: cp(); break;
 		case 0xbf: cp(); break;
+		case 0xc1: pop(); break;
 		case 0xc3: jp16(); break;
 		case 0xc4: call(); break;
+		case 0xc5: push(); break;
 		case 0xc6: addi8(); break;
 		case 0xc7: rst(); break;
 		case 0xcb: prefix(); break;
 		case 0xcc: call(); break;
 		case 0xcd: call(); break;
 		case 0xcf: rst(); break;
+		case 0xd1: pop(); break;
 		case 0xd4: call(); break;
+		case 0xd5: push(); break;
 		case 0xd7: rst(); break;
 		case 0xdc: call(); break;
 		case 0xdf: rst(); break;
 		case 0xe0: ldffi8(); break;
+		case 0xe1: pop(); break;
 		case 0xe2: ldr8(); break;
+		case 0xe5: push(); break;
 		case 0xe6: and8(); break;
 		case 0xe7: rst(); break;
 		case 0xe8: adds8(); break;
 		case 0xea: ldr8(); break;
 		case 0xef: rst(); break;
 		case 0xf0: ldffi8(); break;
+		case 0xf1: pop(); break;
 		case 0xf2: lda8(); break;
+		case 0xf5: push(); break;
 		case 0xf7: rst(); break;
 		case 0xf8: ldr16(); break;
 		case 0xf9: ldr16(); break;
@@ -912,6 +920,64 @@ void CPU::ldr16()
 		m_sp = hl();
 		break;
 	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::pop()
+{
+	auto pop_stack = [this](uint32_t& register_high, uint32_t& register_low) -> void {
+		// POP r16
+		m_wait_cycles += 12;
+
+		// Pop register r16 from stack
+		register_low = read(m_sp);
+		m_sp = (m_sp + 1) & 0xffff;
+		register_high = read(m_sp);
+		m_sp = (m_sp + 1) & 0xffff;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xc1: /* POP BC */ pop_stack(m_b, m_c); break;
+	case 0xd1: /* POP DE */ pop_stack(m_d, m_e); break;
+	case 0xe1: /* POP HL */ pop_stack(m_h, m_l); break;
+	case 0xf1: /* POP AF, flags: Z N H C */ {
+		uint32_t data;
+		pop_stack(m_a, data);
+
+		// Set flags
+		m_zf = (data & 0x80) == 0x80; // bit 7 of the popped low byte
+		m_nf = (data & 0x40) == 0x40; // bit 6 ,,
+		m_hf = (data & 0x20) == 0x20; // bit 5 ,,
+		m_cf = (data & 0x10) == 0x10; // bit 4 ,,
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::push()
+{
+	auto push_into_stack = [this](uint32_t register_) -> void {
+		// PUSH r16
+		m_wait_cycles += 16;
+
+		// Push register r16 into stack
+		m_sp = (m_sp - 1) & 0xffff;
+		write(m_sp, register_ >> 8);
+		m_sp = (m_sp - 1) & 0xffff;
+		write(m_sp, register_ & 0xff);
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xc5: /* PUSH BC */ push_into_stack(bc()); break;
+	case 0xd5: /* PUSH DE */ push_into_stack(de()); break;
+	case 0xe5: /* PUSH HL */ push_into_stack(hl()); break;
+	case 0xf5: /* PUSH AF */ push_into_stack(af()); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}

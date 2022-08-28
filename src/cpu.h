@@ -72,6 +72,8 @@ public:
 	// 16-bit
 	void ldi16();
 	void ldr16();
+	void pop();
+	void push();
 
 	// -------------------------------------
 	// Jumps and Subroutines
