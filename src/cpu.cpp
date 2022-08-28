@@ -70,7 +70,7 @@ void CPU::update()
 		case 0x00: nop(); break;
 		case 0x01: ldi16(); break;
 		case 0x02: ldr8(); break;
-		case 0x04: inc(); break;
+		case 0x04: inc8(); break;
 		case 0x05: dec8(); break;
 		case 0x06: ldi8(); break;
 		case 0x07: ra(); break;
@@ -78,13 +78,13 @@ void CPU::update()
 		case 0x09: addr16(); break;
 		case 0x0a: ldr8(); break;
 		case 0x0b: dec16(); break;
-		case 0x0c: inc(); break;
+		case 0x0c: inc8(); break;
 		case 0x0d: dec8(); break;
 		case 0x0e: ldi8(); break;
 		case 0x0f: ra(); break;
 		case 0x11: ldi16(); break;
 		case 0x12: ldr8(); break;
-		case 0x14: inc(); break;
+		case 0x14: inc8(); break;
 		case 0x15: dec8(); break;
 		case 0x16: ldi8(); break;
 		case 0x17: ra(); break;
@@ -92,35 +92,35 @@ void CPU::update()
 		case 0x19: addr16(); break;
 		case 0x1a: ldr8(); break;
 		case 0x1b: dec16(); break;
-		case 0x1c: inc(); break;
+		case 0x1c: inc8(); break;
 		case 0x1d: dec8(); break;
 		case 0x1e: ldi8(); break;
 		case 0x1f: ra(); break;
 		case 0x20: jrs8(); break;
 		case 0x21: ldi16(); break;
 		case 0x22: ldr8(); break;
-		case 0x24: inc(); break;
+		case 0x24: inc8(); break;
 		case 0x25: dec8(); break;
 		case 0x26: ldi8(); break;
 		case 0x28: jrs8(); break;
 		case 0x29: addr16(); break;
 		case 0x2a: lda8(); break;
 		case 0x2b: dec16(); break;
-		case 0x2c: inc(); break;
+		case 0x2c: inc8(); break;
 		case 0x2d: dec8(); break;
 		case 0x2e: ldi8(); break;
 		case 0x2f: misc(); break;
 		case 0x30: jrs8(); break;
 		case 0x31: ldi16(); break;
 		case 0x32: ldr8(); break;
-		case 0x34: inc(); break;
+		case 0x34: inc8(); break;
 		case 0x35: dec8(); break;
 		case 0x36: ldi8(); break;
 		case 0x38: jrs8(); break;
 		case 0x39: addr16(); break;
 		case 0x3a: ldr8(); break;
 		case 0x3b: dec16(); break;
-		case 0x3c: inc(); break;
+		case 0x3c: inc8(); break;
 		case 0x3d: dec8(); break;
 		case 0x3e: ldi8(); break;
 		case 0x40: ldr8(); break;
@@ -362,6 +362,46 @@ void CPU::dec8()
 		break;
 	}
 	case 0x3d: /* DEC A */ decrement(m_a); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::inc8()
+{
+	auto increment = [this](uint32_t& register_) -> void {
+		// INC r8, flags: Z 0 H -
+		m_wait_cycles += 4;
+
+		// Set flags
+		m_nf = 0;
+		m_hf = isCarry(register_, 1, 0x10);
+
+		// Increment value in register r8 by 1
+		register_ = (register_ + 1) & 0xff;
+
+		// Zero flag
+		m_zf = register_ == 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x04: /* INC B */ increment(m_b); break;
+	case 0x0c: /* INC C */ increment(m_c); break;
+	case 0x14: /* INC D */ increment(m_d); break;
+	case 0x1c: /* INC E */ increment(m_e); break;
+	case 0x24: /* INC H */ increment(m_h); break;
+	case 0x2c: /* INC L */ increment(m_l); break;
+	case 0x34: /* INC (HL) */ {
+		m_wait_cycles += 8; // + 4 = 12 total
+
+		// Increment the byte pointed to by HL by 1
+		uint32_t data = read(hl());
+		increment(data);
+		write(hl(), data);
+		break;
+	}
+	case 0x3c: /* INC A */ increment(m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
@@ -799,46 +839,6 @@ void CPU::cp()
 	m_nf = 1;
 	m_hf = isCarry(m_a, value, 0x10);
 	m_cf = isCarry(m_a, value, 0x100);
-}
-
-void CPU::inc()
-{
-	auto increment = [this](uint32_t& register_) -> void {
-		// INC r8, flags: Z 0 H -
-		m_wait_cycles += 4;
-
-		// Set flags
-		m_nf = 0;
-		m_hf = isCarry(register_, 1, 0x10);
-
-		// Increment value in register r8 by 1
-		register_ = (register_ + 1) & 0xff;
-
-		// Zero flag
-		m_zf = register_ == 0;
-	};
-
-	uint8_t opcode = pcRead();
-	switch (opcode) {
-	case 0x04: /* INC B */ increment(m_b); break;
-	case 0x0c: /* INC C */ increment(m_c); break;
-	case 0x14: /* INC D */ increment(m_d); break;
-	case 0x1c: /* INC E */ increment(m_e); break;
-	case 0x24: /* INC H */ increment(m_h); break;
-	case 0x2c: /* INC L */ increment(m_l); break;
-	case 0x34: /* INC (HL) */ {
-		m_wait_cycles += 8; // + 4 = 12 total
-
-		// Increment the byte pointed to by HL by 1
-		uint32_t data = read(hl());
-		increment(data);
-		write(hl(), data);
-		break;
-	}
-	case 0x3c: /* INC A */ increment(m_a); break;
-	default:
-		VERIFY_NOT_REACHED();
-	}
 }
 
 void CPU::ldffi8()

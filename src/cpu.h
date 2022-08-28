@@ -31,6 +31,7 @@ public:
 	void addi8();
 	void and8();
 	void dec8();
+	void inc8();
 	void xor8();
 
 	// 16-bit
@@ -63,7 +64,6 @@ public:
 
 	// 8-bit
 	void cp();
-	void inc();
 	void lda8();
 	void ldffi8();
 	void ldi8();
