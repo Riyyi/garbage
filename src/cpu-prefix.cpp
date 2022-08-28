@@ -186,77 +186,77 @@ void CPU::res()
 
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x40: /* RES 0,B */ reset_bit(0x01, m_b); break;
-	case 0x41: /* RES 0,C */ reset_bit(0x01, m_c); break;
-	case 0x42: /* RES 0,D */ reset_bit(0x01, m_d); break;
-	case 0x43: /* RES 0,E */ reset_bit(0x01, m_e); break;
-	case 0x44: /* RES 0,H */ reset_bit(0x01, m_h); break;
-	case 0x45: /* RES 0,L */ reset_bit(0x01, m_l); break;
-	case 0x46: /* RES 0,(HL) */ reset_bit_hl(0x01); break;
-	case 0x47: /* RES 0,A */ reset_bit(0x01, m_a); break;
+	case 0x80: /* RES 0,B */ reset_bit(0x01, m_b); break;
+	case 0x81: /* RES 0,C */ reset_bit(0x01, m_c); break;
+	case 0x82: /* RES 0,D */ reset_bit(0x01, m_d); break;
+	case 0x83: /* RES 0,E */ reset_bit(0x01, m_e); break;
+	case 0x84: /* RES 0,H */ reset_bit(0x01, m_h); break;
+	case 0x85: /* RES 0,L */ reset_bit(0x01, m_l); break;
+	case 0x86: /* RES 0,(HL) */ reset_bit_hl(0x01); break;
+	case 0x87: /* RES 0,A */ reset_bit(0x01, m_a); break;
 
-	case 0x48: /* RES 1,B */ reset_bit(0x02, m_b); break;
-	case 0x49: /* RES 1,C */ reset_bit(0x02, m_c); break;
-	case 0x4a: /* RES 1,D */ reset_bit(0x02, m_d); break;
-	case 0x4b: /* RES 1,E */ reset_bit(0x02, m_e); break;
-	case 0x4c: /* RES 1,H */ reset_bit(0x02, m_h); break;
-	case 0x4d: /* RES 1,L */ reset_bit(0x02, m_l); break;
-	case 0x4e: /* RES 1,(HL) */ reset_bit_hl(0x02); break;
-	case 0x4f: /* RES 1,A */ reset_bit(0x02, m_a); break;
+	case 0x88: /* RES 1,B */ reset_bit(0x02, m_b); break;
+	case 0x89: /* RES 1,C */ reset_bit(0x02, m_c); break;
+	case 0x8a: /* RES 1,D */ reset_bit(0x02, m_d); break;
+	case 0x8b: /* RES 1,E */ reset_bit(0x02, m_e); break;
+	case 0x8c: /* RES 1,H */ reset_bit(0x02, m_h); break;
+	case 0x8d: /* RES 1,L */ reset_bit(0x02, m_l); break;
+	case 0x8e: /* RES 1,(HL) */ reset_bit_hl(0x02); break;
+	case 0x8f: /* RES 1,A */ reset_bit(0x02, m_a); break;
 
-	case 0x50: /* RES 2,B */ reset_bit(0x04, m_b); break;
-	case 0x51: /* RES 2,C */ reset_bit(0x04, m_c); break;
-	case 0x52: /* RES 2,D */ reset_bit(0x04, m_d); break;
-	case 0x53: /* RES 2,E */ reset_bit(0x04, m_e); break;
-	case 0x54: /* RES 2,H */ reset_bit(0x04, m_h); break;
-	case 0x55: /* RES 2,L */ reset_bit(0x04, m_l); break;
-	case 0x56: /* RES 2,(HL) */ reset_bit_hl(0x04); break;
-	case 0x57: /* RES 2,A */ reset_bit(0x04, m_a); break;
+	case 0x90: /* RES 2,B */ reset_bit(0x04, m_b); break;
+	case 0x91: /* RES 2,C */ reset_bit(0x04, m_c); break;
+	case 0x92: /* RES 2,D */ reset_bit(0x04, m_d); break;
+	case 0x93: /* RES 2,E */ reset_bit(0x04, m_e); break;
+	case 0x94: /* RES 2,H */ reset_bit(0x04, m_h); break;
+	case 0x95: /* RES 2,L */ reset_bit(0x04, m_l); break;
+	case 0x96: /* RES 2,(HL) */ reset_bit_hl(0x04); break;
+	case 0x97: /* RES 2,A */ reset_bit(0x04, m_a); break;
 
-	case 0x58: /* RES 3,B */ reset_bit(0x08, m_b); break;
-	case 0x59: /* RES 3,C */ reset_bit(0x08, m_c); break;
-	case 0x5a: /* RES 3,D */ reset_bit(0x08, m_d); break;
-	case 0x5b: /* RES 3,E */ reset_bit(0x08, m_e); break;
-	case 0x5c: /* RES 3,H */ reset_bit(0x08, m_h); break;
-	case 0x5d: /* RES 3,L */ reset_bit(0x08, m_l); break;
-	case 0x5e: /* RES 3,(HL) */ reset_bit_hl(0x08); break;
-	case 0x5f: /* RES 3,A */ reset_bit(0x08, m_a); break;
+	case 0x98: /* RES 3,B */ reset_bit(0x08, m_b); break;
+	case 0x99: /* RES 3,C */ reset_bit(0x08, m_c); break;
+	case 0x9a: /* RES 3,D */ reset_bit(0x08, m_d); break;
+	case 0x9b: /* RES 3,E */ reset_bit(0x08, m_e); break;
+	case 0x9c: /* RES 3,H */ reset_bit(0x08, m_h); break;
+	case 0x9d: /* RES 3,L */ reset_bit(0x08, m_l); break;
+	case 0x9e: /* RES 3,(HL) */ reset_bit_hl(0x08); break;
+	case 0x9f: /* RES 3,A */ reset_bit(0x08, m_a); break;
 
-	case 0x60: /* RES 4,B */ reset_bit(0x10, m_b); break;
-	case 0x61: /* RES 4,C */ reset_bit(0x10, m_c); break;
-	case 0x62: /* RES 4,D */ reset_bit(0x10, m_d); break;
-	case 0x63: /* RES 4,E */ reset_bit(0x10, m_e); break;
-	case 0x64: /* RES 4,H */ reset_bit(0x10, m_h); break;
-	case 0x65: /* RES 4,L */ reset_bit(0x10, m_l); break;
-	case 0x66: /* RES 4,(HL) */ reset_bit_hl(0x10); break;
-	case 0x67: /* RES 4,A */ reset_bit(0x10, m_a); break;
+	case 0xa0: /* RES 4,B */ reset_bit(0x10, m_b); break;
+	case 0xa1: /* RES 4,C */ reset_bit(0x10, m_c); break;
+	case 0xa2: /* RES 4,D */ reset_bit(0x10, m_d); break;
+	case 0xa3: /* RES 4,E */ reset_bit(0x10, m_e); break;
+	case 0xa4: /* RES 4,H */ reset_bit(0x10, m_h); break;
+	case 0xa5: /* RES 4,L */ reset_bit(0x10, m_l); break;
+	case 0xa6: /* RES 4,(HL) */ reset_bit_hl(0x10); break;
+	case 0xa7: /* RES 4,A */ reset_bit(0x10, m_a); break;
 
-	case 0x68: /* RES 5,B */ reset_bit(0x20, m_b); break;
-	case 0x69: /* RES 5,C */ reset_bit(0x20, m_c); break;
-	case 0x6a: /* RES 5,D */ reset_bit(0x20, m_d); break;
-	case 0x6b: /* RES 5,E */ reset_bit(0x20, m_e); break;
-	case 0x6c: /* RES 5,H */ reset_bit(0x20, m_h); break;
-	case 0x6d: /* RES 5,L */ reset_bit(0x20, m_l); break;
-	case 0x6e: /* RES 5,(HL) */ reset_bit_hl(0x20); break;
-	case 0x6f: /* RES 5,A */ reset_bit(0x20, m_a); break;
+	case 0xa8: /* RES 5,B */ reset_bit(0x20, m_b); break;
+	case 0xa9: /* RES 5,C */ reset_bit(0x20, m_c); break;
+	case 0xaa: /* RES 5,D */ reset_bit(0x20, m_d); break;
+	case 0xab: /* RES 5,E */ reset_bit(0x20, m_e); break;
+	case 0xac: /* RES 5,H */ reset_bit(0x20, m_h); break;
+	case 0xad: /* RES 5,L */ reset_bit(0x20, m_l); break;
+	case 0xae: /* RES 5,(HL) */ reset_bit_hl(0x20); break;
+	case 0xaf: /* RES 5,A */ reset_bit(0x20, m_a); break;
 
-	case 0x70: /* RES 6,B */ reset_bit(0x40, m_b); break;
-	case 0x71: /* RES 6,C */ reset_bit(0x40, m_c); break;
-	case 0x72: /* RES 6,D */ reset_bit(0x40, m_d); break;
-	case 0x73: /* RES 6,E */ reset_bit(0x40, m_e); break;
-	case 0x74: /* RES 6,H */ reset_bit(0x40, m_h); break;
-	case 0x75: /* RES 6,L */ reset_bit(0x40, m_l); break;
-	case 0x76: /* RES 6,(HL) */ reset_bit_hl(0x40); break;
-	case 0x77: /* RES 6,A */ reset_bit(0x40, m_a); break;
+	case 0xb0: /* RES 6,B */ reset_bit(0x40, m_b); break;
+	case 0xb1: /* RES 6,C */ reset_bit(0x40, m_c); break;
+	case 0xb2: /* RES 6,D */ reset_bit(0x40, m_d); break;
+	case 0xb3: /* RES 6,E */ reset_bit(0x40, m_e); break;
+	case 0xb4: /* RES 6,H */ reset_bit(0x40, m_h); break;
+	case 0xb5: /* RES 6,L */ reset_bit(0x40, m_l); break;
+	case 0xb6: /* RES 6,(HL) */ reset_bit_hl(0x40); break;
+	case 0xb7: /* RES 6,A */ reset_bit(0x40, m_a); break;
 
-	case 0x78: /* RES 7,B */ reset_bit(0x80, m_b); break;
-	case 0x79: /* RES 7,C */ reset_bit(0x80, m_c); break;
-	case 0x7a: /* RES 7,D */ reset_bit(0x80, m_d); break;
-	case 0x7b: /* RES 7,E */ reset_bit(0x80, m_e); break;
-	case 0x7c: /* RES 7,H */ reset_bit(0x80, m_h); break;
-	case 0x7d: /* RES 7,L */ reset_bit(0x80, m_l); break;
-	case 0x7e: /* RES 7,(HL) */ reset_bit_hl(0x80); break;
-	case 0x7f: /* RES 7,A */ reset_bit(0x80, m_a); break;
+	case 0xb8: /* RES 7,B */ reset_bit(0x80, m_b); break;
+	case 0xb9: /* RES 7,C */ reset_bit(0x80, m_c); break;
+	case 0xba: /* RES 7,D */ reset_bit(0x80, m_d); break;
+	case 0xbb: /* RES 7,E */ reset_bit(0x80, m_e); break;
+	case 0xbc: /* RES 7,H */ reset_bit(0x80, m_h); break;
+	case 0xbd: /* RES 7,L */ reset_bit(0x80, m_l); break;
+	case 0xbe: /* RES 7,(HL) */ reset_bit_hl(0x80); break;
+	case 0xbf: /* RES 7,A */ reset_bit(0x80, m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
@@ -284,77 +284,77 @@ void CPU::set()
 
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x40: /* SET 0,B */ set_bit(0x01, m_b); break;
-	case 0x41: /* SET 0,C */ set_bit(0x01, m_c); break;
-	case 0x42: /* SET 0,D */ set_bit(0x01, m_d); break;
-	case 0x43: /* SET 0,E */ set_bit(0x01, m_e); break;
-	case 0x44: /* SET 0,H */ set_bit(0x01, m_h); break;
-	case 0x45: /* SET 0,L */ set_bit(0x01, m_l); break;
-	case 0x46: /* SET 0,(HL) */ set_bit_hl(0x01); break;
-	case 0x47: /* SET 0,A */ set_bit(0x01, m_a); break;
+	case 0xc0: /* SET 0,B */ set_bit(0x01, m_b); break;
+	case 0xc1: /* SET 0,C */ set_bit(0x01, m_c); break;
+	case 0xc2: /* SET 0,D */ set_bit(0x01, m_d); break;
+	case 0xc3: /* SET 0,E */ set_bit(0x01, m_e); break;
+	case 0xc4: /* SET 0,H */ set_bit(0x01, m_h); break;
+	case 0xc5: /* SET 0,L */ set_bit(0x01, m_l); break;
+	case 0xc6: /* SET 0,(HL) */ set_bit_hl(0x01); break;
+	case 0xc7: /* SET 0,A */ set_bit(0x01, m_a); break;
 
-	case 0x48: /* SET 1,B */ set_bit(0x02, m_b); break;
-	case 0x49: /* SET 1,C */ set_bit(0x02, m_c); break;
-	case 0x4a: /* SET 1,D */ set_bit(0x02, m_d); break;
-	case 0x4b: /* SET 1,E */ set_bit(0x02, m_e); break;
-	case 0x4c: /* SET 1,H */ set_bit(0x02, m_h); break;
-	case 0x4d: /* SET 1,L */ set_bit(0x02, m_l); break;
-	case 0x4e: /* SET 1,(HL) */ set_bit_hl(0x02); break;
-	case 0x4f: /* SET 1,A */ set_bit(0x02, m_a); break;
+	case 0xc8: /* SET 1,B */ set_bit(0x02, m_b); break;
+	case 0xc9: /* SET 1,C */ set_bit(0x02, m_c); break;
+	case 0xca: /* SET 1,D */ set_bit(0x02, m_d); break;
+	case 0xcb: /* SET 1,E */ set_bit(0x02, m_e); break;
+	case 0xcc: /* SET 1,H */ set_bit(0x02, m_h); break;
+	case 0xcd: /* SET 1,L */ set_bit(0x02, m_l); break;
+	case 0xce: /* SET 1,(HL) */ set_bit_hl(0x02); break;
+	case 0xcf: /* SET 1,A */ set_bit(0x02, m_a); break;
 
-	case 0x50: /* SET 2,B */ set_bit(0x04, m_b); break;
-	case 0x51: /* SET 2,C */ set_bit(0x04, m_c); break;
-	case 0x52: /* SET 2,D */ set_bit(0x04, m_d); break;
-	case 0x53: /* SET 2,E */ set_bit(0x04, m_e); break;
-	case 0x54: /* SET 2,H */ set_bit(0x04, m_h); break;
-	case 0x55: /* SET 2,L */ set_bit(0x04, m_l); break;
-	case 0x56: /* SET 2,(HL) */ set_bit_hl(0x04); break;
-	case 0x57: /* SET 2,A */ set_bit(0x04, m_a); break;
+	case 0xd0: /* SET 2,B */ set_bit(0x04, m_b); break;
+	case 0xd1: /* SET 2,C */ set_bit(0x04, m_c); break;
+	case 0xd2: /* SET 2,D */ set_bit(0x04, m_d); break;
+	case 0xd3: /* SET 2,E */ set_bit(0x04, m_e); break;
+	case 0xd4: /* SET 2,H */ set_bit(0x04, m_h); break;
+	case 0xd5: /* SET 2,L */ set_bit(0x04, m_l); break;
+	case 0xd6: /* SET 2,(HL) */ set_bit_hl(0x04); break;
+	case 0xd7: /* SET 2,A */ set_bit(0x04, m_a); break;
 
-	case 0x58: /* SET 3,B */ set_bit(0x08, m_b); break;
-	case 0x59: /* SET 3,C */ set_bit(0x08, m_c); break;
-	case 0x5a: /* SET 3,D */ set_bit(0x08, m_d); break;
-	case 0x5b: /* SET 3,E */ set_bit(0x08, m_e); break;
-	case 0x5c: /* SET 3,H */ set_bit(0x08, m_h); break;
-	case 0x5d: /* SET 3,L */ set_bit(0x08, m_l); break;
-	case 0x5e: /* SET 3,(HL) */ set_bit_hl(0x08); break;
-	case 0x5f: /* SET 3,A */ set_bit(0x08, m_a); break;
+	case 0xd8: /* SET 3,B */ set_bit(0x08, m_b); break;
+	case 0xd9: /* SET 3,C */ set_bit(0x08, m_c); break;
+	case 0xda: /* SET 3,D */ set_bit(0x08, m_d); break;
+	case 0xdb: /* SET 3,E */ set_bit(0x08, m_e); break;
+	case 0xdc: /* SET 3,H */ set_bit(0x08, m_h); break;
+	case 0xdd: /* SET 3,L */ set_bit(0x08, m_l); break;
+	case 0xde: /* SET 3,(HL) */ set_bit_hl(0x08); break;
+	case 0xdf: /* SET 3,A */ set_bit(0x08, m_a); break;
 
-	case 0x60: /* SET 4,B */ set_bit(0x10, m_b); break;
-	case 0x61: /* SET 4,C */ set_bit(0x10, m_c); break;
-	case 0x62: /* SET 4,D */ set_bit(0x10, m_d); break;
-	case 0x63: /* SET 4,E */ set_bit(0x10, m_e); break;
-	case 0x64: /* SET 4,H */ set_bit(0x10, m_h); break;
-	case 0x65: /* SET 4,L */ set_bit(0x10, m_l); break;
-	case 0x66: /* SET 4,(HL) */ set_bit_hl(0x10); break;
-	case 0x67: /* SET 4,A */ set_bit(0x10, m_a); break;
+	case 0xe0: /* SET 4,B */ set_bit(0x10, m_b); break;
+	case 0xe1: /* SET 4,C */ set_bit(0x10, m_c); break;
+	case 0xe2: /* SET 4,D */ set_bit(0x10, m_d); break;
+	case 0xe3: /* SET 4,E */ set_bit(0x10, m_e); break;
+	case 0xe4: /* SET 4,H */ set_bit(0x10, m_h); break;
+	case 0xe5: /* SET 4,L */ set_bit(0x10, m_l); break;
+	case 0xe6: /* SET 4,(HL) */ set_bit_hl(0x10); break;
+	case 0xe7: /* SET 4,A */ set_bit(0x10, m_a); break;
 
-	case 0x68: /* SET 5,B */ set_bit(0x20, m_b); break;
-	case 0x69: /* SET 5,C */ set_bit(0x20, m_c); break;
-	case 0x6a: /* SET 5,D */ set_bit(0x20, m_d); break;
-	case 0x6b: /* SET 5,E */ set_bit(0x20, m_e); break;
-	case 0x6c: /* SET 5,H */ set_bit(0x20, m_h); break;
-	case 0x6d: /* SET 5,L */ set_bit(0x20, m_l); break;
-	case 0x6e: /* SET 5,(HL) */ set_bit_hl(0x20); break;
-	case 0x6f: /* SET 5,A */ set_bit(0x20, m_a); break;
+	case 0xe8: /* SET 5,B */ set_bit(0x20, m_b); break;
+	case 0xe9: /* SET 5,C */ set_bit(0x20, m_c); break;
+	case 0xea: /* SET 5,D */ set_bit(0x20, m_d); break;
+	case 0xeb: /* SET 5,E */ set_bit(0x20, m_e); break;
+	case 0xec: /* SET 5,H */ set_bit(0x20, m_h); break;
+	case 0xed: /* SET 5,L */ set_bit(0x20, m_l); break;
+	case 0xee: /* SET 5,(HL) */ set_bit_hl(0x20); break;
+	case 0xef: /* SET 5,A */ set_bit(0x20, m_a); break;
 
-	case 0x70: /* SET 6,B */ set_bit(0x40, m_b); break;
-	case 0x71: /* SET 6,C */ set_bit(0x40, m_c); break;
-	case 0x72: /* SET 6,D */ set_bit(0x40, m_d); break;
-	case 0x73: /* SET 6,E */ set_bit(0x40, m_e); break;
-	case 0x74: /* SET 6,H */ set_bit(0x40, m_h); break;
-	case 0x75: /* SET 6,L */ set_bit(0x40, m_l); break;
-	case 0x76: /* SET 6,(HL) */ set_bit_hl(0x40); break;
-	case 0x77: /* SET 6,A */ set_bit(0x40, m_a); break;
+	case 0xf0: /* SET 6,B */ set_bit(0x40, m_b); break;
+	case 0xf1: /* SET 6,C */ set_bit(0x40, m_c); break;
+	case 0xf2: /* SET 6,D */ set_bit(0x40, m_d); break;
+	case 0xf3: /* SET 6,E */ set_bit(0x40, m_e); break;
+	case 0xf4: /* SET 6,H */ set_bit(0x40, m_h); break;
+	case 0xf5: /* SET 6,L */ set_bit(0x40, m_l); break;
+	case 0xf6: /* SET 6,(HL) */ set_bit_hl(0x40); break;
+	case 0xf7: /* SET 6,A */ set_bit(0x40, m_a); break;
 
-	case 0x78: /* SET 7,B */ set_bit(0x80, m_b); break;
-	case 0x79: /* SET 7,C */ set_bit(0x80, m_c); break;
-	case 0x7a: /* SET 7,D */ set_bit(0x80, m_d); break;
-	case 0x7b: /* SET 7,E */ set_bit(0x80, m_e); break;
-	case 0x7c: /* SET 7,H */ set_bit(0x80, m_h); break;
-	case 0x7d: /* SET 7,L */ set_bit(0x80, m_l); break;
-	case 0x7e: /* SET 7,(HL) */ set_bit_hl(0x80); break;
-	case 0x7f: /* SET 7,A */ set_bit(0x80, m_a); break;
+	case 0xf8: /* SET 7,B */ set_bit(0x80, m_b); break;
+	case 0xf9: /* SET 7,C */ set_bit(0x80, m_c); break;
+	case 0xfa: /* SET 7,D */ set_bit(0x80, m_d); break;
+	case 0xfb: /* SET 7,E */ set_bit(0x80, m_e); break;
+	case 0xfc: /* SET 7,H */ set_bit(0x80, m_h); break;
+	case 0xfd: /* SET 7,L */ set_bit(0x80, m_l); break;
+	case 0xfe: /* SET 7,(HL) */ set_bit_hl(0x80); break;
+	case 0xff: /* SET 7,A */ set_bit(0x80, m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
@@ -379,13 +379,13 @@ void CPU::swap()
 
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x78: /* SWAP B */ swap_bits(m_b); break;
-	case 0x79: /* SWAP C */ swap_bits(m_c); break;
-	case 0x7a: /* SWAP D */ swap_bits(m_d); break;
-	case 0x7b: /* SWAP E */ swap_bits(m_e); break;
-	case 0x7c: /* SWAP H */ swap_bits(m_h); break;
-	case 0x7d: /* SWAP L */ swap_bits(m_l); break;
-	case 0x7e: /* SWAP (HL) */ {
+	case 0x30: /* SWAP B */ swap_bits(m_b); break;
+	case 0x31: /* SWAP C */ swap_bits(m_c); break;
+	case 0x32: /* SWAP D */ swap_bits(m_d); break;
+	case 0x33: /* SWAP E */ swap_bits(m_e); break;
+	case 0x34: /* SWAP H */ swap_bits(m_h); break;
+	case 0x35: /* SWAP L */ swap_bits(m_l); break;
+	case 0x36: /* SWAP (HL) */ {
 		m_wait_cycles += 8; // + 8 = 16 total
 
 		// Swap upper 4 bits in the byte pointed by HL with lower 4 bits
@@ -394,7 +394,7 @@ void CPU::swap()
 		write(hl(), data);
 		break;
 	}
-	case 0x7f: /* SWAP A */ swap_bits(m_a); break;
+	case 0x37: /* SWAP A */ swap_bits(m_a); break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
