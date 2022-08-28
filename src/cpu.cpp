@@ -135,6 +135,7 @@ void CPU::update()
 		case 0x43: ldr8(); break;
 		case 0x44: ldr8(); break;
 		case 0x45: ldr8(); break;
+		case 0x46: ldr8(); break;
 		case 0x47: ldr8(); break;
 		case 0x48: ldr8(); break;
 		case 0x49: ldr8(); break;
@@ -142,6 +143,7 @@ void CPU::update()
 		case 0x4b: ldr8(); break;
 		case 0x4c: ldr8(); break;
 		case 0x4d: ldr8(); break;
+		case 0x4e: ldr8(); break;
 		case 0x4f: ldr8(); break;
 		case 0x50: ldr8(); break;
 		case 0x51: ldr8(); break;
@@ -149,6 +151,7 @@ void CPU::update()
 		case 0x53: ldr8(); break;
 		case 0x54: ldr8(); break;
 		case 0x55: ldr8(); break;
+		case 0x56: ldr8(); break;
 		case 0x57: ldr8(); break;
 		case 0x58: ldr8(); break;
 		case 0x59: ldr8(); break;
@@ -156,6 +159,7 @@ void CPU::update()
 		case 0x5b: ldr8(); break;
 		case 0x5c: ldr8(); break;
 		case 0x5d: ldr8(); break;
+		case 0x5e: ldr8(); break;
 		case 0x5f: ldr8(); break;
 		case 0x60: ldr8(); break;
 		case 0x61: ldr8(); break;
@@ -163,6 +167,7 @@ void CPU::update()
 		case 0x63: ldr8(); break;
 		case 0x64: ldr8(); break;
 		case 0x65: ldr8(); break;
+		case 0x66: ldr8(); break;
 		case 0x67: ldr8(); break;
 		case 0x68: ldr8(); break;
 		case 0x69: ldr8(); break;
@@ -170,6 +175,7 @@ void CPU::update()
 		case 0x6b: ldr8(); break;
 		case 0x6c: ldr8(); break;
 		case 0x6d: ldr8(); break;
+		case 0x6e: ldr8(); break;
 		case 0x6f: ldr8(); break;
 		case 0x70: ldr8(); break;
 		case 0x71: ldr8(); break;
@@ -633,6 +639,11 @@ void CPU::ldr8()
 	case 0x43: /* LD B,E */ m_b = m_e; break;
 	case 0x44: /* LD B,H */ m_b = m_h; break;
 	case 0x45: /* LD B,L */ m_b = m_l; break;
+	case 0x46: /* LD B,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+		m_b = read(hl());
+		break;
+	}
 	case 0x47: /* LD B,A */ m_b = m_a; break;
 	case 0x48: /* LD C,B */ m_c = m_b; break;
 	case 0x49: /* LD C,C    m_c = m_c; */ break;
@@ -640,6 +651,11 @@ void CPU::ldr8()
 	case 0x4b: /* LD C,E */ m_c = m_e; break;
 	case 0x4c: /* LD C,H */ m_c = m_h; break;
 	case 0x4d: /* LD C,L */ m_c = m_l; break;
+	case 0x4e: /* LD C,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+		m_c = read(hl());
+		break;
+	}
 	case 0x4f: /* LD C,A */ m_c = m_a; break;
 	case 0x50: /* LD D,B */ m_d = m_b; break;
 	case 0x51: /* LD D,C */ m_d = m_c; break;
@@ -647,6 +663,11 @@ void CPU::ldr8()
 	case 0x53: /* LD D,E */ m_d = m_e; break;
 	case 0x54: /* LD D,H */ m_d = m_h; break;
 	case 0x55: /* LD D,L */ m_d = m_l; break;
+	case 0x56: /* LD D,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+		m_d = read(hl());
+		break;
+	}
 	case 0x57: /* LD D,A */ m_d = m_a; break;
 	case 0x58: /* LD E,B */ m_e = m_b; break;
 	case 0x59: /* LD E,C */ m_e = m_c; break;
@@ -654,6 +675,11 @@ void CPU::ldr8()
 	case 0x5b: /* LD E,E    m_e = m_e; */ break;
 	case 0x5c: /* LD E,H */ m_e = m_h; break;
 	case 0x5d: /* LD E,L */ m_e = m_l; break;
+	case 0x5e: /* LD E,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+		m_e = read(hl());
+		break;
+	}
 	case 0x5f: /* LD E,A */ m_e = m_a; break;
 	case 0x60: /* LD H,B */ m_h = m_b; break;
 	case 0x61: /* LD H,C */ m_h = m_c; break;
@@ -661,6 +687,11 @@ void CPU::ldr8()
 	case 0x63: /* LD H,E */ m_h = m_e; break;
 	case 0x64: /* LD H,H    m_h = m_h; */ break;
 	case 0x65: /* LD H,L */ m_h = m_l; break;
+	case 0x66: /* LD H,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+		m_h = read(hl());
+		break;
+	}
 	case 0x67: /* LD H,A */ m_h = m_a; break;
 	case 0x68: /* LD L,B */ m_l = m_b; break;
 	case 0x69: /* LD L,C */ m_l = m_c; break;
@@ -668,54 +699,69 @@ void CPU::ldr8()
 	case 0x6b: /* LD L,E */ m_l = m_e; break;
 	case 0x6c: /* LD L,H */ m_l = m_h; break;
 	case 0x6d: /* LD L,L    m_l = m_l; */ break;
+	case 0x6e: /* LD L,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+		m_e = read(hl());
+		break;
+	}
 	case 0x6f: /* LD L,A */ m_l = m_a; break;
-	case 0x70: // LD (HL),B
-		m_wait_cycles += 4;
+	case 0x70: /* LD (HL),B */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(hl(), m_b);
 		break;
-	case 0x71: // LD (HL),C
-		m_wait_cycles += 4;
+	}
+	case 0x71: /* LD (HL),C */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(hl(), m_c);
 		break;
-	case 0x72: // LD (HL),D
-		m_wait_cycles += 4;
+	}
+	case 0x72: /* LD (HL),D */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(hl(), m_d);
 		break;
-	case 0x73: // LD (HL),E
-		m_wait_cycles += 4;
+	}
+	case 0x73: /* LD (HL),E */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(hl(), m_e);
 		break;
-	case 0x74: // LD (HL),H
-		m_wait_cycles += 4;
+	}
+	case 0x74: /* LD (HL),H */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(hl(), m_h);
 		break;
-	case 0x75: // LD (HL),L
-		m_wait_cycles += 4;
+	}
+	case 0x75: /* LD (HL),L */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(hl(), m_l);
 		break;
-	case 0x77: // LD (HL),A
-		m_wait_cycles += 4;
+	}
+	case 0x77: /* LD (HL),A */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(hl(), m_a);
 		break;
+	}
 	case 0x78: /* LD A,B */ m_a = m_b; break;
 	case 0x79: /* LD A,B */ m_a = m_c; break;
 	case 0x7a: /* LD A,D */ m_a = m_d; break;
 	case 0x7b: /* LD A,E */ m_a = m_e; break;
 	case 0x7c: /* LD A,H */ m_a = m_h; break;
 	case 0x7d: /* LD A,L */ m_a = m_l; break;
-	case 0x7e: // LD A,(HL)
-		m_wait_cycles += 4;
+	case 0x7e: /* LD A,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		m_a = read(hl());
 		break;
+	}
 	case 0x7f: /* LD A,A    m_a = m_a; */ break;
-	case 0xe2: // LD (C),A
-		m_wait_cycles += 4;
+	case 0xe2: /* LD (C),A */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(m_c, m_a);
 		break;
-	case 0xea: // LD a16,A
-		m_wait_cycles += 16;
+	}
+	case 0xea: /* LD a16,A */ {
+		m_wait_cycles += 12; // + 4 = 16 total
 		write(pcRead16(), m_a);
 		break;
+	}
 	default:
 		VERIFY_NOT_REACHED();
 	}
