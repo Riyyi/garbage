@@ -200,6 +200,14 @@ void CPU::update()
 		case 0x85: add8(); break;
 		case 0x86: add8(); break;
 		case 0x87: add8(); break;
+		case 0x88: adc8(); break;
+		case 0x89: adc8(); break;
+		case 0x8a: adc8(); break;
+		case 0x8b: adc8(); break;
+		case 0x8c: adc8(); break;
+		case 0x8d: adc8(); break;
+		case 0x8e: adc8(); break;
+		case 0x8f: adc8(); break;
 		case 0xa0: and8(); break;
 		case 0xa1: and8(); break;
 		case 0xa2: and8(); break;
@@ -227,6 +235,7 @@ void CPU::update()
 		case 0xcb: prefix(); break;
 		case 0xcc: call(); break;
 		case 0xcd: call(); break;
+		case 0xce: adc8(); break;
 		case 0xcf: rst(); break;
 		case 0xd1: pop(); break;
 		case 0xd4: call(); break;
@@ -276,6 +285,50 @@ void CPU::update()
 }
 
 // -------------------------------------
+
+void CPU::adc8()
+{
+	auto adc = [this](uint8_t register_) -> void {
+		// ADC A,r8, flags: Z 0 H C
+		m_wait_cycles += 4;
+
+		// Set flags
+		m_nf = 0;
+		m_hf = isCarry(m_a, register_, 0x10);
+		m_cf = isCarry(m_a, register_, 0x100);
+
+		// Add the value in r8 plus the carry flag to A
+		m_a = (m_a + register_ + (m_cf) ? 0x1 : 0) & 0xff;
+
+		// Zero flag
+		m_zf = m_a == 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x88: /* ADC A,B */ adc(m_b); break;
+	case 0x89: /* ADC A,C */ adc(m_c); break;
+	case 0x8a: /* ADC A,D */ adc(m_d); break;
+	case 0x8b: /* ADC A,E */ adc(m_e); break;
+	case 0x8c: /* ADC A,H */ adc(m_h); break;
+	case 0x8d: /* ADC A,L */ adc(m_l); break;
+	case 0x8e: /* ADC A,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		adc(read(hl()));
+		break;
+	}
+	case 0x8f: /* ADC A,A */ adc(m_a); break;
+	case 0xce: /* ADC A,i8 */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		adc(pcRead());
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
 
 void CPU::add8()
 {
