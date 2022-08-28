@@ -4,9 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#pragma once
-
-#include <cstdint> // uint32_t
+#include <cstdint> // uint8_t, uint32_t
 
 #include "cpu.h"
 #include "ruc/format/print.h"
@@ -22,7 +20,7 @@ void CPU::prefix()
 	// Read next opcode
 	uint8_t opcode = read(m_pc);
 	print("running opcode: {:#04x} @ ({:#06x})\n", opcode, m_pc);
-	if (opcode >= 0x00 && opcode <= 0x07) {
+	if (opcode <= 0x07) {
 		rlc();
 	}
 	else if (opcode >= 0x08 && opcode <= 0x0f) {
@@ -52,7 +50,7 @@ void CPU::prefix()
 	else if (opcode >= 0x80 && opcode <= 0xbf) {
 		res();
 	}
-	else if (opcode >= 0xc0 && opcode <= 0xff) {
+	else if (opcode >= 0xc0) {
 		set();
 	}
 	else {

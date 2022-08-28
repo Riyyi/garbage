@@ -240,7 +240,7 @@ void CPU::update()
 			print("illegal opcode\n");
 			VERIFY_NOT_REACHED();
 		default:
-			print("opcode {:#x} not implemented\n", opcode);
+			print("opcode {:#04x} not implemented\n", opcode);
 			print("immediate: {:#04x}\n", pcRead());
 			VERIFY_NOT_REACHED();
 		}
