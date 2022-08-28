@@ -38,6 +38,7 @@ public:
 	void addr16();
 	void adds8();
 	void dec16();
+	void inc16();
 
 	// -------------------------------------
 	// Bit Operations Instructions
@@ -101,6 +102,10 @@ public:
 	uint32_t hl() const { return m_l | m_h << 8; }
 	uint32_t pc() const { return m_pc; }
 	uint32_t sp() const { return m_sp; }
+
+	void setBC(uint32_t value);
+	void setDE(uint32_t value);
+	void setHL(uint32_t value);
 
 private:
 	uint32_t pcRead();

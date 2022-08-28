@@ -70,6 +70,7 @@ void CPU::update()
 		case 0x00: nop(); break;
 		case 0x01: ldi16(); break;
 		case 0x02: ldr8(); break;
+		case 0x03: inc16(); break;
 		case 0x04: inc8(); break;
 		case 0x05: dec8(); break;
 		case 0x06: ldi8(); break;
@@ -84,6 +85,7 @@ void CPU::update()
 		case 0x0f: ra(); break;
 		case 0x11: ldi16(); break;
 		case 0x12: ldr8(); break;
+		case 0x13: inc16(); break;
 		case 0x14: inc8(); break;
 		case 0x15: dec8(); break;
 		case 0x16: ldi8(); break;
@@ -99,6 +101,7 @@ void CPU::update()
 		case 0x20: jrs8(); break;
 		case 0x21: ldi16(); break;
 		case 0x22: ldr8(); break;
+		case 0x23: inc16(); break;
 		case 0x24: inc8(); break;
 		case 0x25: dec8(); break;
 		case 0x26: ldi8(); break;
@@ -113,6 +116,7 @@ void CPU::update()
 		case 0x30: jrs8(); break;
 		case 0x31: ldi16(); break;
 		case 0x32: ldr8(); break;
+		case 0x33: inc16(); break;
 		case 0x34: inc8(); break;
 		case 0x35: dec8(); break;
 		case 0x36: ldi8(); break;
@@ -525,25 +529,25 @@ void CPU::dec16()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x0b: { // DEC BC
-		uint32_t data = (bc() - 1) & 0xffff;
-		m_c = data & 0xff;
-		m_b = data >> 8;
-		break;
-	}
-	case 0x1b: { // DEC DE
-		uint32_t data = (de() - 1) & 0xffff;
-		m_e = data & 0xff;
-		m_d = data >> 8;
-		break;
-	}
-	case 0x2b: { // DEC HL
-		uint32_t data = (hl() - 1) & 0xffff;
-		m_l = data & 0xff;
-		m_h = data >> 8;
-		break;
-	}
+	case 0x0b: /* DEC BC */ setBC(bc() - 1); break;
+	case 0x1b: /* DEC DE */ setDE(de() - 1); break;
+	case 0x2b: /* DEC HL */ setHL(hl() - 1); break;
 	case 0x3b: /* DEC SP */ m_sp = (m_sp - 1) & 0xffff; break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+
+	m_wait_cycles += 8;
+}
+
+void CPU::inc16()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x03: /* INC BC */ setBC(bc() + 1); break;
+	case 0x13: /* INC DE */ setDE(de() + 1); break;
+	case 0x23: /* INC HL */ setHL(de() + 1); break;
+	case 0x24: /* INC SP */ m_sp = (m_sp + 1) & 0xffff; break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
@@ -1118,6 +1122,26 @@ void CPU::nop()
 	default:
 		VERIFY_NOT_REACHED();
 	}
+}
+
+// -----------------------------------------
+
+void CPU::setBC(uint32_t value)
+{
+	m_c = value & 0xff;
+	m_b = (value & 0xff00) >> 8;
+}
+
+void CPU::setDE(uint32_t value)
+{
+	m_e = value & 0xff;
+	m_d = (value & 0xff00) >> 8;
+}
+
+void CPU::setHL(uint32_t value)
+{
+	m_l = value & 0xff;
+	m_h = (value & 0xff00) >> 8;
 }
 
 // -----------------------------------------
