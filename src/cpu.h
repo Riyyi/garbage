@@ -28,7 +28,7 @@ public:
 	// Arithmetic and Logic Instructions
 
 	// 8-bit
-	void addi8();
+	void add8();
 	void and8();
 	void dec8();
 	void inc8();

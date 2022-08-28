@@ -192,6 +192,14 @@ void CPU::update()
 		case 0x7d: ldr8(); break;
 		case 0x7e: ldr8(); break;
 		case 0x7f: ldr8(); break;
+		case 0x80: add8(); break;
+		case 0x81: add8(); break;
+		case 0x82: add8(); break;
+		case 0x83: add8(); break;
+		case 0x84: add8(); break;
+		case 0x85: add8(); break;
+		case 0x86: add8(); break;
+		case 0x87: add8(); break;
 		case 0xa0: and8(); break;
 		case 0xa1: and8(); break;
 		case 0xa2: and8(); break;
@@ -214,7 +222,7 @@ void CPU::update()
 		case 0xc3: jp16(); break;
 		case 0xc4: call(); break;
 		case 0xc5: push(); break;
-		case 0xc6: addi8(); break;
+		case 0xc6: add8(); break;
 		case 0xc7: rst(); break;
 		case 0xcb: prefix(); break;
 		case 0xcc: call(); break;
@@ -269,25 +277,45 @@ void CPU::update()
 
 // -------------------------------------
 
-void CPU::addi8()
+void CPU::add8()
 {
-	uint8_t opcode = pcRead();
-	uint8_t immediate = pcRead();
-	switch (opcode) {
-	case 0xc6: // ADD A,i8, flags: Z 0 H C
-		m_wait_cycles += 8;
+	auto add = [this](uint8_t register_) -> void {
+		// ADD A,r8, flags: Z 0 H C
+		m_wait_cycles += 4;
 
 		// Set flags
 		m_nf = 0;
-		m_hf = isCarry(m_a, immediate, 0x10);
-		m_cf = isCarry(m_a, immediate, 0x100);
+		m_hf = isCarry(m_a, register_, 0x10);
+		m_cf = isCarry(m_a, register_, 0x100);
 
-		// A = A + r
-		m_a = (m_a + immediate) & 0xff;
+		// Add the value in r8 to A
+		m_a = (m_a + register_) & 0xff;
 
 		// Zero flag
 		m_zf = m_a == 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x80: /* ADD A,B */ add(m_b); break;
+	case 0x81: /* ADD A,C */ add(m_c); break;
+	case 0x82: /* ADD A,D */ add(m_d); break;
+	case 0x83: /* ADD A,E */ add(m_e); break;
+	case 0x84: /* ADD A,H */ add(m_h); break;
+	case 0x85: /* ADD A,L */ add(m_l); break;
+	case 0x86: /* ADD A,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		add(read(hl()));
 		break;
+	}
+	case 0x87: /* ADD A,A */ add(m_a); break;
+	case 0xc6: /* ADD A,i8 */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		add(pcRead());
+		break;
+	}
 	default:
 		VERIFY_NOT_REACHED();
 	}
