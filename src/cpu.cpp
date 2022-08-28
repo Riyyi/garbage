@@ -120,6 +120,7 @@ void CPU::update()
 		case 0x34: inc8(); break;
 		case 0x35: dec8(); break;
 		case 0x36: ldi8(); break;
+		case 0x37: misc(); break;
 		case 0x38: jrs8(); break;
 		case 0x39: addr16(); break;
 		case 0x3a: ldr8(); break;
@@ -127,6 +128,7 @@ void CPU::update()
 		case 0x3c: inc8(); break;
 		case 0x3d: dec8(); break;
 		case 0x3e: ldi8(); break;
+		case 0x3f: misc(); break;
 		case 0x40: ldr8(); break;
 		case 0x41: ldr8(); break;
 		case 0x42: ldr8(); break;
@@ -1104,10 +1106,25 @@ void CPU::misc()
 		m_wait_cycles += 4;
 
 		// Complement register A (flip all bits)
-		m_a ^= 0xff; // equivalent to: m_a = ~m_a & 0xff
+		m_a = (~m_a) & 0xff;
 
 		// Set flags
 		m_nf = m_hf = 1;
+		break;
+	case 0x37: // SCF, flags: - 0 0 1
+		m_wait_cycles += 4;
+
+		// Set flags
+		m_nf = m_hf = 0;
+		m_cf = 1;
+		break;
+	case 0x3f: // CCF, flags: - 0 0 C
+		m_wait_cycles += 4;
+
+		// Set flags
+		m_nf = m_hf = 0;
+		// Invert carry
+		m_cf = (m_cf) ? 0 : 1;
 		break;
 	default:
 		VERIFY_NOT_REACHED();
