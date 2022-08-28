@@ -257,21 +257,25 @@ void CPU::update()
 		case 0xbe: cp(); break;
 		case 0xbf: cp(); break;
 		case 0xc1: pop(); break;
+		case 0xc2: jp16(); break;
 		case 0xc3: jp16(); break;
 		case 0xc4: call(); break;
 		case 0xc5: push(); break;
 		case 0xc6: add8(); break;
 		case 0xc7: rst(); break;
+		case 0xca: jp16(); break;
 		case 0xcb: prefix(); break;
 		case 0xcc: call(); break;
 		case 0xcd: call(); break;
 		case 0xce: adc8(); break;
 		case 0xcf: rst(); break;
 		case 0xd1: pop(); break;
+		case 0xd2: jp16(); break;
 		case 0xd4: call(); break;
 		case 0xd5: push(); break;
 		case 0xd6: sub8(); break;
 		case 0xd7: rst(); break;
+		case 0xda: jp16(); break;
 		case 0xdc: call(); break;
 		case 0xde: sbc8(); break;
 		case 0xdf: rst(); break;
@@ -282,6 +286,7 @@ void CPU::update()
 		case 0xe6: and8(); break;
 		case 0xe7: rst(); break;
 		case 0xe8: adds8(); break;
+		case 0xe9: jp16(); break;
 		case 0xea: ldr8(); break;
 		case 0xee: xor8(); break;
 		case 0xef: rst(); break;
@@ -1361,11 +1366,34 @@ void CPU::call()
 
 void CPU::jp16()
 {
+	auto jump = [this](bool should_jump) -> void {
+		// JP cc,i16
+
+		// Note: the operand is read even when the condition is false
+		uint32_t data = pcRead16();
+
+		if (!should_jump) {
+			m_wait_cycles += 12;
+			return;
+		}
+		m_wait_cycles += 16;
+
+		// Jump to address i16 if condition is met; effectively, store i16 into PC
+		m_pc = data;
+	};
+
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0xc3: // JP a16
-		m_wait_cycles += 16;
-		m_pc = pcRead16();
+	case 0xc2: /* JP NZ,a16 */ jump(!m_zf); break;
+	case 0xc3: /* JP a16 */ jump(true); break;
+	case 0xca: /* JP Z,a16 */ jump(m_zf); break;
+	case 0xd2: /* JP NC,a16 */ jump(!m_cf); break;
+	case 0xda: /* JP C,a16 */ jump(m_cf); break;
+	case 0xe9: // JP HL
+		m_wait_cycles += 4;
+
+		// Jump to address in HL; effectively, load PC with value in register HL
+		m_pc = hl();
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -1387,7 +1415,7 @@ void CPU::jrs8()
 		m_wait_cycles += 12;
 
 		// Relative jump by adding s8 to the address of the instruction following the JR
-		m_pc = m_pc + signed_data;
+		m_pc = (m_pc + signed_data) & 0xffff;
 	};
 
 	uint8_t opcode = pcRead();
