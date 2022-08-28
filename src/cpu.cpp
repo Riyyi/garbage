@@ -226,6 +226,19 @@ void CPU::update()
 		case 0xfe: cp(); break;
 		case 0xff: rst(); break;
 
+		case 0xd3:
+		case 0xdb:
+		case 0xdd:
+		case 0xe3:
+		case 0xe4:
+		case 0xeb:
+		case 0xec:
+		case 0xed:
+		case 0xf4:
+		case 0xfc:
+		case 0xfd:
+			print("illegal opcode\n");
+			VERIFY_NOT_REACHED();
 		default:
 			print("opcode {:#x} not implemented\n", opcode);
 			print("immediate: {:#04x}\n", pcRead());
