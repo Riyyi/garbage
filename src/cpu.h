@@ -34,6 +34,7 @@ public:
 	void cp();
 	void dec8();
 	void inc8();
+	void or8();
 	void sbc8();
 	void sub8();
 	void xor8();

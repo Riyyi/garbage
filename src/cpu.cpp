@@ -233,7 +233,21 @@ void CPU::update()
 		case 0xa6: and8(); break;
 		case 0xa7: and8(); break;
 		case 0xa8: xor8(); break;
+		case 0xa9: xor8(); break;
+		case 0xaa: xor8(); break;
+		case 0xab: xor8(); break;
+		case 0xac: xor8(); break;
+		case 0xad: xor8(); break;
+		case 0xae: xor8(); break;
 		case 0xaf: xor8(); break;
+		case 0xb0: or8(); break;
+		case 0xb1: or8(); break;
+		case 0xb2: or8(); break;
+		case 0xb3: or8(); break;
+		case 0xb4: or8(); break;
+		case 0xb5: or8(); break;
+		case 0xb6: or8(); break;
+		case 0xb7: or8(); break;
 		case 0xb8: cp(); break;
 		case 0xb9: cp(); break;
 		case 0xba: cp(); break;
@@ -269,11 +283,13 @@ void CPU::update()
 		case 0xe7: rst(); break;
 		case 0xe8: adds8(); break;
 		case 0xea: ldr8(); break;
+		case 0xee: xor8(); break;
 		case 0xef: rst(); break;
 		case 0xf0: ldffi8(); break;
 		case 0xf1: pop(); break;
 		case 0xf2: lda8(); break;
 		case 0xf5: push(); break;
+		case 0xf6: or8(); break;
 		case 0xf7: rst(); break;
 		case 0xf8: ldr16(); break;
 		case 0xf9: ldr16(); break;
@@ -566,6 +582,50 @@ void CPU::inc8()
 	}
 }
 
+void CPU::or8()
+{
+	auto bitwise_or = [this](uint32_t register_) {
+		// OR r8, flags: Z 0 0 0
+		m_wait_cycles += 4;
+
+		// Set flags
+		m_nf = m_hf = m_cf = 0;
+
+		// Store into A the bitwise OR of the value in r8 and A
+		m_a = m_a | register_;
+
+		// Zero flag
+		m_zf = m_a == 0;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xb0: /* OR A,B */ bitwise_or(m_b); break;
+	case 0xb1: /* OR A,C */ bitwise_or(m_c); break;
+	case 0xb2: /* OR A,D */ bitwise_or(m_d); break;
+	case 0xb3: /* OR A,E */ bitwise_or(m_e); break;
+	case 0xb4: /* OR A,H */ bitwise_or(m_h); break;
+	case 0xb5: /* OR A,L */ bitwise_or(m_l); break;
+	case 0xb6: /* OR A,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Store into A the bitwise OR of the byte pointed to by HL and A
+		bitwise_or(read(hl()));
+		break;
+	}
+	case 0xb7: /* OR A,A */ bitwise_or(m_a); break;
+	case 0xf6: /* OR A,i8 */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Store into A the bitwise OR of i8 and A
+		bitwise_or(pcRead());
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
 void CPU::sbc8()
 {
 	auto subtract_carry = [this](uint32_t register_) -> void {
@@ -664,18 +724,43 @@ void CPU::sub8()
 
 void CPU::xor8()
 {
+	auto bitwise_xor = [this](uint32_t register_) {
+		// XOR r8, flags: Z 0 0 0
+		m_wait_cycles += 4;
+
+		// Set flags
+		m_nf = m_hf = m_cf = 0;
+
+		// Bitwise XOR between the value in r8 and A
+		m_a = m_a ^ register_;
+
+		// Zero flag
+		m_zf = m_a == 0;
+	};
+
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0xa8: // XOR B, flags: Z 0 0 0
-		m_nf = m_hf = m_cf = 0;
-		m_a ^= m_b;
-		m_zf = m_a == 0;
+	case 0xa8: /* XOR A,B */ bitwise_xor(m_b); break;
+	case 0xa9: /* XOR A,C */ bitwise_xor(m_c); break;
+	case 0xaa: /* XOR A,D */ bitwise_xor(m_d); break;
+	case 0xab: /* XOR A,E */ bitwise_xor(m_e); break;
+	case 0xac: /* XOR A,H */ bitwise_xor(m_h); break;
+	case 0xad: /* XOR A,L */ bitwise_xor(m_l); break;
+	case 0xae: /* XOR A,(HL) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Bitwise XOR between the byte pointed to by HL and A
+		bitwise_xor(read(hl()));
 		break;
-	case 0xaf: // XOR A, flags: 1 0 0 0
-		// A ^ A will always be 0
-		m_a = m_nf = m_hf = m_cf = 0;
-		m_zf = 1;
+	}
+	case 0xaf: /* XOR A,A */ bitwise_xor(m_a); break;
+	case 0xee: /* XOR A,i8 */ {
+		m_wait_cycles += 4; // + 4 = 8 total
+
+		// Bitwise XOR between the value in i8 and A
+		bitwise_xor(pcRead());
 		break;
+	}
 	default:
 		VERIFY_NOT_REACHED();
 	}
