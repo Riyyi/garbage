@@ -86,6 +86,7 @@ public:
 	void call();
 	void jp16();
 	void jrs8();
+	void ret();
 	void rst();
 
 	// -------------------------------------

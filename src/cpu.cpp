@@ -256,6 +256,7 @@ void CPU::update()
 		case 0xbd: cp(); break;
 		case 0xbe: cp(); break;
 		case 0xbf: cp(); break;
+		case 0xc0: ret(); break;
 		case 0xc1: pop(); break;
 		case 0xc2: jp16(); break;
 		case 0xc3: jp16(); break;
@@ -263,18 +264,22 @@ void CPU::update()
 		case 0xc5: push(); break;
 		case 0xc6: add8(); break;
 		case 0xc7: rst(); break;
+		case 0xc8: ret(); break;
+		case 0xc9: ret(); break;
 		case 0xca: jp16(); break;
 		case 0xcb: prefix(); break;
 		case 0xcc: call(); break;
 		case 0xcd: call(); break;
 		case 0xce: adc8(); break;
 		case 0xcf: rst(); break;
+		case 0xd0: ret(); break;
 		case 0xd1: pop(); break;
 		case 0xd2: jp16(); break;
 		case 0xd4: call(); break;
 		case 0xd5: push(); break;
 		case 0xd6: sub8(); break;
 		case 0xd7: rst(); break;
+		case 0xd8: ret(); break;
 		case 0xda: jp16(); break;
 		case 0xdc: call(); break;
 		case 0xde: sbc8(); break;
@@ -1425,6 +1430,38 @@ void CPU::jrs8()
 	case 0x28: /* JR Z,s8 */ jump_relative(m_zf); break;
 	case 0x30: /* JR NC,s8 */ jump_relative(!m_cf); break;
 	case 0x38: /* JR C,s8 */ jump_relative(m_cf); break;
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
+void CPU::ret()
+{
+	auto function_return = [this](bool should_call) -> void {
+		// RET cc,i16
+
+		if (!should_call) {
+			m_wait_cycles += 8;
+			return;
+		}
+		m_wait_cycles += 20;
+
+		// Return from subroutine if condition cc is met,
+		// this is basically a POP PC (if such an instruction existed)
+		m_pc = read(m_sp);
+		m_sp = (m_sp + 1) & 0xffff;
+		m_pc = m_pc | (read(m_sp) << 8);
+		m_sp = (m_sp + 1) & 0xffff;
+	};
+
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0xc0: /* RET NZ,i16 */ function_return(!m_nf); break;
+	case 0xc8: /* RET Z,i16 */ function_return(m_nf); break;
+	case 0xc9: /* RET i16 */ function_return(true); break;
+	case 0xd0: /* RET NC,i16 */ function_return(!m_cf); break;
+	case 0xd8: /* RET C,i16 */ function_return(m_cf); break;
+	// case 0xd9: /* RETI */ FIXME break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
