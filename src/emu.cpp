@@ -90,7 +90,7 @@ uint32_t Emu::readMemory(uint32_t address) const
 	for (const auto& memory_space : m_memory_spaces) {
 		const auto& memory = memory_space.second;
 		if (address >= memory.start_address && address <= memory.end_address) {
-			return memory.memory[memory.active_bank][address];
+			return memory.memory[memory.active_bank][address - memory.start_address];
 		}
 	}
 
