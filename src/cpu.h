@@ -32,6 +32,7 @@ public:
 	void add8();
 	void and8();
 	void cp();
+	void daa();
 	void dec8();
 	void inc8();
 	void or8();
