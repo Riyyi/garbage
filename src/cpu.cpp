@@ -929,24 +929,28 @@ void CPU::ldr8()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0x02: // LD (BC),A
-		m_wait_cycles += 4;
+	case 0x02: /* LD (BC),A */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(bc(), m_a);
 		break;
-	case 0x0a: // LD A,(BC)
-		m_wait_cycles += 4;
+	}
+	case 0x0a: /* LD A,(BC) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		m_a = read(bc());
 		break;
-	case 0x12: // LD (DE),A
-		m_wait_cycles += 4;
+	}
+	case 0x12: /* LD (DE),A */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		write(de(), m_a);
 		break;
-	case 0x1a: // LD A,(DE)
-		m_wait_cycles += 4;
+	}
+	case 0x1a: /* LD A,(DE) */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 		m_a = read(de());
 		break;
-	case 0x22: { // LD (HL+),A == LD (HLI),A == LDI (HL),A
-		m_wait_cycles += 4;
+	}
+	case 0x22: /* LD (HL+),A == LD (HLI),A == LDI (HL),A */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 
 		// Put A into memory address in HL
 		uint32_t address = hl();
@@ -958,8 +962,8 @@ void CPU::ldr8()
 		m_h = address >> 8;
 		break;
 	}
-	case 0x32: { // LD (HL-),A == LD (HLD),A == LDD (HL),A
-		m_wait_cycles += 4;
+	case 0x32: /* LD (HL-),A == LD (HLD),A == LDD (HL),A */ {
+		m_wait_cycles += 4; // + 4 = 8 total
 
 		// Put A into memory address in HL
 		uint32_t address = hl();
