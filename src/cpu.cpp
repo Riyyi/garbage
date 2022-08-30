@@ -105,6 +105,7 @@ void CPU::update()
 		case 0x24: inc8(); break;
 		case 0x25: dec8(); break;
 		case 0x26: ldi8(); break;
+		case 0x27: daa(); break;
 		case 0x28: jrs8(); break;
 		case 0x29: addr16(); break;
 		case 0x2a: lda8(); break;
@@ -512,6 +513,56 @@ void CPU::cp()
 	}
 }
 
+void CPU::daa()
+{
+	uint8_t opcode = pcRead();
+	switch (opcode) {
+	case 0x27: { // DAA, flags: Z - 0 C
+		m_wait_cycles += 4;
+
+		// Decimal Adjust Accumulator to get a correct Binary Coded Decimal
+		// (BCD) representation after an arithmetic instruction
+
+		// BCD is a way of representing decimal quantities using each nibble (4
+		// bits) of a byte (a byte, since it is 8 bits has two nibbles) to store
+		// a decimal digit.
+		// Example: 64 split on each number gives a 6 and a 4, so 0110 0100 as a BCD
+		uint8_t higher_nibble = m_a & 0xf0;
+		uint8_t lower_nibble = m_a & 0xf;
+
+		// Step 1: Check lower nibble of the BCD stored in A.
+		//         If it is greater than decimal 9 or half carry flag is set
+		//         (meaning that the lower nibble value is > 15),
+		//         add decimal 6 to the lower nibble to make it wrap around
+		if (lower_nibble > 9 || m_hf) {
+			lower_nibble += 6;
+			higher_nibble += isCarry(m_a, 6, 0x10);
+		}
+
+		// Step 2: Check higher nibble (after addition of the carry from the lower nibble).
+		//         If it is greater than decimal 9 or the carry flag is set
+		//         (meaning that the upper nibble value is > 15),
+		//         add decimal 6 to the upper nibble to make it wrap around and set carry flag to 1
+		uint32_t new_carry = 0;
+		if (higher_nibble > 9 || m_cf) {
+			higher_nibble += 6;
+			new_carry = 1;
+		}
+
+		// Set Accumulator to the correct BCD representation
+		m_a = higher_nibble | lower_nibble;
+
+		// Set flags
+		m_zf = m_a == 0;
+		m_hf = 0;
+		m_cf = new_carry;
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	}
+}
+
 void CPU::dec8()
 {
 	auto decrement = [this](uint32_t& register_) -> void {
@@ -642,7 +693,7 @@ void CPU::sbc8()
 		// SBC A,r8, flags: Z 1 H C
 		m_wait_cycles += 4;
 
-		uint32_t old_carry = m_cf;
+		uint32_t old_carry = m_cf != 0;
 
 		// Set flags
 		m_nf = 1;
