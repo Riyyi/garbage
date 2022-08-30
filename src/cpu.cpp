@@ -892,7 +892,7 @@ void CPU::inc16()
 	switch (opcode) {
 	case 0x03: /* INC BC */ setBC(bc() + 1); break;
 	case 0x13: /* INC DE */ setDE(de() + 1); break;
-	case 0x23: /* INC HL */ setHL(de() + 1); break;
+	case 0x23: /* INC HL */ setHL(hl() + 1); break;
 	case 0x24: /* INC SP */ m_sp = (m_sp + 1) & 0xffff; break;
 	default:
 		VERIFY_NOT_REACHED();
