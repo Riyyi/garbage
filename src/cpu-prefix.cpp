@@ -19,7 +19,7 @@ void CPU::prefix()
 
 	// Read next opcode
 	uint8_t opcode = read(m_pc);
-	print("running opcode: {:#04x} @ ({:#06x})\n", opcode, m_pc);
+	// print("running opcode: {:#04x} @ ({:#06x})\n", opcode, m_pc);
 	if (opcode <= 0x07) {
 		rlc();
 	}

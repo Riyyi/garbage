@@ -58,14 +58,19 @@ CPU::~CPU()
 void CPU::update()
 {
 	m_wait_cycles--;
+	// TODO: convert to early-return
 	if (m_wait_cycles <= 0) {
 
 		// print(ruc::format::Emphasis::Underline | ruc::format::Emphasis::Bold | fg(ruc::format::TerminalColor::Blue), "{:#06x}\n", *this);
 
 		// Read next opcode
 		uint8_t opcode = read(m_pc);
-		print("running opcode: {:#04x} @ ({:#06x})\n", opcode, m_pc);
+		// print("running opcode: {:#04x} @ ({:#06x})\n", opcode, m_pc);
 		switch (opcode) {
+
+		case 0x10: /* TODO */ m_pc += 2; break;
+		case 0xf3: /* TODO */ m_pc += 1; break;
+		case 0xfb: /* TODO */ m_pc += 1; break;
 
 		case 0x00: nop(); break;
 		case 0x01: ldi16(); break;
@@ -281,6 +286,7 @@ void CPU::update()
 		case 0xd6: sub8(); break;
 		case 0xd7: rst(); break;
 		case 0xd8: ret(); break;
+		case 0xd9: ret(); break;
 		case 0xda: jp16(); break;
 		case 0xdc: call(); break;
 		case 0xde: sbc8(); break;
@@ -1525,7 +1531,12 @@ void CPU::ret()
 	case 0xc9: /* RET i16 */ function_return(true); break;
 	case 0xd0: /* RET NC,i16 */ function_return(!m_cf); break;
 	case 0xd8: /* RET C,i16 */ function_return(m_cf); break;
-	// case 0xd9: /* RETI */ FIXME break;
+	case 0xd9: /* RETI */ {
+		// Return from subroutine
+		// TODO: and enable interrupts.
+		function_return(true);
+		break;
+	}
 	default:
 		VERIFY_NOT_REACHED();
 	}
@@ -1641,7 +1652,8 @@ void CPU::write(uint32_t address, uint32_t value)
 
 uint32_t CPU::read(uint32_t address)
 {
-	return Emu::the().readMemory(address) & 0xff;
+	// FIXME: Figure out where HL gets set to above 0xffff
+	return Emu::the().readMemory(address & 0xffff) & 0xff;
 }
 
 void CPU::ffWrite(uint32_t address, uint32_t value)
