@@ -124,7 +124,7 @@ void CPU::update()
 		case 0x37: misc(); break;
 		case 0x38: jrs8(); break;
 		case 0x39: addr16(); break;
-		case 0x3a: ldr8(); break;
+		case 0x3a: lda8(); break;
 		case 0x3b: dec16(); break;
 		case 0x3c: inc8(); break;
 		case 0x3d: dec8(); break;
@@ -843,7 +843,7 @@ void CPU::lda8()
 	case 0x2a: { // LD A,(HL+) == LD A,(HLI) == LDI A,(HL)
 		m_wait_cycles += 8;
 
-		// Put value at address in HL into A
+		// Load value into register A from the byte pointed by HL
 		uint32_t address = hl();
 		m_a = read(address);
 
@@ -856,7 +856,7 @@ void CPU::lda8()
 	case 0x3a: { // LD A,(HL-) == LD A,(HLD) == LDD A,(HL)
 		m_wait_cycles += 8;
 
-		// Put value at address in HL into A
+		// Load value into register A from the byte pointed by HL
 		uint32_t address = hl();
 		m_a = read(address);
 
@@ -953,7 +953,7 @@ void CPU::inc16()
 	case 0x03: /* INC BC */ setBC(bc() + 1); break;
 	case 0x13: /* INC DE */ setDE(de() + 1); break;
 	case 0x23: /* INC HL */ setHL(hl() + 1); break;
-	case 0x24: /* INC SP */ m_sp = (m_sp + 1) & 0xffff; break;
+	case 0x33: /* INC SP */ m_sp = (m_sp + 1) & 0xffff; break;
 	default:
 		VERIFY_NOT_REACHED();
 	}
