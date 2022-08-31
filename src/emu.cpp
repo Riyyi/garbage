@@ -66,10 +66,6 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 {
 	for (auto& memory_space : m_memory_spaces) {
 		auto& memory = memory_space.second;
-		if (address == 0xff50) {
-			Loader::the().disableBootrom();
-		}
-
 		if (address >= memory.start_address && address <= memory.end_address) {
 			// Note: ECHO RAM hack
 			if (address >= 0xc000 && address <= 0xddff) {
@@ -77,6 +73,18 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 			}
 
 			memory.memory[memory.active_bank][address - memory.start_address] = value;
+
+			if (address == 0xff50) {
+				print("DISABLING BOOTROM\n");
+				Loader::the().disableBootrom();
+			}
+
+			// Write serial data from linkport I/O, used for blargg's test ROMs
+			if (address == 0xff02 && value == 0x81) {
+				uint32_t data = readMemory(0xff01);
+				print("{:c}", (data >= 58 && data <= 64) ? data + 7 : data);
+			}
+
 			return;
 		}
 	}
