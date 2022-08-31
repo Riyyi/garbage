@@ -478,7 +478,7 @@ void CPU::cp()
 		// Zero flag
 		m_zf = ((m_a - register_) & 0xff) == 0;
 		m_nf = 1;
-		// Note: for negation between two positive numbers the carry result is flipped!
+		// Note: for subtraction between two positive numbers the carry result is flipped!
 		m_hf = !isCarry(m_a, register_, 0x10);
 		m_cf = !isCarry(m_a, register_, 0x100);
 	};
@@ -706,7 +706,7 @@ void CPU::sbc8()
 
 		// Set flags
 		m_nf = 1;
-		// Note: for negation between two positive numbers the carry result is flipped!
+		// Note: for subtraction between two positive numbers the carry result is flipped!
 		m_hf = !isCarry(m_a, register_, 0x10);
 		m_cf = !isCarry(m_a, (register_ + (old_carry) ? 1 : 0), 0x100);
 
@@ -753,7 +753,7 @@ void CPU::sub8()
 
 		// Set flags
 		m_nf = 1;
-		// Note: for negation between two positive numbers the carry result is flipped!
+		// Note: for subtraction between two positive numbers the carry result is flipped!
 		m_hf = !isCarry(m_a, register_, 0x10);
 		m_cf = !isCarry(m_a, register_, 0x100);
 
