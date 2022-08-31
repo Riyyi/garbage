@@ -69,7 +69,8 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 		if (address == 0xff50) {
 			Loader::the().disableBootrom();
 		}
-		else if (address >= memory.start_address && address <= memory.end_address) {
+
+		if (address >= memory.start_address && address <= memory.end_address) {
 			// Note: ECHO RAM hack
 			if (address >= 0xc000 && address <= 0xddff) {
 				writeMemory(address + (0xe000 - 0xc000), value);
