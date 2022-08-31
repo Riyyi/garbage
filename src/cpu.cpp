@@ -1411,13 +1411,13 @@ void CPU::call()
 		}
 		m_wait_cycles += 24;
 
-		// Push address of next 2 bytes in memory onto stack
+		// Push address of the instruction after the CALL on the stack, such that RET can pop it later
 		m_sp = (m_sp - 1) & 0xffff;
-		write(m_sp, data >> 8);
+		write(m_sp, m_pc >> 8);
 		m_sp = (m_sp - 1) & 0xffff;
-		write(m_sp, data & 0xff);
+		write(m_sp, m_pc & 0xff);
 
-		// Jump to this address
+		// Jump to operand address
 		m_pc = data;
 	};
 
