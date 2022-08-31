@@ -27,5 +27,12 @@ void PPU::update()
 		return;
 	}
 
-	print("PPU update\n");
+	// print("PPU update\n");
+
+	// Increment LY (LCD Y Coordinate)
+	uint32_t ly_register = Emu::the().readMemory(0xff44) + 1;
+	if (ly_register >= 154) {
+		ly_register = 0;
+	}
+	Emu::the().writeMemory(0xff44, ly_register);
 }
