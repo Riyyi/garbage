@@ -123,10 +123,8 @@ private:
 	void ffWrite(uint32_t address, uint32_t value);
 	uint32_t ffRead(uint32_t address);
 
-	bool isCarry(uint32_t lhs, uint32_t rhs, uint32_t limit_bit);
-	bool isCarry(uint32_t lhs, uint32_t middle, uint32_t rhs, uint32_t limit_bit);
-	bool isCarrySubtraction(uint32_t lhs, uint32_t rhs, uint32_t limit_bit);
-	bool isCarrySubtraction(uint32_t lhs, uint32_t middle, uint32_t rhs, uint32_t limit_bit);
+	bool isCarry(uint32_t limit_bit, uint32_t first, uint32_t second, uint32_t third = 0x0);
+	bool isCarrySubtraction(uint32_t limit_bit, uint32_t lhs, uint32_t rhs, uint32_t rhs_extra = 0x0);
 
 	// Registers
 	uint32_t m_a { 0 };  // Accumulator

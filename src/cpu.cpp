@@ -347,8 +347,8 @@ void CPU::adc8()
 
 		// Set flags
 		m_nf = 0;
-		m_hf = isCarry(m_a, register_, old_carry, 0xf);
-		m_cf = isCarry(m_a, register_, old_carry, 0xff);
+		m_hf = isCarry(0xf, m_a, register_, old_carry);
+		m_cf = isCarry(0xff, m_a, register_, old_carry);
 
 		// Add the value in r8 plus the carry flag to A
 		m_a = (m_a + register_ + old_carry) & 0xff;
@@ -391,8 +391,8 @@ void CPU::add8()
 
 		// Set flags
 		m_nf = 0;
-		m_hf = isCarry(m_a, register_, 0x10);
-		m_cf = isCarry(m_a, register_, 0x100);
+		m_hf = isCarry(0xf, m_a, register_);
+		m_cf = isCarry(0xff, m_a, register_);
 
 		// Add the value in r8 to A
 		m_a = (m_a + register_) & 0xff;
@@ -486,8 +486,8 @@ void CPU::cp()
 		// Zero flag
 		m_zf = ((m_a - register_) & 0xff) == 0;
 		m_nf = 1;
-		m_hf = isCarrySubtraction(m_a, register_, 0xf);
-		m_cf = isCarrySubtraction(m_a, register_, 0xff);
+		m_hf = isCarrySubtraction(0xf, m_a, register_);
+		m_cf = isCarrySubtraction(0xff, m_a, register_);
 	};
 
 	uint8_t opcode = pcRead();
@@ -587,7 +587,7 @@ void CPU::dec8()
 
 		// Set flags
 		m_nf = 1;
-		m_hf = isCarrySubtraction(register_, 1, 0xf);
+		m_hf = isCarrySubtraction(0xf, register_, 1);
 
 		// Decrement value in register r8 by 1
 		register_ = (register_ - 1) & 0xff;
@@ -627,7 +627,7 @@ void CPU::inc8()
 
 		// Set flags
 		m_nf = 0;
-		m_hf = isCarry(register_, 1, 0x10);
+		m_hf = isCarry(0xf, register_, 1);
 
 		// Increment value in register r8 by 1
 		register_ = (register_ + 1) & 0xff;
@@ -713,8 +713,8 @@ void CPU::sbc8()
 
 		// Set flags
 		m_nf = 1;
-		m_hf = isCarrySubtraction(m_a, register_, old_carry, 0xf);
-		m_cf = isCarrySubtraction(m_a, register_, old_carry, 0xff);
+		m_hf = isCarrySubtraction(0xf, m_a, register_, old_carry);
+		m_cf = isCarrySubtraction(0xff, m_a, register_, old_carry);
 
 		// Subtract the value in r8 and the carry flag from A
 		m_a = (m_a - register_ - old_carry) & 0xff;
@@ -759,8 +759,8 @@ void CPU::sub8()
 
 		// Set flags
 		m_nf = 1;
-		m_hf = isCarrySubtraction(m_a, register_, 0xf);
-		m_cf = isCarrySubtraction(m_a, register_, 0xff);
+		m_hf = isCarrySubtraction(0xf, m_a, register_);
+		m_cf = isCarrySubtraction(0xff, m_a, register_);
 
 		// Subtract the value in r8 from A
 		m_a = (m_a - register_) & 0xff;
@@ -890,8 +890,8 @@ void CPU::addr16()
 
 		// Set flags
 		m_nf = 0;
-		m_hf = isCarry(hl(), register_, 0x1000);
-		m_cf = isCarry(hl(), register_, 0x10000);
+		m_hf = isCarry(0xfff, hl(), register_);
+		m_cf = isCarry(0xffff, hl(), register_);
 
 		// Add the value in r16 to HL
 		uint32_t data = (hl() + register_) & 0xffff;
@@ -922,8 +922,8 @@ void CPU::adds8()
 		// Set flags
 		m_zf = 0;
 		m_nf = 0;
-		m_hf = isCarry(m_sp, signed_data, 0x10);
-		m_cf = isCarry(m_sp, signed_data, 0x100);
+		m_hf = isCarry(0xf, m_sp, signed_data);
+		m_cf = isCarry(0xff, m_sp, signed_data);
 
 		// Add the signed value s8 to SP
 		m_sp = m_sp + signed_data;
@@ -1340,8 +1340,8 @@ void CPU::ldr16()
 		// Set flags
 		m_zf = 0;
 		m_nf = 0;
-		m_hf = isCarry(m_sp, signed_data, 0x10);
-		m_cf = isCarry(m_sp, signed_data, 0x100);
+		m_hf = isCarry(0xf, m_sp, signed_data);
+		m_cf = isCarry(0xff, m_sp, signed_data);
 		break;
 	}
 	case 0xf9: { // LD SP,HL
@@ -1676,47 +1676,14 @@ uint32_t CPU::ffRead(uint32_t address)
 	return Emu::the().readMemory(address | (0xff << 8)) & 0xff;
 }
 
-bool CPU::isCarry(uint32_t lhs, uint32_t rhs, uint32_t limit_bit)
+bool CPU::isCarry(uint32_t limit_bit, uint32_t first, uint32_t second, uint32_t third)
 {
-	// limit_bit values:
-	//  8-bit half-carry = 0x10    or 16
-	//  8-bit carry      = 0x100   or 256
-	// 16-bit half-carry = 0x1000  or 4096
-	// 16-bit carry      = 0x10000 or 65536
-
-	// Example for 8-bit half-carry:
-	// 0b00111110 62      | 0b00111000 56
-	// 0b00100010 34 +    | 0b00010001 17 +
-	// ---------------    | ---------------
-	// 0b01100000 96      | 0b01001001 73
-	//                    |
-	// 0b00111110 62      | 0b00111000 56
-	// 0b00100010 34 ^    | 0b00010001 17 ^
-	// ---------------    | ---------------
-	// 0b00011100         | 0b00101001
-	// 0b01100000 96 ^    | 0b01001001 73 ^
-	// ---------------    | ---------------
-	// 0b01111100         | 0b01100000
-	// 0b00010000 16 &    | 0b00010000 16 &
-	// ---------------    | ---------------
-	// 0b00010000 = true! | 0b00000000 = false!
-
-	return (lhs ^ rhs ^ (lhs + rhs)) & limit_bit;
+	return (first & limit_bit) + (second & limit_bit) + (third & limit_bit) > limit_bit;
 }
 
-bool CPU::isCarry(uint32_t lhs, uint32_t middle, uint32_t rhs, uint32_t limit_bit)
+bool CPU::isCarrySubtraction(uint32_t limit_bit, uint32_t lhs, uint32_t rhs, uint32_t rhs_extra)
 {
-	return (lhs & limit_bit) + (middle & limit_bit) + (rhs & limit_bit) > limit_bit;
-}
-
-bool CPU::isCarrySubtraction(uint32_t lhs, uint32_t rhs, uint32_t limit_bit)
-{
-	return (lhs & limit_bit) < (rhs & limit_bit);
-}
-
-bool CPU::isCarrySubtraction(uint32_t lhs, uint32_t middle, uint32_t rhs, uint32_t limit_bit)
-{
-	return (lhs & limit_bit) < (middle & limit_bit) + (rhs & limit_bit);
+	return (lhs & limit_bit) < (rhs & limit_bit) + (rhs_extra & limit_bit);
 }
 
 // -----------------------------------------
