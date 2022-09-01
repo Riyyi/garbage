@@ -369,7 +369,7 @@ void CPU::swap()
 		register_ = (register_ >> 4) | (register_ << 4);
 
 		// Set flags
-		m_zf = register_ == 0;
+		m_zf = (register_ == 0);
 		m_nf = 0;
 		m_hf = 0;
 		m_cf = 0;
@@ -412,7 +412,7 @@ void CPU::rl()
 		register_ = (old_carry | (register_ << 1)) & 0xff;
 
 		// Set other flags
-		m_zf = register_ == 0;
+		m_zf = (register_ == 0);
 		m_nf = 0;
 		m_hf = 0;
 	};
@@ -452,7 +452,7 @@ void CPU::rlc()
 		register_ = ((register_ >> 7) | (register_ << 1)) & 0xff;
 
 		// Set other flags
-		m_zf = register_ == 0;
+		m_zf = (register_ == 0);
 		m_nf = 0;
 		m_hf = 0;
 	};
@@ -488,13 +488,13 @@ void CPU::rr()
 
 		// Copy bit 0 into carry flag
 		uint32_t old_carry = m_cf != 0;
-		m_cf = (register_ & 0x01) == 0x01;
+		m_cf = (register_ & 0x1) == 0x1;
 
 		// Rotate register r8 right through carry
 		register_ = ((register_ >> 1) | (old_carry << 7)) & 0xff;
 
 		// Set other flags
-		m_zf = register_ == 0;
+		m_zf = (register_ == 0);
 		m_nf = 0;
 		m_hf = 0;
 	};
@@ -534,7 +534,7 @@ void CPU::rrc()
 		register_ = ((register_ >> 1) | (register_ << 7)) & 0xff;
 
 		// Set other flags
-		m_zf = register_ == 0;
+		m_zf = (register_ == 0);
 		m_nf = 0;
 		m_hf = 0;
 	};
@@ -575,13 +575,13 @@ void CPU::sla()
 		//         r8
 
 		// Copy bit 7 into carry flag
-		m_cf = (m_a & 0x80) == 0x80;
+		m_cf = (register_ & 0x80) == 0x80;
 
 		// Shift Left Arithmetically register r8
 		register_ = (register_ << 1) & 0xff;
 
 		// Set other flags
-		m_zf = register_ == 0;
+		m_zf = (register_ == 0);
 		m_nf = 0;
 		m_hf = 0;
 	};
@@ -623,13 +623,13 @@ void CPU::sra()
 		//  └──┘
 
 		// Copy bit 0 into carry flag
-		m_cf = (m_a & 0x01) == 0x01;
+		m_cf = (register_ & 0x1) == 0x1;
 
 		// Shift Right Arithmatically register r8
 		register_ = (register_ >> 1) | (register_ & 0x80); // Note: bit 7 remains
 
 		// Set other flags
-		m_zf = register_ == 0;
+		m_zf = (register_ == 0);
 		m_nf = 0;
 		m_hf = 0;
 	};
@@ -670,13 +670,13 @@ void CPU::srl()
 		//         r8
 
 		// Copy bit 0 into carry flag
-		m_cf = (m_a & 0x01) == 0x01;
+		m_cf = (register_ & 0x1) == 0x1;
 
 		// Shift Right Locically register r8
 		register_ = (register_ >> 1) & 0x7f; // Note: bit 7 is set to 0
 
 		// Set other flags
-		m_zf = register_ == 0;
+		m_zf = (register_ == 0);
 		m_nf = 0;
 		m_hf = 0;
 	};
@@ -692,7 +692,7 @@ void CPU::srl()
 	case 0x3e: /* SRL (HL) */ {
 		m_wait_cycles += 8; // + 8 = 16 total
 
-		// Rotate the byte pointed to by HL right
+		// Shift right logically the byte pointed to by HL
 		uint32_t data = read(hl());
 		shift_right_logically(data);
 		write(hl(), data);
