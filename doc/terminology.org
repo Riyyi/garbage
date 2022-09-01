@@ -65,13 +65,16 @@ Absolute fixed address, possible values are[[#references][(4)]]: ~0x00~, ~0x08~,
 
 *** Variables
 
-| Name   | Meaning            |
-|--------+--------------------|
-| length | amount of elements |
-| size   | amount of bytes    |
-|--------+--------------------|
-| lhs    | left hand side     |
-| rhs    | right hand side    |
+| Name   | Meaning                |
+|--------+------------------------|
+| length | amount of elements     |
+| size   | amount of bytes        |
+|--------+------------------------|
+| lhs    | left hand side         |
+| rhs    | right hand side        |
+|--------+------------------------|
+| lsb    | least significant byte |
+| msb    | most significant byte  |
 
 ** References
 
