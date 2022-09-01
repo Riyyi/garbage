@@ -102,12 +102,21 @@ public:
 
 	// -------------------------------------
 
+	uint32_t a() const { return m_a; }
+	uint32_t b() const { return m_b; }
+	uint32_t c() const { return m_c; }
+
 	uint32_t af() const { return (m_cf << 4 | m_hf << 5 | m_nf << 6 | m_zf << 7) | m_a << 8; }
 	uint32_t bc() const { return m_c | m_b << 8; }
 	uint32_t de() const { return m_e | m_d << 8; }
 	uint32_t hl() const { return m_l | m_h << 8; }
 	uint32_t pc() const { return m_pc; }
 	uint32_t sp() const { return m_sp; }
+
+	uint32_t zf() const { return m_zf; }
+	uint32_t nf() const { return m_nf; }
+	uint32_t hf() const { return m_hf; }
+	uint32_t cf() const { return m_cf; }
 
 	void setBC(uint32_t value);
 	void setDE(uint32_t value);
