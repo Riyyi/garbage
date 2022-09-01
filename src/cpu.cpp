@@ -1107,7 +1107,7 @@ void CPU::ldr8()
 	case 0x6d: /* LD L,L    m_l = m_l; */ break;
 	case 0x6e: /* LD L,(HL) */ {
 		m_wait_cycles += 4; // + 4 = 8 total
-		m_e = read(hl());
+		m_l = read(hl());
 		break;
 	}
 	case 0x6f: /* LD L,A */ m_l = m_a; break;
