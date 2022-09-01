@@ -291,9 +291,9 @@ void CPU::update()
 		case 0xdc: call(); break;
 		case 0xde: sbc8(); break;
 		case 0xdf: rst(); break;
-		case 0xe0: ldffi8(); break;
+		case 0xe0: ldff8(); break;
 		case 0xe1: pop(); break;
-		case 0xe2: ldr8(); break;
+		case 0xe2: ldff8(); break;
 		case 0xe5: push(); break;
 		case 0xe6: and8(); break;
 		case 0xe7: rst(); break;
@@ -302,9 +302,9 @@ void CPU::update()
 		case 0xea: ldr8(); break;
 		case 0xee: xor8(); break;
 		case 0xef: rst(); break;
-		case 0xf0: ldffi8(); break;
+		case 0xf0: ldff8(); break;
 		case 0xf1: pop(); break;
-		case 0xf2: lda8(); break;
+		case 0xf2: ldff8(); break;
 		case 0xf5: push(); break;
 		case 0xf6: or8(); break;
 		case 0xf7: rst(); break;
@@ -872,12 +872,6 @@ void CPU::lda8()
 		m_h = address >> 8;
 		break;
 	}
-	case 0xf2: // LD A,(0xff00 + C) == LD A,(C) == LDH A,(C) == LDIO A,(C)
-		m_wait_cycles += 8;
-
-		// Load value into register A from the byte at address 0xff00 + C
-		m_a = ffRead(m_c);
-		break;
 	case 0xfa: // LD A,a16
 		m_wait_cycles += 16;
 
@@ -1164,13 +1158,6 @@ void CPU::ldr8()
 		break;
 	}
 	case 0x7f: /* LD A,A    m_a = m_a; */ break;
-	case 0xe2: /* LD (0xff00 + C),A == LD (C),A == LDH (C),A == LDIO (C),A */ {
-		m_wait_cycles += 4; // + 4 = 8 total
-
-		// Store value in register A into the byte at address 0xff00 + C
-		ffWrite(m_c, m_a);
-		break;
-	}
 	case 0xea: /* LD a16,A */ {
 		m_wait_cycles += 12; // + 4 = 16 total
 
@@ -1270,21 +1257,33 @@ void CPU::ra()
 	m_hf = 0;
 }
 
-void CPU::ldffi8()
+void CPU::ldff8()
 {
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0xe0: // LD (0xff00 + i8),A == LDH (io8),A
+	case 0xe0: // LD (0xff00 + s8),A == LDH (io8),A
 		m_wait_cycles += 12;
 
 		// Put value in A into address (0xff00 + next byte in memory)
 		ffWrite(pcRead(), m_a);
 		break;
-	case 0xf0: // LD A,(0xff00 + i8) == LDH A,(io8)
+	case 0xe2: // LD (0xff00 + C),A == LDH (C),A
+		m_wait_cycles += 8;
+
+		// Store value in register A into the byte at address 0xff00 + C
+		ffWrite(m_c, m_a);
+		break;
+	case 0xf0: // LD A,(0xff00 + s8) == LDH A,(io8)
 		m_wait_cycles += 12;
 
 		// Put value at address (0xff00 + next byte in memory) into A
 		m_a = ffRead(pcRead());
+		break;
+	case 0xf2: // LD A,(0xff00 + C) == LDH A,(C)
+		m_wait_cycles += 8;
+
+		// Load value into register A from the byte at address 0xff00 + C
+		m_a = ffRead(m_c);
 		break;
 	default:
 		VERIFY_NOT_REACHED();

@@ -71,7 +71,7 @@ public:
 
 	// 8-bit
 	void lda8();
-	void ldffi8();
+	void ldff8();
 	void ldi8();
 	void ldr8();
 
