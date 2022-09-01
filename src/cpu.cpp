@@ -867,7 +867,7 @@ void CPU::lda8()
 		m_a = read(address);
 
 		// Decrement HL
-		address = (address + 1) & 0xffff;
+		address = (address - 1) & 0xffff;
 		m_l = address & 0xff;
 		m_h = address >> 8;
 		break;
