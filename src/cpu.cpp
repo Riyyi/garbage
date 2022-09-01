@@ -878,7 +878,9 @@ void CPU::lda8()
 		break;
 	case 0xfa: // LD A,a16
 		m_wait_cycles += 16;
-		m_a = pcRead16();
+
+		// Load value in register A from the byte pointed to by register r16
+		m_a = read(pcRead16());
 		break;
 	default:
 		VERIFY_NOT_REACHED();
@@ -1167,6 +1169,8 @@ void CPU::ldr8()
 	}
 	case 0xea: /* LD a16,A */ {
 		m_wait_cycles += 12; // + 4 = 16 total
+
+		// Store value in register A into the byte at address a16
 		write(pcRead16(), m_a);
 		break;
 	}
