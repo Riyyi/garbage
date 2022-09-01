@@ -1321,7 +1321,9 @@ void CPU::ldr16()
 		m_wait_cycles += 20;
 
 		// Put value of SP into address given by next 2 bytes in memory
-		write(pcRead16(), m_sp);
+		uint32_t address = pcRead16();
+		write(address, m_sp & 0xff);              // lsb(SP)
+		write((address + 1) & 0xffff, m_sp >> 8); // msb(SP)
 		break;
 	}
 	case 0xf8: { // LD HL,SP + s8 == LDHL SP,s8, flags: 0 0 H C
@@ -1330,8 +1332,8 @@ void CPU::ldr16()
 		// Put SP + next (signed) byte in memory into HL
 		uint32_t signed_data = (pcRead() ^ 0x80) - 0x80;
 		uint32_t sum = m_sp + signed_data;
-		m_h = sum >> 8;
 		m_l = sum & 0xff;
+		m_h = sum >> 8;
 
 		// Set flags
 		m_zf = 0;
