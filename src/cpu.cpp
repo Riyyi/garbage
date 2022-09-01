@@ -343,16 +343,18 @@ void CPU::adc8()
 		// ADC A,r8, flags: Z 0 H C
 		m_wait_cycles += 4;
 
+		uint32_t old_carry = m_cf != 0;
+
 		// Set flags
 		m_nf = 0;
-		m_hf = isCarry(m_a, register_, 0x10);
-		m_cf = isCarry(m_a, register_, 0x100);
+		m_hf = isCarry(m_a, register_, old_carry, 0xf);
+		m_cf = isCarry(m_a, register_, old_carry, 0xff);
 
 		// Add the value in r8 plus the carry flag to A
-		m_a = (m_a + register_ + (m_cf) ? 0x1 : 0) & 0xff;
+		m_a = (m_a + register_ + old_carry) & 0xff;
 
 		// Zero flag
-		m_zf = m_a == 0;
+		m_zf = (m_a == 0);
 	};
 
 	uint8_t opcode = pcRead();
@@ -484,9 +486,8 @@ void CPU::cp()
 		// Zero flag
 		m_zf = ((m_a - register_) & 0xff) == 0;
 		m_nf = 1;
-		// Note: for subtraction between two positive numbers the carry result is flipped!
-		m_hf = !isCarry(m_a, register_, 0x10);
-		m_cf = !isCarry(m_a, register_, 0x100);
+		m_hf = isCarrySubtraction(m_a, register_, 0xf);
+		m_cf = isCarrySubtraction(m_a, register_, 0xff);
 	};
 
 	uint8_t opcode = pcRead();
@@ -586,13 +587,13 @@ void CPU::dec8()
 
 		// Set flags
 		m_nf = 1;
-		m_hf = isCarry(register_, -1, 0x10);
+		m_hf = isCarrySubtraction(register_, 1, 0xf);
 
 		// Decrement value in register r8 by 1
 		register_ = (register_ - 1) & 0xff;
 
 		// Zero flag
-		m_zf = register_ == 0;
+		m_zf = (register_ == 0);
 	};
 
 	uint8_t opcode = pcRead();
@@ -712,15 +713,14 @@ void CPU::sbc8()
 
 		// Set flags
 		m_nf = 1;
-		// Note: for subtraction between two positive numbers the carry result is flipped!
-		m_hf = !isCarry(m_a, register_, 0x10);
-		m_cf = !isCarry(m_a, (register_ + (old_carry) ? 1 : 0), 0x100);
+		m_hf = isCarrySubtraction(m_a, register_, old_carry, 0xf);
+		m_cf = isCarrySubtraction(m_a, register_, old_carry, 0xff);
 
 		// Subtract the value in r8 and the carry flag from A
-		m_a = (m_a - register_ - (old_carry) ? 1 : 0) & 0xff;
+		m_a = (m_a - register_ - old_carry) & 0xff;
 
 		// Zero flag
-		m_zf = m_a == 0;
+		m_zf = (m_a == 0);
 	};
 
 	uint8_t opcode = pcRead();
@@ -759,9 +759,8 @@ void CPU::sub8()
 
 		// Set flags
 		m_nf = 1;
-		// Note: for subtraction between two positive numbers the carry result is flipped!
-		m_hf = !isCarry(m_a, register_, 0x10);
-		m_cf = !isCarry(m_a, register_, 0x100);
+		m_hf = isCarrySubtraction(m_a, register_, 0xf);
+		m_cf = isCarrySubtraction(m_a, register_, 0xff);
 
 		// Subtract the value in r8 from A
 		m_a = (m_a - register_) & 0xff;
@@ -1703,6 +1702,21 @@ bool CPU::isCarry(uint32_t lhs, uint32_t rhs, uint32_t limit_bit)
 	// 0b00010000 = true! | 0b00000000 = false!
 
 	return (lhs ^ rhs ^ (lhs + rhs)) & limit_bit;
+}
+
+bool CPU::isCarry(uint32_t lhs, uint32_t middle, uint32_t rhs, uint32_t limit_bit)
+{
+	return (lhs & limit_bit) + (middle & limit_bit) + (rhs & limit_bit) > limit_bit;
+}
+
+bool CPU::isCarrySubtraction(uint32_t lhs, uint32_t rhs, uint32_t limit_bit)
+{
+	return (lhs & limit_bit) < (rhs & limit_bit);
+}
+
+bool CPU::isCarrySubtraction(uint32_t lhs, uint32_t middle, uint32_t rhs, uint32_t limit_bit)
+{
+	return (lhs & limit_bit) < (middle & limit_bit) + (rhs & limit_bit);
 }
 
 // -----------------------------------------

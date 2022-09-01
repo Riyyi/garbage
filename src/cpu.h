@@ -124,6 +124,9 @@ private:
 	uint32_t ffRead(uint32_t address);
 
 	bool isCarry(uint32_t lhs, uint32_t rhs, uint32_t limit_bit);
+	bool isCarry(uint32_t lhs, uint32_t middle, uint32_t rhs, uint32_t limit_bit);
+	bool isCarrySubtraction(uint32_t lhs, uint32_t rhs, uint32_t limit_bit);
+	bool isCarrySubtraction(uint32_t lhs, uint32_t middle, uint32_t rhs, uint32_t limit_bit);
 
 	// Registers
 	uint32_t m_a { 0 };  // Accumulator
