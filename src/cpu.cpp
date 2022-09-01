@@ -1363,9 +1363,9 @@ void CPU::pop()
 		m_wait_cycles += 12;
 
 		// Pop register r16 from stack
-		register_low = read(m_sp);
+		register_low = read(m_sp); // lsb(r16)
 		m_sp = (m_sp + 1) & 0xffff;
-		register_high = read(m_sp);
+		register_high = read(m_sp); // msb(r16)
 		m_sp = (m_sp + 1) & 0xffff;
 	};
 
@@ -1398,9 +1398,9 @@ void CPU::push()
 
 		// Push register r16 into stack
 		m_sp = (m_sp - 1) & 0xffff;
-		write(m_sp, register_ >> 8);
+		write(m_sp, register_ >> 8); // msb(r16)
 		m_sp = (m_sp - 1) & 0xffff;
-		write(m_sp, register_ & 0xff);
+		write(m_sp, register_ & 0xff); // lsb(r16)
 	};
 
 	uint8_t opcode = pcRead();
