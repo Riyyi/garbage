@@ -1427,11 +1427,12 @@ void CPU::call()
 		}
 		m_wait_cycles += 24;
 
-		// Push address of the instruction after the CALL on the stack, such that RET can pop it later
+		// Push address of the instruction after the CALL on the stack,
+		// such that RET can pop it later
 		m_sp = (m_sp - 1) & 0xffff;
-		write(m_sp, m_pc >> 8);
+		write(m_sp, m_pc >> 8); // msb(PC)
 		m_sp = (m_sp - 1) & 0xffff;
-		write(m_sp, m_pc & 0xff);
+		write(m_sp, m_pc & 0xff); // lsb(PC)
 
 		// Jump to operand address
 		m_pc = data;
@@ -1439,8 +1440,8 @@ void CPU::call()
 
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0xc4: /* CALL NZ,i16 */ function_call(!m_nf); break;
-	case 0xcc: /* CALL Z,i16 */ function_call(m_nf); break;
+	case 0xc4: /* CALL NZ,i16 */ function_call(!m_zf); break;
+	case 0xcc: /* CALL Z,i16 */ function_call(m_zf); break;
 	case 0xcd: /* CALL i16 */ function_call(true); break;
 	case 0xd4: /* CALL NC,i16 */ function_call(!m_cf); break;
 	case 0xdc: /* CALL C,i16 */ function_call(m_cf); break;
@@ -1528,16 +1529,16 @@ void CPU::ret()
 
 		// Return from subroutine if condition cc is met,
 		// this is basically a POP PC (if such an instruction existed)
-		m_pc = read(m_sp);
+		m_pc = read(m_sp); // lsb(SP)
 		m_sp = (m_sp + 1) & 0xffff;
-		m_pc = m_pc | (read(m_sp) << 8);
+		m_pc = m_pc | (read(m_sp) << 8); // msb(SP)
 		m_sp = (m_sp + 1) & 0xffff;
 	};
 
 	uint8_t opcode = pcRead();
 	switch (opcode) {
-	case 0xc0: /* RET NZ,i16 */ function_return(!m_nf); break;
-	case 0xc8: /* RET Z,i16 */ function_return(m_nf); break;
+	case 0xc0: /* RET NZ,i16 */ function_return(!m_zf); break;
+	case 0xc8: /* RET Z,i16 */ function_return(m_zf); break;
 	case 0xc9: /* RET i16 */ function_return(true); break;
 	case 0xd0: /* RET NC,i16 */ function_return(!m_cf); break;
 	case 0xd8: /* RET C,i16 */ function_return(m_cf); break;
