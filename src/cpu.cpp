@@ -12,6 +12,7 @@
 #include "ruc/format/color.h"
 #include "ruc/format/print.h"
 #include "ruc/meta/assert.h"
+#include "ruc/meta/core.h"
 
 CPU::CPU(uint32_t frequency)
 	: ProcessingUnit(frequency)
@@ -95,20 +96,11 @@ void CPU::update()
 		uint32_t interrupt_flag = Emu::the().readMemory(0xff0f) & 0x1f;
 
 		uint32_t interrupt = interrupt_enabled & interrupt_flag;
-		if (interrupt & InterruptRequest::VBlank) {
-			handleInterrupt(interrupt_flag, InterruptRequest::VBlank, 0x40);
-		}
-		else if (interrupt & InterruptRequest::STAT) {
-			handleInterrupt(interrupt_flag, InterruptRequest::STAT, 0x48);
-		}
-		else if (interrupt & InterruptRequest::Timer) {
-			handleInterrupt(interrupt_flag, InterruptRequest::Timer, 0x50);
-		}
-		else if (interrupt & InterruptRequest::Serial) {
-			handleInterrupt(interrupt_flag, InterruptRequest::Serial, 0x58);
-		}
-		else if (interrupt & InterruptRequest::Joypad) {
-			handleInterrupt(interrupt_flag, InterruptRequest::Joypad, 0x60);
+		for (uint8_t i = 0; i < 5; ++i) {
+			if (interrupt & BIT(i)) {
+				handleInterrupt(interrupt_flag, BIT(i), i * 8 + 0x40);
+				break;
+			}
 		}
 	}
 

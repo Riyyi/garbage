@@ -13,19 +13,6 @@
 
 #include "processing-unit.h"
 #include "ruc/format/formatter.h"
-#include "ruc/meta/core.h"
-
-namespace InterruptRequest {
-
-enum Enum : uint8_t {
-	VBlank = BIT(0),
-	STAT = BIT(1),
-	Timer = BIT(2),
-	Serial = BIT(3),
-	Joypad = BIT(4),
-};
-
-} // namespace InterruptRequest
 
 class CPU final : public ProcessingUnit {
 private:
