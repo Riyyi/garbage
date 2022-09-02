@@ -13,6 +13,19 @@
 
 #include "processing-unit.h"
 #include "ruc/format/formatter.h"
+#include "ruc/meta/core.h"
+
+namespace InterruptRequest {
+
+enum Enum : uint8_t {
+	VBlank = BIT(0),
+	STAT = BIT(1),
+	Timer = BIT(2),
+	Serial = BIT(3),
+	Joypad = BIT(4),
+};
+
+} // namespace InterruptRequest
 
 class CPU final : public ProcessingUnit {
 private:
@@ -22,6 +35,7 @@ public:
 	explicit CPU(uint32_t frequency);
 	virtual ~CPU();
 
+	void handleInterrupt(uint32_t interrupt_flag, uint8_t interrupt_source, uint8_t address);
 	void update() override;
 
 	// -------------------------------------
@@ -147,11 +161,13 @@ private:
 	uint32_t m_sp { 0 }; // Stack Pointer
 
 	// Flags
-	uint32_t m_zf { 0 }; // Zero flag
-	uint32_t m_nf { 0 }; // Subtraction flag (BCD)
-	uint32_t m_hf { 0 }; // Half Carry flag (BCD)
-	uint32_t m_cf { 0 }; // Carry flag
+	uint32_t m_zf { 0 };  // Zero flag
+	uint32_t m_nf { 0 };  // Subtraction flag (BCD)
+	uint32_t m_hf { 0 };  // Half Carry flag (BCD)
+	uint32_t m_cf { 0 };  // Carry flag
+	uint32_t m_ime { 0 }; // Interrupt Master Enable flag
 
+	bool m_should_enable_ime { 0 };
 	int8_t m_wait_cycles { 0 };
 };
 

@@ -55,8 +55,66 @@ CPU::~CPU()
 
 // -----------------------------------------
 
+void CPU::handleInterrupt(uint32_t interrupt_flag, uint8_t interrupt_source, uint8_t address)
+{
+	// Clear interrupt
+	m_ime = 0;
+	Emu::the().writeMemory(0xff0f, interrupt_flag & (~interrupt_source));
+
+	// Call
+
+	m_wait_cycles += 20;
+
+	// Push address of the program counter on the stack, such that RET can pop it later
+	m_sp = (m_sp - 1) & 0xffff;
+	write(m_sp, m_pc >> 8); // msb(PC)
+	m_sp = (m_sp - 1) & 0xffff;
+	write(m_sp, m_pc & 0xff); // lsb(PC)
+
+	// Jump to address
+	m_pc = address;
+}
+
 void CPU::update()
 {
+	// -------------------------------------
+	// Interrupt Service Routine
+
+	bool effective_ime = m_ime;
+
+	// IME only becomes active after the instruction following EI
+	if (m_should_enable_ime) {
+		m_ime = 1;
+		m_should_enable_ime = 0;
+	}
+
+	if (effective_ime) {
+		// Get the 5 lower bits of the IE (interrupt enable) address
+		uint32_t interrupt_enabled = Emu::the().readMemory(0xffff) & 0x1f;
+		// Get the 5 lower bits of the IF (interrupt flag) address
+		uint32_t interrupt_flag = Emu::the().readMemory(0xff0f) & 0x1f;
+
+		uint32_t interrupt = interrupt_enabled & interrupt_flag;
+		if (interrupt & InterruptRequest::VBlank) {
+			handleInterrupt(interrupt_flag, InterruptRequest::VBlank, 0x40);
+		}
+		else if (interrupt & InterruptRequest::STAT) {
+			handleInterrupt(interrupt_flag, InterruptRequest::STAT, 0x48);
+		}
+		else if (interrupt & InterruptRequest::Timer) {
+			handleInterrupt(interrupt_flag, InterruptRequest::Timer, 0x50);
+		}
+		else if (interrupt & InterruptRequest::Serial) {
+			handleInterrupt(interrupt_flag, InterruptRequest::Serial, 0x58);
+		}
+		else if (interrupt & InterruptRequest::Joypad) {
+			handleInterrupt(interrupt_flag, InterruptRequest::Joypad, 0x60);
+		}
+	}
+
+	// -------------------------------------
+	// Run opcodes
+
 	m_wait_cycles--;
 	// TODO: convert to early-return
 	if (m_wait_cycles <= 0) {
