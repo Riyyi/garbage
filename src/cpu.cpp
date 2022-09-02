@@ -127,8 +127,6 @@ void CPU::update()
 		switch (opcode) {
 
 		case 0x10: /* TODO */ m_pc += 2; break;
-		case 0xf3: /* TODO */ m_pc += 1; break;
-		case 0xfb: /* TODO */ m_pc += 1; break;
 
 		case 0x00: nop(); break;
 		case 0x01: ldi16(); break;
@@ -363,12 +361,14 @@ void CPU::update()
 		case 0xf0: ldff8(); break;
 		case 0xf1: pop(); break;
 		case 0xf2: ldff8(); break;
+		case 0xf3: misc(); break;
 		case 0xf5: push(); break;
 		case 0xf6: or8(); break;
 		case 0xf7: rst(); break;
 		case 0xf8: ldr16(); break;
 		case 0xf9: ldr16(); break;
 		case 0xfa: lda8(); break;
+		case 0xfb: misc(); break;
 		case 0xfe: cp(); break;
 		case 0xff: rst(); break;
 
@@ -1601,8 +1601,8 @@ void CPU::ret()
 	case 0xd8: /* RET C,i16 */ function_return(m_cf); break;
 	case 0xd9: /* RETI */ {
 		// Return from subroutine
-		// TODO: and enable interrupts.
 		function_return(true);
+		m_ime = true;
 		break;
 	}
 	default:
@@ -1668,6 +1668,19 @@ void CPU::misc()
 		m_nf = m_hf = 0;
 		// Invert carry
 		m_cf = (m_cf) ? 0 : 1;
+		break;
+	case 0xf3: // DI
+		m_wait_cycles += 4;
+
+		// Disable Interrupts by clearing the IME flag
+		m_ime = 0;
+		break;
+	case 0xfb: // EI
+		m_wait_cycles += 4;
+
+		// Enable Interrupts by setting the IME flag.
+		// The flag is only set after the instruction following EI
+		m_should_enable_ime = true;
 		break;
 	default:
 		VERIFY_NOT_REACHED();
