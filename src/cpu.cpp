@@ -548,6 +548,8 @@ void CPU::daa()
 		if (!m_nf) {
 			if (m_cf || m_a > 0x99) {
 				m_a += 0x60;
+				// Carry flag
+				m_cf = 1;
 			}
 
 			if (m_hf || (m_a & 0xf) > 0x9) {
@@ -563,9 +565,6 @@ void CPU::daa()
 				m_a -= 0x6;
 			}
 		}
-
-		// Carry flag
-		m_cf = (m_a & 0x100) == 0x100;
 
 		m_a = m_a & 0xff;
 
