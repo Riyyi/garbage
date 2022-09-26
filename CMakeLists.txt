@@ -52,21 +52,28 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # ------------------------------------------
 # Library
 
-set(RUC_BUILD_TESTS OFF)
-add_subdirectory("vendor/ruc")
+set(INFERNO_BUILD_EXAMPLES OFF)
+add_subdirectory("vendor/inferno")
 
 # ------------------------------------------
 # Application target
 
 # Define source files
 file(GLOB_RECURSE PROJECT_SOURCES "src/*.cpp")
-set(PROJECT_SOURCES ${PROJECT_SOURCES})
 
 add_executable(${PROJECT} ${PROJECT_SOURCES})
 target_include_directories(${PROJECT} PRIVATE
-	"src"
-	"vendor/ruc/src")
-target_link_libraries(${PROJECT} ruc)
+	"src")
+target_link_libraries(${PROJECT} inferno)
+
+# ------------------------------------------
+# Assets target
+
+add_custom_target(${PROJECT}-assets
+	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/copy-assets.cmake
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_dependencies(${PROJECT} ${PROJECT}-assets)
+add_dependencies(${PROJECT}-assets inferno-assets) # Copy project assets *AFTER* engine assets!
 
 # ------------------------------------------
 # Execute target
@@ -87,9 +94,6 @@ if (GARBAGE_BUILD_TESTS)
 	add_executable(${PROJECT}-unit-test ${TEST_SOURCES})
 	target_include_directories(${PROJECT}-unit-test PRIVATE
 		"src"
-		"test"
-		"vendor/ruc/src"
-		"vendor/ruc/test")
-	target_link_libraries(${PROJECT}-unit-test ruc)
-	target_link_libraries(${PROJECT}-unit-test ruc-test)
+		"test")
+	target_link_libraries(${PROJECT}-unit-test inferno)
 endif()
