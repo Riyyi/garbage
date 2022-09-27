@@ -10,14 +10,13 @@ Accurate GameBoy emulator.
 *** Clone
 
 #+BEGIN_SRC shell-script
-$ git clone https://gitlab.com/riyyi/garbage
+$ git clone https://github.com/riyyi/garbage
 $ cd garbage
-$ git submodule init
-$ git submodule update
+$ git submodule update --init --recursive
 #+END_SRC
 Or
 #+BEGIN_SRC shell-script
-$ git clone --recursive https://gitlab.com/riyyi/garbage
+$ git clone --recursive https://github.com/riyyi/garbage
 #+END_SRC
 
 *** Update
