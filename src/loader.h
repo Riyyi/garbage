@@ -22,7 +22,6 @@ public:
 
 private:
 	void init();
-	void update();
 	void destroy();
 
 	void loadCartridgeHeader();

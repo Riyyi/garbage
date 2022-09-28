@@ -78,15 +78,6 @@ void Loader::init()
 
 		Emu::the().writeMemory(i, bootrom[i]);
 	}
-
-	update();
-}
-
-void Loader::update()
-{
-	while (true) {
-		Emu::the().update();
-	}
 }
 
 void Loader::destroy()
