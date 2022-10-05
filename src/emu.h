@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstdint> // uint32_t
+#include <memory>  // std::shared_ptr
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -34,7 +35,7 @@ public:
 
 	void update();
 
-	void addProcessingUnit(std::string_view name, ProcessingUnit* processing_unit);
+	void addProcessingUnit(std::string_view name, std::shared_ptr<ProcessingUnit> processing_unit);
 	void addMemorySpace(std::string_view name, uint32_t start_address, uint32_t end_address, uint32_t amount_of_banks = 1);
 	void removeMemorySpace(std::string_view name);
 
@@ -43,7 +44,7 @@ public:
 
 	// -------------------------------------
 
-	ProcessingUnit* processingUnit(std::string_view name) const { return m_processing_units.at(name); }
+	std::shared_ptr<ProcessingUnit> processingUnit(std::string_view name) const { return m_processing_units.at(name); }
 	MemorySpace memorySpace(std::string_view name) { return m_memory_spaces[name]; }
 
 private:
@@ -55,6 +56,6 @@ private:
 
 	ruc::Timer m_timer;
 
-	std::unordered_map<std::string_view, ProcessingUnit*> m_processing_units;
+	std::unordered_map<std::string_view, std::shared_ptr<ProcessingUnit>> m_processing_units;
 	std::unordered_map<std::string_view, MemorySpace> m_memory_spaces;
 };

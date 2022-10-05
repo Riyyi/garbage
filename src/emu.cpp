@@ -39,7 +39,7 @@ void Emu::update()
 	}
 }
 
-void Emu::addProcessingUnit(std::string_view name, ProcessingUnit* processing_unit)
+void Emu::addProcessingUnit(std::string_view name, std::shared_ptr<ProcessingUnit> processing_unit)
 {
 	m_processing_units.emplace(name, processing_unit);
 }

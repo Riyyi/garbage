@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <memory> // std::make_shared, std::shared_ptr
 #include <vector>
 
 #include "cpu.h"
@@ -26,13 +27,13 @@ struct CPUTest {
 	}
 };
 
-CPU runCPUTest(std::vector<uint8_t> test)
+std::shared_ptr<CPU> runCPUTest(std::vector<uint8_t> test)
 {
-	CPU cpu(4000000);
+	auto cpu = std::make_shared<CPU>(4000000);
 
 	Emu::the().destroy();
 	Emu::the().init(8000000);
-	Emu::the().addProcessingUnit("cpu", &cpu);
+	Emu::the().addProcessingUnit("cpu", cpu);
 	Emu::the().addMemorySpace("FULL", 0x0000, 0xffff);
 
 	// Load the test
@@ -41,7 +42,7 @@ CPU runCPUTest(std::vector<uint8_t> test)
 	}
 
 	// Run the test
-	while (cpu.pc() < test.size()) {
+	while (cpu->pc() < test.size()) {
 		Emu::the().update();
 	}
 
@@ -83,7 +84,7 @@ TEST_CASE(CPUIsCarry)
 
 TEST_CASE(CPUAddPlusCarry)
 {
-	CPU cpu(0);
+	std::shared_ptr<CPU> cpu(0);
 
 	// ADC A,E
 
@@ -96,11 +97,11 @@ TEST_CASE(CPUAddPlusCarry)
 		// clang-format on
 	};
 	cpu = runCPUTest(adc_r8);
-	EXPECT_EQ(cpu.a(), 0xf1);
-	EXPECT_EQ(cpu.zf(), 0x0);
-	EXPECT_EQ(cpu.nf(), 0x0);
-	EXPECT_EQ(cpu.hf(), 0x1);
-	EXPECT_EQ(cpu.cf(), 0x0);
+	EXPECT_EQ(cpu->a(), 0xf1);
+	EXPECT_EQ(cpu->zf(), 0x0);
+	EXPECT_EQ(cpu->nf(), 0x0);
+	EXPECT_EQ(cpu->hf(), 0x1);
+	EXPECT_EQ(cpu->cf(), 0x0);
 
 	// ADC A,i8
 
@@ -112,11 +113,11 @@ TEST_CASE(CPUAddPlusCarry)
 		// clang-format on
 	};
 	cpu = runCPUTest(adc_i8);
-	EXPECT_EQ(cpu.a(), 0x1d);
-	EXPECT_EQ(cpu.zf(), 0x0);
-	EXPECT_EQ(cpu.nf(), 0x0);
-	EXPECT_EQ(cpu.hf(), 0x0);
-	EXPECT_EQ(cpu.cf(), 0x1);
+	EXPECT_EQ(cpu->a(), 0x1d);
+	EXPECT_EQ(cpu->zf(), 0x0);
+	EXPECT_EQ(cpu->nf(), 0x0);
+	EXPECT_EQ(cpu->hf(), 0x0);
+	EXPECT_EQ(cpu->cf(), 0x1);
 
 	// ADC A,(HL)
 
@@ -129,18 +130,18 @@ TEST_CASE(CPUAddPlusCarry)
 		// clang-format on
 	};
 	cpu = runCPUTest(adc_hl);
-	EXPECT_EQ(cpu.a(), 0x0);
-	EXPECT_EQ(cpu.zf(), 0x1);
-	EXPECT_EQ(cpu.nf(), 0x0);
-	EXPECT_EQ(cpu.hf(), 0x1);
-	EXPECT_EQ(cpu.cf(), 0x1);
+	EXPECT_EQ(cpu->a(), 0x0);
+	EXPECT_EQ(cpu->zf(), 0x1);
+	EXPECT_EQ(cpu->nf(), 0x0);
+	EXPECT_EQ(cpu->hf(), 0x1);
+	EXPECT_EQ(cpu->cf(), 0x1);
 }
 
 TEST_CASE(CPUSetStackPointer)
 {
 	std::vector<uint8_t> test = { 0x31, 0xfe, 0xff }; // LD SP,i16
-	CPU cpu = runCPUTest(test);
-	EXPECT_EQ(cpu.sp(), 0xfffe);
+	auto cpu = runCPUTest(test);
+	EXPECT_EQ(cpu->sp(), 0xfffe);
 }
 
 TEST_CASE(CPUPushToStack)
@@ -154,9 +155,9 @@ TEST_CASE(CPUPushToStack)
 		0xc5,             // PUSH BC
 		// clang-format on
 	};
-	CPU cpu = runCPUTest(push_bc);
-	EXPECT_EQ(cpu.bc(), 0xfffc);
-	EXPECT_EQ(cpu.sp(), 0xfffc);
+	auto cpu = runCPUTest(push_bc);
+	EXPECT_EQ(cpu->bc(), 0xfffc);
+	EXPECT_EQ(cpu->sp(), 0xfffc);
 	EXPECT_EQ(Emu::the().readMemory(0xfffd), 0xff);
 	EXPECT_EQ(Emu::the().readMemory(0xfffc), 0xfc);
 }
@@ -173,9 +174,9 @@ TEST_CASE(CPUPopFromStack)
 		0xc1,             // POP BC
 		// clang-format on
 	};
-	CPU cpu = runCPUTest(pop_bc);
-	EXPECT_EQ(cpu.bc(), 0x3c5f);
-	EXPECT_EQ(cpu.sp(), 0xfffe);
+	auto cpu = runCPUTest(pop_bc);
+	EXPECT_EQ(cpu->bc(), 0x3c5f);
+	EXPECT_EQ(cpu->sp(), 0xfffe);
 	EXPECT_EQ(Emu::the().readMemory(0xfffd), 0x3c);
 	EXPECT_EQ(Emu::the().readMemory(0xfffc), 0x5f);
 }

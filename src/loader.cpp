@@ -6,6 +6,7 @@
 
 #include <cstddef> // size_t
 #include <cstdint> // uint32_t
+#include <memory>  // std::make_shared
 
 #include "cpu.h"
 #include "emu.h"
@@ -44,11 +45,11 @@ void Loader::init()
 
 	Emu::the().init(8000000);
 
-	CPU cpu(8000000);
-	PPU ppu(4000000);
+	auto cpu = std::make_shared<CPU>(8000000);
+	auto ppu = std::make_shared<PPU>(4000000);
 
-	Emu::the().addProcessingUnit("cpu", &cpu);
-	Emu::the().addProcessingUnit("ppu", &ppu);
+	Emu::the().addProcessingUnit("CPU", cpu);
+	Emu::the().addProcessingUnit("PPU", ppu);
 
 	// https://gbdev.io/pandocs/Memory_Map.html
 	// https://gbdev.io/pandocs/Power_Up_Sequence.html
