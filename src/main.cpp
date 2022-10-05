@@ -9,6 +9,7 @@
 
 #include "inferno.h"
 #include "inferno/entrypoint.h"
+#include "ppu.h"
 #include "ruc/argparser.h"
 #include "ruc/format/print.h"
 #include "ruc/timer.h"
@@ -47,6 +48,8 @@ public:
 
 	void render() override
 	{
+		auto* ppu = static_cast<PPU*>(Emu::the().processingUnit("PPU").get());
+		ppu->render();
 	}
 };
 
