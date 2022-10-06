@@ -18,10 +18,15 @@
 
 #include "emu.h"
 #include "ppu.h"
+#include "ruc/meta/assert.h"
 
 PPU ::PPU(uint32_t frequency)
 	: ProcessingUnit(frequency)
 {
+	m_shared_registers.emplace("LY", &m_lcd_y_coordinate);
+
+	// Setup screen
+
 	auto& scene = Inferno::Application::the().scene();
 	m_entity = scene.createEntity("Screen");
 
@@ -46,12 +51,54 @@ void PPU::update()
 
 	// print("PPU update\n");
 
-	// Increment LY (LCD Y Coordinate)
-	uint32_t ly_register = Emu::the().readMemory(0xff44) + 1;
-	if (ly_register >= 154) {
-		ly_register = 0;
-	}
-	Emu::the().writeMemory(0xff44, ly_register);
+	m_clocks_into_frame++;
+
+	switch (m_state) {
+	case State::OAMSearch:
+		// OAM logic goes here..
+
+		if (m_clocks_into_frame % 20 == 0) {
+			m_state = State::PixelTransfer;
+		}
+		break;
+	case State::PixelTransfer:
+		// PixelTransfer logic goes here..
+		m_lcd_x_coordinate++;
+
+		if (m_lcd_x_coordinate == 160) {
+			m_lcd_x_coordinate = 0;
+			m_state = State::HBlank;
+		}
+		break;
+	case State::HBlank:
+		// H-Blank logic goes here..
+
+		if (m_clocks_into_frame % (20 + 43 + 51) == 0) {
+			if (m_lcd_y_coordinate == 144) {
+				m_state = State::VBlank;
+			}
+			else {
+				m_state = State::OAMSearch;
+			}
+			m_lcd_y_coordinate++;
+		}
+		break;
+	case State::VBlank:
+		// V-Blank logic goes here..
+
+		if (m_clocks_into_frame % (20 + 43 + 51) == 0) {
+			if (m_lcd_y_coordinate == 154) {
+				m_lcd_y_coordinate = 0;
+				m_clocks_into_frame = 0;
+				m_state = State::OAMSearch;
+			}
+			m_lcd_y_coordinate++;
+		}
+
+		break;
+	default:
+		VERIFY_NOT_REACHED();
+	};
 }
 
 void PPU::render()
@@ -140,4 +187,12 @@ void PPU::drawTile(uint32_t x, uint32_t y, uint32_t tile_address, uint8_t bg_pal
 		// Move to next line
 		screen_index += SCREEN_WIDTH * FORMAT_SIZE;
 	}
+}
+
+void PPU::resetFrame()
+{
+	m_state = State::OAMSearch;
+	m_clocks_into_frame = 0;
+	m_lcd_x_coordinate = 0;
+	m_lcd_y_coordinate = 0;
 }

@@ -38,12 +38,25 @@ public:
 	PPU(uint32_t frequency);
 	~PPU();
 
+	enum State : uint8_t {
+		OAMSearch,
+		PixelTransfer,
+		HBlank,
+		VBlank,
+	};
+
 	void update() override;
 	void render();
 
 	void drawTile(uint32_t screen_x, uint32_t screen_y, uint32_t tile_address, uint8_t bg_palette);
+	void resetFrame();
 
 private:
+	State m_state { State::OAMSearch };
+	uint32_t m_clocks_into_frame { 0 };
+	uint32_t m_lcd_x_coordinate { 0 };
+	uint32_t m_lcd_y_coordinate { 0 }; // Note: includes V-Blank
+
 	uint32_t m_entity;
 	std::array<uint8_t, SCREEN_WIDTH * FORMAT_SIZE * SCREEN_HEIGHT> m_screen;
 };

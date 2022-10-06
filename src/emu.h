@@ -9,7 +9,6 @@
 
 #include <cstdint> // uint32_t
 #include <memory>  // std::shared_ptr
-#include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>

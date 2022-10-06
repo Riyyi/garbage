@@ -64,6 +64,16 @@ void Emu::removeMemorySpace(std::string_view name)
 
 void Emu::writeMemory(uint32_t address, uint32_t value)
 {
+	// Bail if the CPU tries to write to a read-only address
+	switch (address) {
+	case 0xff44:
+		ruc::error("writing to read-only address: {:#06x}", address);
+		VERIFY_NOT_REACHED();
+		break;
+	default:
+		break;
+	}
+
 	for (auto& memory_space : m_memory_spaces) {
 		auto& memory = memory_space.second;
 		if (address >= memory.start_address && address <= memory.end_address) {
@@ -96,6 +106,13 @@ void Emu::writeMemory(uint32_t address, uint32_t value)
 
 uint32_t Emu::readMemory(uint32_t address) const
 {
+	switch (address) {
+	case 0xff44:
+		return *m_processing_units.at("PPU")->sharedRegister("LY");
+	default:
+		break;
+	};
+
 	for (const auto& memory_space : m_memory_spaces) {
 		const auto& memory = memory_space.second;
 		if (address >= memory.start_address && address <= memory.end_address) {
