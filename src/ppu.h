@@ -8,7 +8,7 @@
 #pragma once
 
 #include <array>
-#include <cstdint> // uint8_t, uint32_t
+#include <cstdint> // uint8_t, uint16_t, uint32_t
 
 #include "ruc/meta/core.h"
 
@@ -45,10 +45,18 @@ public:
 		VBlank,
 	};
 
+	enum Palette : uint16_t {
+		BGP = 0xff47,  // BG and Window palette
+		OBP0 = 0xff48, // OBJ palette 0
+		OBP1 = 0xff49, // OBJ palette 1
+	};
+
 	void update() override;
 	void render();
 
-	void drawTile(uint32_t screen_x, uint32_t screen_y, uint32_t tile_address, uint8_t bg_palette);
+	void drawTile(uint32_t screen_x, uint32_t screen_y, uint32_t tile_address);
+	uint8_t getPixelColor(uint8_t color_index, Palette palette);
+
 	void resetFrame();
 
 private:

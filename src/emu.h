@@ -30,6 +30,11 @@ class Emu final : public ruc::Singleton<Emu> {
 public:
 	Emu(s) {}
 
+	enum Mode : uint8_t {
+		DMG, // Game Boy
+		CGB, // Game Boy Color
+	};
+
 	void init(uint32_t frequency);
 
 	void update();
@@ -43,10 +48,12 @@ public:
 
 	// -------------------------------------
 
+	Mode mode() const { return m_mode; }
 	std::shared_ptr<ProcessingUnit> processingUnit(std::string_view name) const { return m_processing_units.at(name); }
 	MemorySpace memorySpace(std::string_view name) { return m_memory_spaces[name]; }
 
 private:
+	Mode m_mode { Mode::DMG };
 	uint32_t m_frequency { 0 };
 	double m_timestep { 0 };
 	uint32_t m_cycle { 0 };

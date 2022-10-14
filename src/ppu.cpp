@@ -120,12 +120,9 @@ void PPU::render()
 		bool tile_data_mode = lcd_control & LCDC::BGandWindowTileDataArea;
 		uint32_t tile_data_address = (tile_data_mode) ? 0x8000 : 0x8800;
 
-		// Pallete
-		uint8_t bg_palette = Emu::the().readMemory(0xff47) & 0xff;
-
 		for (uint32_t i = 0; i < tile_map_size; ++i) {
 			uint8_t tile_index = Emu::the().readMemory(bg_tile_map_address + i);
-			drawTile((i % 32) * TILE_WIDTH, (i / 32) * TILE_HEIGHT, tile_data_address + (tile_index * TILE_SIZE), bg_palette);
+			drawTile((i % 32) * TILE_WIDTH, (i / 32) * TILE_HEIGHT, tile_data_address + (tile_index * TILE_SIZE));
 		}
 	}
 
@@ -135,7 +132,7 @@ void PPU::render()
 	scene.addComponent<Inferno::SpriteComponent>(m_entity, glm::vec4 { 1.0f }, texture);
 }
 
-void PPU::drawTile(uint32_t x, uint32_t y, uint32_t tile_address, uint8_t bg_palette)
+void PPU::drawTile(uint32_t x, uint32_t y, uint32_t tile_address)
 {
 	uint32_t viewport_x = Emu::the().readMemory(0xff43);
 	uint32_t viewport_y = Emu::the().readMemory(0xff42);
@@ -160,33 +157,45 @@ void PPU::drawTile(uint32_t x, uint32_t y, uint32_t tile_address, uint8_t bg_pal
 			}
 
 			uint8_t pixel_index = (pixels_lsb >> (7 - tile_x) | ((pixels_msb >> (7 - tile_x)) << 1)) & 0x3;
-			uint8_t pixel_color = (bg_palette >> (pixel_index * 2)) & 0x3;
-
-			if (pixel_color == 0) {
-				m_screen[index + 0] = 255;
-				m_screen[index + 1] = 255;
-				m_screen[index + 2] = 255;
-			}
-			else if (pixel_color == 1) {
-				m_screen[index + 0] = 168;
-				m_screen[index + 1] = 168;
-				m_screen[index + 2] = 168;
-			}
-			else if (pixel_color == 2) {
-				m_screen[index + 0] = 84;
-				m_screen[index + 1] = 84;
-				m_screen[index + 2] = 84;
-			}
-			else if (pixel_color == 3) {
-				m_screen[index + 0] = 0;
-				m_screen[index + 1] = 0;
-				m_screen[index + 2] = 0;
-			}
+			uint8_t pixel_color = getPixelColor(pixel_index, Palette::BGP);
+			m_screen[index + 0] = pixel_color;
+			m_screen[index + 1] = pixel_color;
+			m_screen[index + 2] = pixel_color;
 		}
 
 		// Move to next line
 		screen_index += SCREEN_WIDTH * FORMAT_SIZE;
 	}
+}
+
+uint8_t PPU::getPixelColor(uint8_t color_index, Palette palette)
+{
+	VERIFY(color_index < 4, "trying to fetch invalid color index '{}'", color_index);
+
+	switch (Emu::the().mode()) {
+	case Emu::Mode::DMG: {
+		uint8_t palette_data = Emu::the().readMemory(palette) & 0xff;
+		uint8_t palette_value = palette_data >> (color_index * 2) & 0x3;
+		switch (palette_value) {
+		case 0:
+			return 255;
+		case 1:
+			return 168;
+		case 2:
+			return 84;
+		case 3:
+			return 0;
+		default:
+			VERIFY_NOT_REACHED();
+		};
+	}
+	case Emu::Mode::CGB:
+		VERIFY_NOT_REACHED();
+	default:
+		VERIFY_NOT_REACHED();
+	}
+
+	return 0;
 }
 
 void PPU::resetFrame()
