@@ -1241,7 +1241,7 @@ void CPU::ra()
 		m_cf = (m_a & 0x80) == 0x80;
 
 		// Rotate register A left
-		m_a = (m_a >> 7) | (m_a << 1);
+		m_a = ((m_a >> 7) | (m_a << 1)) & 0xff;
 		break;
 	case 0x0f: // RRCA
 
@@ -1256,7 +1256,7 @@ void CPU::ra()
 		m_cf = (m_a & 0x1) == 0x1;
 
 		// Rotate register A right
-		m_a = (m_a >> 1) | (m_a << 7);
+		m_a = ((m_a >> 1) | (m_a << 7)) & 0xff;
 		break;
 	case 0x17: { // RLA
 
@@ -1272,7 +1272,7 @@ void CPU::ra()
 		m_cf = (m_a & 0x80) == 0x80;
 
 		// Rotate register A left through carry
-		m_a = old_carry | (m_a << 1);
+		m_a = (old_carry | (m_a << 1)) & 0xff;
 		break;
 	}
 	case 0x1f: { // RRA
@@ -1289,7 +1289,7 @@ void CPU::ra()
 		m_cf = (m_a & 0x1) == 0x1;
 
 		// Rotate register A right through carry
-		m_a = (m_a >> 1) | (old_carry << 7);
+		m_a = ((m_a >> 1) | (old_carry << 7)) & 0xff;
 		break;
 	}
 	default:
