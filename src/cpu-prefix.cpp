@@ -365,8 +365,7 @@ void CPU::swap()
 		m_wait_cycles += 8;
 
 		// Swap upper 4 bits in register r8 with lower 4 bits
-		register_ = register_ & 0xff;
-		register_ = (register_ >> 4) | (register_ << 4);
+		register_ = ((register_ >> 4) | (register_ << 4)) & 0xff;
 
 		// Set flags
 		m_zf = (register_ == 0);
