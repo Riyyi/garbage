@@ -1473,6 +1473,7 @@ void CPU::call()
 
 		if (!should_call) {
 			m_wait_cycles += 12;
+			return;
 		}
 		m_wait_cycles += 24;
 
