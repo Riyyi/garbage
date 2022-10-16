@@ -55,7 +55,7 @@ public:
 	void render();
 
 	void drawTile(uint32_t screen_x, uint32_t screen_y, uint32_t tile_address);
-	uint8_t getPixelColor(uint8_t color_index, Palette palette);
+	std::array<uint8_t, 3> getPixelColor(uint8_t color_index, Palette palette);
 
 	void resetFrame();
 

@@ -98,7 +98,12 @@ void PPU::render()
 
 	if (!(lcd_control & LCDC::BGandWindowEnable)) {
 		// When Bit 0 is cleared, both background and window become blank (white)
-		m_screen.fill(255);
+		auto pixel = getPixelColor(0, Palette::BGP);
+		for (size_t i = 0; i < m_screen.size(); i += 3) {
+			m_screen[i + 0] = pixel[0];
+			m_screen[i + 1] = pixel[1];
+			m_screen[i + 2] = pixel[2];
+		}
 	}
 	else {
 		// Tile map
@@ -148,10 +153,10 @@ void PPU::drawTile(uint32_t x, uint32_t y, uint32_t tile_address)
 			}
 
 			uint8_t pixel_index = (pixels_lsb >> (7 - tile_x) | ((pixels_msb >> (7 - tile_x)) << 1)) & 0x3;
-			uint8_t pixel_color = getPixelColor(pixel_index, Palette::BGP);
-			m_screen[index + 0] = pixel_color;
-			m_screen[index + 1] = pixel_color;
-			m_screen[index + 2] = pixel_color;
+			auto pixel_color = getPixelColor(pixel_index, Palette::BGP);
+			m_screen[index + 0] = pixel_color[0];
+			m_screen[index + 1] = pixel_color[1];
+			m_screen[index + 2] = pixel_color[2];
 		}
 
 		// Move to next line
@@ -159,7 +164,7 @@ void PPU::drawTile(uint32_t x, uint32_t y, uint32_t tile_address)
 	}
 }
 
-uint8_t PPU::getPixelColor(uint8_t color_index, Palette palette)
+std::array<uint8_t, 3> PPU::getPixelColor(uint8_t color_index, Palette palette)
 {
 	VERIFY(color_index < 4, "trying to fetch invalid color index '{}'", color_index);
 
@@ -169,13 +174,13 @@ uint8_t PPU::getPixelColor(uint8_t color_index, Palette palette)
 		uint8_t palette_value = palette_data >> (color_index * 2) & 0x3;
 		switch (palette_value) {
 		case 0:
-			return 255;
+			return { 200, 199, 168 };
 		case 1:
-			return 168;
+			return { 160, 160, 136 };
 		case 2:
-			return 84;
+			return { 104, 104, 80 };
 		case 3:
-			return 0;
+			return { 39, 40, 24 };
 		default:
 			VERIFY_NOT_REACHED();
 		};
@@ -186,7 +191,7 @@ uint8_t PPU::getPixelColor(uint8_t color_index, Palette palette)
 		VERIFY_NOT_REACHED();
 	}
 
-	return 0;
+	return {};
 }
 
 void PPU::resetFrame()
