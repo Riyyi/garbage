@@ -20,25 +20,16 @@
 #include "ppu.h"
 #include "ruc/meta/assert.h"
 
-PPU ::PPU(uint32_t frequency)
+PPU::PPU(uint32_t frequency)
 	: ProcessingUnit(frequency)
 {
 	m_shared_registers.emplace("LY", &m_lcd_y_coordinate);
 
-	// Setup screen
-
 	auto& scene = Inferno::Application::the().scene();
-	m_entity = scene.createEntity("Screen");
-
-	// Flip the screen to accommodate OpenGL's coordinate system
-	auto& transform = scene.getComponent<Inferno::TransformComponent>(m_entity);
-	transform.scale.y = -1.0f;
-
-	auto texture = std::make_shared<Inferno::Texture>(m_screen.data(), SCREEN_WIDTH, SCREEN_HEIGHT, FORMAT_SIZE);
-	scene.addComponent<Inferno::SpriteComponent>(m_entity, glm::vec4 { 1.0f }, texture);
+	m_entity = scene.findEntity("Screen");
 }
 
-PPU ::~PPU()
+PPU::~PPU()
 {
 }
 

@@ -4,6 +4,13 @@
 		"translate": [ 0.0, 0.0, -1.0 ],
 		"rotate": [ 0.0, 0.0, 0.0 ],
 		"scale": [ 1.0, 1.0, 1.0 ],
-		"type": "orthographic"
-	}
+		"type": "orthographic",
+		"zoom-level": 0.45
+	},
+	"quad" : [
+		{
+			"name": "Screen",
+			"scale": [ 1.0, -0.9, 1.0 ]
+		}
+	]
 }
