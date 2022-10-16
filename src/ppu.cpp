@@ -48,7 +48,7 @@ void PPU::update()
 	case State::OAMSearch:
 		// OAM logic goes here..
 
-		if (m_clocks_into_frame % 20 == 0) {
+		if (m_clocks_into_frame % 80 == 0) {
 			m_state = State::PixelTransfer;
 		}
 		break;
@@ -64,26 +64,26 @@ void PPU::update()
 	case State::HBlank:
 		// H-Blank logic goes here..
 
-		if (m_clocks_into_frame % (20 + 43 + 51) == 0) {
+		if (m_clocks_into_frame % (80 + 172 + 204) == 0) {
+			m_lcd_y_coordinate++;
 			if (m_lcd_y_coordinate == 144) {
 				m_state = State::VBlank;
 			}
 			else {
 				m_state = State::OAMSearch;
 			}
-			m_lcd_y_coordinate++;
 		}
 		break;
 	case State::VBlank:
 		// V-Blank logic goes here..
 
-		if (m_clocks_into_frame % (20 + 43 + 51) == 0) {
+		if (m_clocks_into_frame % (80 + 172 + 204) == 0) {
+			m_lcd_y_coordinate++;
 			if (m_lcd_y_coordinate == 154) {
 				m_lcd_y_coordinate = 0;
 				m_clocks_into_frame = 0;
 				m_state = State::OAMSearch;
 			}
-			m_lcd_y_coordinate++;
 		}
 
 		break;

@@ -43,9 +43,9 @@ void Loader::init()
 {
 	destroy();
 
-	Emu::the().init(8000000);
+	Emu::the().init(4000000);
 
-	auto cpu = std::make_shared<CPU>(8000000);
+	auto cpu = std::make_shared<CPU>(4000000);
 	auto ppu = std::make_shared<PPU>(4000000);
 
 	Emu::the().addProcessingUnit("CPU", cpu);
