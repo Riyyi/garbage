@@ -1,0 +1,9 @@
+{
+	"window": {
+		"fullscreen": "windowed",
+		"height": 432,
+		"title": "GarbAGE",
+		"vsync": true,
+		"width": 480
+	}
+}
