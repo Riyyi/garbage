@@ -57,8 +57,7 @@ void PPU::update()
 		}
 		break;
 	case State::PixelTransfer:
-		// PixelTransfer logic goes here..
-		m_lcd_x_coordinate++;
+		pixelFifo();
 
 		if (m_lcd_x_coordinate == 160) {
 			m_lcd_x_coordinate = 0;
@@ -110,20 +109,20 @@ void PPU::render()
 		}
 	}
 	else {
-		// Tile map
-		uint32_t tile_map_size = 32 * 32; // 1 KiB
-		uint32_t bg_tile_map_address = (lcd_control & LCDC::BGTileMapArea) ? 0x9c00 : 0x9800;
-		// uint32_t window_tile_map_address = (lcd_control & LCDC::WindowTileMapArea) ? 0x9c00 : 0x9800;
+		// // Tile map
+		// uint32_t tile_map_size = 32 * 32; // 1 KiB
+		// uint32_t bg_tile_map_address = (lcd_control & LCDC::BGTileMapArea) ? 0x9c00 : 0x9800;
+		// // uint32_t window_tile_map_address = (lcd_control & LCDC::WindowTileMapArea) ? 0x9c00 : 0x9800;
 
-		// Tile data
-		// uint32_t tile_data_size = 4096; // 4KiB / 16B = 256 tiles
-		bool tile_data_mode = lcd_control & LCDC::BGandWindowTileDataArea;
-		uint32_t tile_data_address = (tile_data_mode) ? 0x8000 : 0x8800;
+		// // Tile data
+		// // uint32_t tile_data_size = 4096; // 4KiB / 16B = 256 tiles
+		// bool tile_data_mode = lcd_control & LCDC::BGandWindowTileDataArea;
+		// uint32_t tile_data_address = (tile_data_mode) ? 0x8000 : 0x8800;
 
-		for (uint32_t i = 0; i < tile_map_size; ++i) {
-			uint8_t tile_index = Emu::the().readMemory(bg_tile_map_address + i);
-			drawTile((i % 32) * TILE_WIDTH, (i / 32) * TILE_HEIGHT, tile_data_address + (tile_index * TILE_SIZE));
-		}
+		// for (uint32_t i = 0; i < tile_map_size; ++i) {
+		// 	uint8_t tile_index = Emu::the().readMemory(bg_tile_map_address + i);
+		// 	// drawTile((i % 32) * TILE_WIDTH, (i / 32) * TILE_HEIGHT, tile_data_address + (tile_index * TILE_SIZE));
+		// }
 	}
 
 	auto& scene = Inferno::Application::the().scene();
