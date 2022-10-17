@@ -49,6 +49,10 @@ void PPU::update()
 		// OAM logic goes here..
 
 		if (m_clocks_into_frame % 80 == 0) {
+			// Clear FIFOs
+			m_pixel_fifo.background = {};
+			m_pixel_fifo.oam = {};
+
 			m_state = State::PixelTransfer;
 		}
 		break;
@@ -128,6 +132,108 @@ void PPU::render()
 	scene.addComponent<Inferno::SpriteComponent>(m_entity, glm::vec4 { 1.0f }, texture);
 }
 
+void PPU::pixelFifo()
+{
+	LCDC lcd_control = static_cast<LCDC>(Emu::the().readMemory(0xff40));
+
+	// Tile map
+	uint32_t tile_map_size = 32 * 32; // 1 KiB
+	uint32_t bg_tile_map_address = (lcd_control & LCDC::BGTileMapArea) ? 0x9c00 : 0x9800;
+	// uint32_t window_tile_map_address = (lcd_control & LCDC::WindowTileMapArea) ? 0x9c00 : 0x9800;
+
+	// Tile data
+	// uint32_t tile_data_size = 4096; // 4KiB / 16B = 256 tiles
+	uint32_t tile_data_address = (lcd_control & LCDC::BGandWindowTileDataArea) ? 0x8000 : 0x8800;
+
+	// -------------------------------------
+	// FIFO Pixel Fetcher
+
+	switch (m_pixel_fifo.state) {
+	case PixelFifo::State::TileIndex:
+		if (m_pixel_fifo.step == true) {
+			m_pixel_fifo.step = false;
+			m_pixel_fifo.state = PixelFifo::State::TileDataLow;
+
+			// Viewport
+			// https://gbdev.io/pandocs/Scrolling.html#mid-frame-behavior
+			m_viewport_x = Emu::the().readMemory(0xff43); // TODO: only read lower 3-bits at beginning of scanline
+			m_viewport_y = Emu::the().readMemory(0xff42);
+
+			// Read the tile map index
+			uint16_t offset = (((m_viewport_y + m_lcd_y_coordinate) / TILE_HEIGHT) * 32)
+			                  + ((m_viewport_x + m_lcd_x_coordinate) / TILE_WIDTH);
+			m_pixel_fifo.tile_index = Emu::the().readMemory(bg_tile_map_address + offset) & 0xff;
+
+			// Set the tile line we're currently on
+			m_pixel_fifo.tile_line = (m_viewport_y + m_lcd_y_coordinate) % TILE_HEIGHT;
+		}
+
+		m_pixel_fifo.step = true;
+		break;
+	case PixelFifo::State::TileDataLow:
+		if (m_pixel_fifo.step == true) {
+			m_pixel_fifo.step = false;
+			m_pixel_fifo.state = PixelFifo::State::TileDataHigh;
+
+			// Read tile data
+			m_pixel_fifo.pixels_lsb = Emu::the().readMemory(tile_data_address
+			                                                + (m_pixel_fifo.tile_index * TILE_SIZE) // Each tile is 16 bytes
+			                                                + m_pixel_fifo.tile_line * 2);          // Each tile line is 2 bytes
+		}
+
+		m_pixel_fifo.step = true;
+		break;
+	case PixelFifo::State::TileDataHigh:
+		if (m_pixel_fifo.step == true) {
+			m_pixel_fifo.step = false;
+			m_pixel_fifo.state = PixelFifo::State::Sleep;
+
+			// Read tile data
+			m_pixel_fifo.pixels_msb = Emu::the().readMemory(tile_data_address
+			                                                + (m_pixel_fifo.tile_index * TILE_SIZE)
+			                                                + m_pixel_fifo.tile_line * 2
+			                                                + 1);
+		}
+
+		m_pixel_fifo.step = true;
+		break;
+	case PixelFifo::State::Sleep:
+		if (m_pixel_fifo.background.size() <= 9) {
+			m_pixel_fifo.state = PixelFifo::State::Push;
+		}
+		break;
+	case PixelFifo::State::Push: {
+		m_pixel_fifo.state = PixelFifo::State::TileIndex;
+
+		for (uint8_t i = 0; i < 8; ++i) {
+			uint8_t color_index = (m_pixel_fifo.pixels_lsb >> (7 - i)
+			                       | ((m_pixel_fifo.pixels_msb >> (7 - i)) << 1))
+			                      & 0x3;
+			m_pixel_fifo.background.push({ color_index, Palette::BGP });
+		}
+		break;
+	}
+	default:
+		VERIFY_NOT_REACHED();
+	};
+
+	// -------------------------------------
+	// Mode 3 Operation
+
+	// The pixel FIFO needs to contain more than 8 pixels to shift one out
+	if (m_pixel_fifo.background.size() > 8) {
+		auto pixel = m_pixel_fifo.background.front();
+		m_pixel_fifo.background.pop();
+
+		uint32_t index = (m_lcd_y_coordinate * SCREEN_WIDTH + m_lcd_x_coordinate) * FORMAT_SIZE;
+		auto color = getPixelColor(pixel.first, pixel.second);
+		m_screen[index + 0] = color[0];
+		m_screen[index + 1] = color[1];
+		m_screen[index + 2] = color[2];
+		m_lcd_x_coordinate++;
+	}
+}
+
 void PPU::drawTile(uint32_t x, uint32_t y, uint32_t tile_address)
 {
 	uint32_t viewport_x = Emu::the().readMemory(0xff43);
@@ -200,4 +306,8 @@ void PPU::resetFrame()
 	m_clocks_into_frame = 0;
 	m_lcd_x_coordinate = 0;
 	m_lcd_y_coordinate = 0;
+
+	// Clear FIFOs
+	m_pixel_fifo.background = {};
+	m_pixel_fifo.oam = {};
 }
