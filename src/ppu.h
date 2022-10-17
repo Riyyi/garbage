@@ -23,22 +23,22 @@
 #define TILE_HEIGHT 8
 #define TILE_SIZE 16
 
-enum LCDC : uint8_t {
-	None = 0,
-	BGandWindowEnable = BIT(0),
-	OBJEnable = BIT(1),
-	OBJSize = BIT(2),                 // 0 = 8x8, 1 = 8x16
-	BGTileMapArea = BIT(3),           // 0 = 0x9800-9bff, 1 = 0x9c00-9fff
-	BGandWindowTileDataArea = BIT(4), // 0 = 0x8800-97ff, 1 = 0x8000-8fff
-	WindowEnable = BIT(5),            //
-	WindowTileMapArea = BIT(6),       // 0 = 0x9800-9bff, 1 = 0x9c00-9fff
-	LCDandPPUEnable = BIT(7),
-};
-
 class PPU final : public ProcessingUnit {
 public:
 	PPU(uint32_t frequency);
 	~PPU();
+
+	enum LCDC : uint8_t {
+		None = 0,
+		BGandWindowEnable = BIT(0),
+		OBJEnable = BIT(1),
+		OBJSize = BIT(2),                 // 0 = 8x8, 1 = 8x16
+		BGTileMapArea = BIT(3),           // 0 = 0x9800-9bff, 1 = 0x9c00-9fff
+		BGandWindowTileDataArea = BIT(4), // 0 = 0x8800-97ff, 1 = 0x8000-8fff
+		WindowEnable = BIT(5),            //
+		WindowTileMapArea = BIT(6),       // 0 = 0x9800-9bff, 1 = 0x9c00-9fff
+		LCDandPPUEnable = BIT(7),
+	};
 
 	enum State : uint8_t {
 		HBlank = 0,
