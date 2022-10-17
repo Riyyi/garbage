@@ -41,10 +41,10 @@ public:
 	~PPU();
 
 	enum State : uint8_t {
-		OAMSearch,
-		PixelTransfer,
-		HBlank,
-		VBlank,
+		HBlank = 0,
+		VBlank = 1,
+		OAMSearch = 2,
+		PixelTransfer = 3,
 	};
 
 	enum Palette : uint16_t {
@@ -95,5 +95,5 @@ private:
 	PixelFifo m_pixel_fifo;
 
 	uint32_t m_entity;
-	std::array<uint8_t, SCREEN_WIDTH * FORMAT_SIZE * SCREEN_HEIGHT> m_screen;
+	std::array<uint8_t, SCREEN_WIDTH * SCREEN_HEIGHT * FORMAT_SIZE> m_screen;
 };
