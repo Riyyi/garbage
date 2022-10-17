@@ -146,7 +146,10 @@ void PPU::pixelFifo()
 
 	switch (m_pixel_fifo.state) {
 	case PixelFifo::State::TileIndex:
-		if (m_pixel_fifo.step == true) {
+		if (!m_pixel_fifo.step) {
+			m_pixel_fifo.step = true;
+		}
+		else {
 			m_pixel_fifo.step = false;
 			m_pixel_fifo.state = PixelFifo::State::TileDataLow;
 
@@ -164,11 +167,12 @@ void PPU::pixelFifo()
 			// Set the tile line we're currently on
 			m_pixel_fifo.tile_line = (m_viewport_y + m_lcd_y_coordinate) % TILE_HEIGHT;
 		}
-
-		m_pixel_fifo.step = true;
 		break;
 	case PixelFifo::State::TileDataLow:
-		if (m_pixel_fifo.step == true) {
+		if (!m_pixel_fifo.step) {
+			m_pixel_fifo.step = true;
+		}
+		else {
 			m_pixel_fifo.step = false;
 			m_pixel_fifo.state = PixelFifo::State::TileDataHigh;
 
@@ -177,11 +181,12 @@ void PPU::pixelFifo()
 			                                                + (m_pixel_fifo.tile_index * TILE_SIZE) // Each tile is 16 bytes
 			                                                + m_pixel_fifo.tile_line * 2);          // Each tile line is 2 bytes
 		}
-
-		m_pixel_fifo.step = true;
 		break;
 	case PixelFifo::State::TileDataHigh:
-		if (m_pixel_fifo.step == true) {
+		if (!m_pixel_fifo.step) {
+			m_pixel_fifo.step = true;
+		}
+		else {
 			m_pixel_fifo.step = false;
 			m_pixel_fifo.state = PixelFifo::State::Sleep;
 
@@ -191,15 +196,13 @@ void PPU::pixelFifo()
 			                                                + m_pixel_fifo.tile_line * 2
 			                                                + 1);
 		}
-
-		m_pixel_fifo.step = true;
 		break;
 	case PixelFifo::State::Sleep:
 		if (m_pixel_fifo.background.size() <= 9) {
 			m_pixel_fifo.state = PixelFifo::State::Push;
 		}
 		break;
-	case PixelFifo::State::Push: {
+	case PixelFifo::State::Push:
 		m_pixel_fifo.state = PixelFifo::State::TileIndex;
 
 		for (uint8_t i = 0; i < 8; ++i) {
@@ -209,7 +212,6 @@ void PPU::pixelFifo()
 			m_pixel_fifo.background.push({ color_index, Palette::BGP });
 		}
 		break;
-	}
 	default:
 		VERIFY_NOT_REACHED();
 	};
