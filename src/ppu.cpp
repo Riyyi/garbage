@@ -49,9 +49,8 @@ void PPU::update()
 		// OAM logic goes here..
 
 		if (m_clocks_into_frame % 80 == 0) {
-			// Clear FIFOs
-			m_pixel_fifo.background = {};
-			m_pixel_fifo.oam = {};
+			// Reset FIFO
+			m_pixel_fifo = {};
 
 			m_state = State::PixelTransfer;
 		}
@@ -83,9 +82,7 @@ void PPU::update()
 		if (m_clocks_into_frame % (80 + 172 + 204) == 0) {
 			m_lcd_y_coordinate++;
 			if (m_lcd_y_coordinate == 154) {
-				m_lcd_y_coordinate = 0;
-				m_clocks_into_frame = 0;
-				m_state = State::OAMSearch;
+				resetFrame();
 			}
 		}
 
@@ -160,7 +157,8 @@ void PPU::pixelFifo()
 
 			// Read the tile map index
 			uint16_t offset = (((m_viewport_y + m_lcd_y_coordinate) / TILE_HEIGHT) * 32)
-			                  + ((m_viewport_x + m_lcd_x_coordinate) / TILE_WIDTH);
+			                  + ((m_viewport_x + m_pixel_fifo.x_coordinate) / TILE_WIDTH);
+			m_pixel_fifo.x_coordinate += 8;
 			m_pixel_fifo.tile_index = Emu::the().readMemory(bg_tile_map_address + offset) & 0xff;
 
 			// Set the tile line we're currently on
@@ -305,8 +303,4 @@ void PPU::resetFrame()
 	m_clocks_into_frame = 0;
 	m_lcd_x_coordinate = 0;
 	m_lcd_y_coordinate = 0;
-
-	// Clear FIFOs
-	m_pixel_fifo.background = {};
-	m_pixel_fifo.oam = {};
 }

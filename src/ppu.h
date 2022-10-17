@@ -64,6 +64,7 @@ public:
 
 		State state = State::TileIndex;
 		bool step = false;
+		uint8_t x_coordinate = 0;
 		uint8_t tile_index = 0;
 		uint8_t tile_line = 0;
 		uint8_t pixels_lsb = 0;
