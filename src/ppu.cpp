@@ -105,22 +105,6 @@ void PPU::render()
 			m_screen[i + 2] = pixel[2];
 		}
 	}
-	else {
-		// // Tile map
-		// uint32_t tile_map_size = 32 * 32; // 1 KiB
-		// uint32_t bg_tile_map_address = (lcd_control & LCDC::BGTileMapArea) ? 0x9c00 : 0x9800;
-		// // uint32_t window_tile_map_address = (lcd_control & LCDC::WindowTileMapArea) ? 0x9c00 : 0x9800;
-
-		// // Tile data
-		// // uint32_t tile_data_size = 4096; // 4KiB / 16B = 256 tiles
-		// bool tile_data_mode = lcd_control & LCDC::BGandWindowTileDataArea;
-		// uint32_t tile_data_address = (tile_data_mode) ? 0x8000 : 0x8800;
-
-		// for (uint32_t i = 0; i < tile_map_size; ++i) {
-		// 	uint8_t tile_index = Emu::the().readMemory(bg_tile_map_address + i);
-		// 	// drawTile((i % 32) * TILE_WIDTH, (i / 32) * TILE_HEIGHT, tile_data_address + (tile_index * TILE_SIZE));
-		// }
-	}
 
 	auto& scene = Inferno::Application::the().scene();
 	auto texture = std::make_shared<Inferno::Texture>(m_screen.data(), SCREEN_WIDTH, SCREEN_HEIGHT, FORMAT_SIZE);
@@ -249,42 +233,6 @@ void PPU::pixelFifo()
 		m_screen[index + 1] = color[1];
 		m_screen[index + 2] = color[2];
 		m_lcd_x_coordinate++;
-	}
-}
-
-void PPU::drawTile(uint32_t x, uint32_t y, uint32_t tile_address)
-{
-	uint32_t viewport_x = Emu::the().readMemory(0xff43);
-	uint32_t viewport_y = Emu::the().readMemory(0xff42);
-
-	// Tile is not within viewport
-	if ((x < viewport_x || x > viewport_x + SCREEN_WIDTH)
-	    || (y < viewport_y || y > viewport_y + SCREEN_HEIGHT)) {
-		return;
-	}
-
-	size_t screen_index = ((x - viewport_x) * FORMAT_SIZE) + ((y - viewport_y) * SCREEN_WIDTH * FORMAT_SIZE);
-	for (uint8_t tile_y = 0; tile_y < TILE_SIZE; tile_y += 2) {
-		uint8_t pixels_lsb = Emu::the().readMemory(tile_address + tile_y);
-		uint8_t pixels_msb = Emu::the().readMemory(tile_address + tile_y + 1);
-
-		for (uint8_t tile_x = 0; tile_x < 8; ++tile_x) {
-			size_t index = screen_index + (tile_x * FORMAT_SIZE);
-
-			// FIXME: Tile is partly out of viewport?
-			if (index + 2 >= m_screen.size()) {
-				continue;
-			}
-
-			uint8_t pixel_index = (pixels_lsb >> (7 - tile_x) | ((pixels_msb >> (7 - tile_x)) << 1)) & 0x3;
-			auto pixel_color = getPixelColor(pixel_index, Palette::BGP);
-			m_screen[index + 0] = pixel_color[0];
-			m_screen[index + 1] = pixel_color[1];
-			m_screen[index + 2] = pixel_color[2];
-		}
-
-		// Move to next line
-		screen_index += SCREEN_WIDTH * FORMAT_SIZE;
 	}
 }
 

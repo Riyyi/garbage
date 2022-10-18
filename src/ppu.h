@@ -80,7 +80,6 @@ public:
 	void render();
 
 	void pixelFifo();
-	void drawTile(uint32_t screen_x, uint32_t screen_y, uint32_t tile_address);
 	std::array<uint8_t, 3> getPixelColor(uint8_t color_index, Palette palette);
 
 	void resetFrame();
@@ -95,6 +94,6 @@ private:
 	uint8_t m_viewport_y { 0 };
 	PixelFifo m_pixel_fifo;
 
-	uint32_t m_entity;
+	uint32_t m_entity { 0 };
 	std::array<uint8_t, SCREEN_WIDTH * SCREEN_HEIGHT * FORMAT_SIZE> m_screen;
 };
