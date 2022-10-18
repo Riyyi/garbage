@@ -133,13 +133,32 @@ void PPU::pixelFifo()
 	LCDC lcd_control = static_cast<LCDC>(Emu::the().readMemory(0xff40));
 
 	// Tile map
-	uint32_t tile_map_size = 32 * 32; // 1 KiB
 	uint32_t bg_tile_map_address = (lcd_control & LCDC::BGTileMapArea) ? 0x9c00 : 0x9800;
 	// uint32_t window_tile_map_address = (lcd_control & LCDC::WindowTileMapArea) ? 0x9c00 : 0x9800;
 
 	// Tile data
-	// uint32_t tile_data_size = 4096; // 4KiB / 16B = 256 tiles
 	uint32_t tile_data_address = (lcd_control & LCDC::BGandWindowTileDataArea) ? 0x8000 : 0x8800;
+
+	// https://gbdev.io/pandocs/Tile_Data.html
+	auto getBgTileDataAddress = [&](uint8_t tile_index) -> uint32_t {
+		switch (tile_data_address) {
+		case 0x8000:
+			// 0x8000-0x8fff: index   0 => 255
+			return tile_data_address + (tile_index * TILE_SIZE); // Each tile is 16 bytes
+		case 0x8800:
+			// 0x8800-0x8fff: index 128 => 255 (or -128 => -1)
+			// 0x9000-0x97ff: index   0 => 127
+			if (tile_index <= 127) {
+				return tile_data_address + 0x800 + (tile_index * TILE_SIZE); // Each tile is 16 bytes
+			}
+			else {
+				return tile_data_address + ((tile_index - 128) * TILE_SIZE); // Each tile is 16 bytes
+			}
+		default:
+			VERIFY_NOT_REACHED();
+			return 0;
+		};
+	};
 
 	// -------------------------------------
 	// FIFO Pixel Fetcher
@@ -177,9 +196,9 @@ void PPU::pixelFifo()
 			m_pixel_fifo.state = PixelFifo::State::TileDataHigh;
 
 			// Read tile data
-			m_pixel_fifo.pixels_lsb = Emu::the().readMemory(tile_data_address
-			                                                + (m_pixel_fifo.tile_index * TILE_SIZE) // Each tile is 16 bytes
-			                                                + m_pixel_fifo.tile_line * 2);          // Each tile line is 2 bytes
+			m_pixel_fifo.pixels_lsb = Emu::the().readMemory(
+				getBgTileDataAddress(m_pixel_fifo.tile_index)
+				+ m_pixel_fifo.tile_line * 2); // Each tile line is 2 bytes
 		}
 		break;
 	case PixelFifo::State::TileDataHigh:
@@ -191,10 +210,10 @@ void PPU::pixelFifo()
 			m_pixel_fifo.state = PixelFifo::State::Sleep;
 
 			// Read tile data
-			m_pixel_fifo.pixels_msb = Emu::the().readMemory(tile_data_address
-			                                                + (m_pixel_fifo.tile_index * TILE_SIZE)
-			                                                + m_pixel_fifo.tile_line * 2
-			                                                + 1);
+			m_pixel_fifo.pixels_msb = Emu::the().readMemory(
+				getBgTileDataAddress(m_pixel_fifo.tile_index)
+				+ m_pixel_fifo.tile_line * 2 // Each tile line is 2 bytes
+				+ 1);
 		}
 		break;
 	case PixelFifo::State::Sleep:
