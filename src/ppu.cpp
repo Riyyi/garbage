@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <cstdint> // uint32_t
+#include <cstdint> // uint8_t, uint16_t, uint32_t
 #include <memory>  // std::make_shared
 
 #include "glm/ext/vector_float3.hpp" // glm::vec3
@@ -56,7 +56,7 @@ void PPU::update()
 		}
 		break;
 	case State::PixelTransfer:
-		pixelFifo();
+		updatePixelFifo();
 
 		if (m_lcd_x_coordinate == 160) {
 			m_lcd_x_coordinate = 0;
@@ -112,129 +112,37 @@ void PPU::render()
 	scene.addComponent<Inferno::SpriteComponent>(m_entity, glm::vec4 { 1.0f }, texture);
 }
 
-void PPU::pixelFifo()
+void PPU::resetFrame()
 {
-	LCDC lcd_control = static_cast<LCDC>(Emu::the().readMemory(0xff40));
+	m_state = State::OAMSearch;
+	m_clocks_into_frame = 0;
+	m_lcd_x_coordinate = 0;
+	m_lcd_y_coordinate = 0;
+}
 
-	// Tile map
-	uint32_t bg_tile_map_address = (lcd_control & LCDC::BGTileMapArea) ? 0x9c00 : 0x9800;
-	// uint32_t window_tile_map_address = (lcd_control & LCDC::WindowTileMapArea) ? 0x9c00 : 0x9800;
+// -----------------------------------------
 
-	// Tile data
-	uint32_t tile_data_address = (lcd_control & LCDC::BGandWindowTileDataArea) ? 0x8000 : 0x8800;
-
+uint32_t PPU::getBgTileDataAddress(uint8_t tile_index)
+{
 	// https://gbdev.io/pandocs/Tile_Data.html
-	auto getBgTileDataAddress = [&](uint8_t tile_index) -> uint32_t {
-		switch (tile_data_address) {
-		case 0x8000:
-			// 0x8000-0x8fff: index   0 => 255
-			return tile_data_address + (tile_index * TILE_SIZE); // Each tile is 16 bytes
-		case 0x8800:
-			// 0x8800-0x8fff: index 128 => 255 (or -128 => -1)
-			// 0x9000-0x97ff: index   0 => 127
-			if (tile_index <= 127) {
-				return tile_data_address + 0x800 + (tile_index * TILE_SIZE); // Each tile is 16 bytes
-			}
-			else {
-				return tile_data_address + ((tile_index - 128) * TILE_SIZE); // Each tile is 16 bytes
-			}
-		default:
-			VERIFY_NOT_REACHED();
-			return 0;
-		};
-	};
-
-	// -------------------------------------
-	// FIFO Pixel Fetcher
-
-	switch (m_pixel_fifo.state) {
-	case PixelFifo::State::TileIndex:
-		if (!m_pixel_fifo.step) {
-			m_pixel_fifo.step = true;
+	switch (m_pixel_fifo.tile_data_address) {
+	case 0x8000:
+		// 0x8000-0x8fff: index   0 => 255
+		return m_pixel_fifo.tile_data_address + (tile_index * TILE_SIZE); // Each tile is 16 bytes
+	case 0x8800:
+		// 0x8800-0x8fff: index 128 => 255 (or -128 => -1)
+		// 0x9000-0x97ff: index   0 => 127
+		if (tile_index <= 127) {
+			return m_pixel_fifo.tile_data_address + 0x800 + (tile_index * TILE_SIZE); // Each tile is 16 bytes
 		}
 		else {
-			m_pixel_fifo.step = false;
-			m_pixel_fifo.state = PixelFifo::State::TileDataLow;
-
-			// Viewport
-			// https://gbdev.io/pandocs/Scrolling.html#mid-frame-behavior
-			m_viewport_x = Emu::the().readMemory(0xff43); // TODO: only read lower 3-bits at beginning of scanline
-			m_viewport_y = Emu::the().readMemory(0xff42);
-
-			// Read the tile map index
-			uint16_t offset = (((m_viewport_y + m_lcd_y_coordinate) / TILE_HEIGHT) * 32)
-			                  + ((m_viewport_x + m_pixel_fifo.x_coordinate) / TILE_WIDTH);
-			m_pixel_fifo.x_coordinate += 8;
-			m_pixel_fifo.tile_index = Emu::the().readMemory(bg_tile_map_address + offset) & 0xff;
-
-			// Set the tile line we're currently on
-			m_pixel_fifo.tile_line = (m_viewport_y + m_lcd_y_coordinate) % TILE_HEIGHT;
+			return m_pixel_fifo.tile_data_address + ((tile_index - 128) * TILE_SIZE); // Each tile is 16 bytes
 		}
-		break;
-	case PixelFifo::State::TileDataLow:
-		if (!m_pixel_fifo.step) {
-			m_pixel_fifo.step = true;
-		}
-		else {
-			m_pixel_fifo.step = false;
-			m_pixel_fifo.state = PixelFifo::State::TileDataHigh;
-
-			// Read tile data
-			m_pixel_fifo.pixels_lsb = Emu::the().readMemory(
-				getBgTileDataAddress(m_pixel_fifo.tile_index)
-				+ m_pixel_fifo.tile_line * 2); // Each tile line is 2 bytes
-		}
-		break;
-	case PixelFifo::State::TileDataHigh:
-		if (!m_pixel_fifo.step) {
-			m_pixel_fifo.step = true;
-		}
-		else {
-			m_pixel_fifo.step = false;
-			m_pixel_fifo.state = PixelFifo::State::Sleep;
-
-			// Read tile data
-			m_pixel_fifo.pixels_msb = Emu::the().readMemory(
-				getBgTileDataAddress(m_pixel_fifo.tile_index)
-				+ m_pixel_fifo.tile_line * 2 // Each tile line is 2 bytes
-				+ 1);
-		}
-		break;
-	case PixelFifo::State::Sleep:
-		if (m_pixel_fifo.background.size() <= 9) {
-			m_pixel_fifo.state = PixelFifo::State::Push;
-		}
-		break;
-	case PixelFifo::State::Push:
-		m_pixel_fifo.state = PixelFifo::State::TileIndex;
-
-		for (uint8_t i = 0; i < 8; ++i) {
-			uint8_t color_index = (m_pixel_fifo.pixels_lsb >> (7 - i)
-			                       | ((m_pixel_fifo.pixels_msb >> (7 - i)) << 1))
-			                      & 0x3;
-			m_pixel_fifo.background.push({ color_index, Palette::BGP });
-		}
-		break;
 	default:
 		VERIFY_NOT_REACHED();
+		return 0;
 	};
-
-	// -------------------------------------
-	// Mode 3 Operation
-
-	// The pixel FIFO needs to contain more than 8 pixels to shift one out
-	if (m_pixel_fifo.background.size() > 8) {
-		auto pixel = m_pixel_fifo.background.front();
-		m_pixel_fifo.background.pop();
-
-		uint32_t index = (m_lcd_y_coordinate * SCREEN_WIDTH + m_lcd_x_coordinate) * FORMAT_SIZE;
-		auto color = getPixelColor(pixel.first, pixel.second);
-		m_screen[index + 0] = color[0];
-		m_screen[index + 1] = color[1];
-		m_screen[index + 2] = color[2];
-		m_lcd_x_coordinate++;
-	}
-}
+};
 
 std::array<uint8_t, 3> PPU::getPixelColor(uint8_t color_index, Palette palette)
 {
@@ -266,10 +174,129 @@ std::array<uint8_t, 3> PPU::getPixelColor(uint8_t color_index, Palette palette)
 	return {};
 }
 
-void PPU::resetFrame()
+void PPU::updatePixelFifo()
 {
-	m_state = State::OAMSearch;
-	m_clocks_into_frame = 0;
-	m_lcd_x_coordinate = 0;
-	m_lcd_y_coordinate = 0;
+	switch (m_pixel_fifo.state) {
+	case PixelFifo::State::TileIndex:
+		tileIndex();
+		break;
+	case PixelFifo::State::TileDataLow:
+		tileDataLow();
+		break;
+	case PixelFifo::State::TileDataHigh:
+		tileDataHigh();
+		break;
+	case PixelFifo::State::Sleep:
+		sleep();
+		break;
+	case PixelFifo::State::Push:
+		pushFifo();
+		break;
+	default:
+		VERIFY_NOT_REACHED();
+	};
+
+	pushPixel();
+}
+
+void PPU::tileIndex()
+{
+	if (!m_pixel_fifo.step) {
+		m_pixel_fifo.step = true;
+	}
+	else {
+		m_pixel_fifo.step = false;
+		m_pixel_fifo.state = PixelFifo::State::TileDataLow;
+
+		LCDC lcd_control = static_cast<LCDC>(Emu::the().readMemory(0xff40));
+
+		// Tile map
+		uint32_t bg_tile_map_address = (lcd_control & LCDC::BGTileMapArea) ? 0x9c00 : 0x9800;
+		// uint32_t window_tile_map_address = (lcd_control & LCDC::WindowTileMapArea) ? 0x9c00 : 0x9800;
+
+		// Tile data
+		m_pixel_fifo.tile_data_address = (lcd_control & LCDC::BGandWindowTileDataArea) ? 0x8000 : 0x8800;
+
+		// Viewport
+		// https://gbdev.io/pandocs/Scrolling.html#mid-frame-behavior
+		m_pixel_fifo.viewport_x = Emu::the().readMemory(0xff43); // TODO: only read lower 3-bits at beginning of scanline
+		m_pixel_fifo.viewport_y = Emu::the().readMemory(0xff42);
+
+		// Read the tile map index
+		uint16_t offset = (((m_pixel_fifo.viewport_y + m_lcd_y_coordinate) / TILE_HEIGHT) * 32)
+		                  + ((m_pixel_fifo.viewport_x + m_pixel_fifo.x_coordinate) / TILE_WIDTH);
+		m_pixel_fifo.x_coordinate += 8;
+		m_pixel_fifo.tile_index = Emu::the().readMemory(bg_tile_map_address + offset);
+
+		// Set the tile line we're currently on
+		m_pixel_fifo.tile_line = (m_pixel_fifo.viewport_y + m_lcd_y_coordinate) % TILE_HEIGHT;
+	}
+}
+
+void PPU::tileDataLow()
+{
+	if (!m_pixel_fifo.step) {
+		m_pixel_fifo.step = true;
+	}
+	else {
+		m_pixel_fifo.step = false;
+		m_pixel_fifo.state = PixelFifo::State::TileDataHigh;
+
+		// Read tile data
+		m_pixel_fifo.pixels_lsb = Emu::the().readMemory(
+			getBgTileDataAddress(m_pixel_fifo.tile_index)
+			+ m_pixel_fifo.tile_line * 2); // Each tile line is 2 bytes
+	}
+}
+
+void PPU::tileDataHigh()
+{
+	if (!m_pixel_fifo.step) {
+		m_pixel_fifo.step = true;
+	}
+	else {
+		m_pixel_fifo.step = false;
+		m_pixel_fifo.state = PixelFifo::State::Sleep;
+
+		// Read tile data
+		m_pixel_fifo.pixels_msb = Emu::the().readMemory(
+			getBgTileDataAddress(m_pixel_fifo.tile_index)
+			+ m_pixel_fifo.tile_line * 2 // Each tile line is 2 bytes
+			+ 1);
+	}
+}
+
+void PPU::sleep()
+{
+	if (m_pixel_fifo.background.size() <= TILE_WIDTH + 1) {
+		m_pixel_fifo.state = PixelFifo::State::Push;
+	}
+}
+
+void PPU::pushFifo()
+{
+	m_pixel_fifo.state = PixelFifo::State::TileIndex;
+
+	for (uint8_t i = 0; i < TILE_WIDTH; ++i) {
+		uint8_t color_index = (m_pixel_fifo.pixels_lsb >> (7 - i)
+		                       | ((m_pixel_fifo.pixels_msb >> (7 - i)) << 1))
+		                      & 0x3;
+		m_pixel_fifo.background.push({ color_index, Palette::BGP });
+	}
+}
+
+void PPU::pushPixel()
+{
+	// The pixel FIFO needs to contain more than 8 pixels to shift one out
+	if (m_pixel_fifo.background.size() > 8) {
+		auto pixel = m_pixel_fifo.background.front();
+		m_pixel_fifo.background.pop();
+
+		uint32_t index = (m_lcd_y_coordinate * SCREEN_WIDTH + m_lcd_x_coordinate) * FORMAT_SIZE;
+		auto color = getPixelColor(pixel.first, pixel.second);
+		m_screen[index + 0] = color[0];
+		m_screen[index + 1] = color[1];
+		m_screen[index + 2] = color[2];
+		m_lcd_x_coordinate++;
+	}
 }

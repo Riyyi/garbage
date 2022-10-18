@@ -62,13 +62,16 @@ public:
 			Push,
 		};
 
-		State state = State::TileIndex;
-		bool step = false;
-		uint8_t x_coordinate = 0;
-		uint8_t tile_index = 0;
-		uint8_t tile_line = 0;
-		uint8_t pixels_lsb = 0;
-		uint8_t pixels_msb = 0;
+		State state { State::TileIndex };
+		bool step { false };
+		uint32_t tile_data_address { 0 };
+		uint8_t viewport_x { 0 };
+		uint8_t viewport_y { 0 };
+		uint8_t x_coordinate { 0 };
+		uint8_t tile_index { 0 };
+		uint8_t tile_line { 0 };
+		uint8_t pixels_lsb { 0 };
+		uint8_t pixels_msb { 0 };
 
 		using Fifo = std::queue<std::pair<uint8_t, Palette>>; // colorID, source
 
@@ -78,20 +81,27 @@ public:
 
 	void update() override;
 	void render();
-
-	void pixelFifo();
-	std::array<uint8_t, 3> getPixelColor(uint8_t color_index, Palette palette);
-
 	void resetFrame();
 
 private:
+	uint32_t getBgTileDataAddress(uint8_t tile_index);
+	std::array<uint8_t, 3> getPixelColor(uint8_t color_index, Palette palette);
+
+	void updatePixelFifo();
+	void tileIndex();
+	void tileDataLow();
+	void tileDataHigh();
+	void sleep();
+	void pushFifo();
+	void pushPixel();
+
+	// -------------------------------------
+
 	State m_state { State::OAMSearch };
 	uint32_t m_clocks_into_frame { 0 };
 	uint32_t m_lcd_x_coordinate { 0 };
 	uint32_t m_lcd_y_coordinate { 0 }; // Note: includes V-Blank
 
-	uint8_t m_viewport_x { 0 };
-	uint8_t m_viewport_y { 0 };
 	PixelFifo m_pixel_fifo;
 
 	uint32_t m_entity { 0 };
